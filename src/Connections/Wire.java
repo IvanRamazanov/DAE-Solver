@@ -42,7 +42,7 @@ public class Wire{
     private List<CrossToCrossLine> ContContList =new ArrayList<>();
     List<List<Cross>> dotList=new ArrayList<>();
     
-    public static final EventHandler WC_MOUSE_DRAG = (EventHandler<MouseEvent>) new EventHandler<MouseEvent>(){
+    public static final EventHandler WC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
         public void handle(MouseEvent me) {
             if(!Wire.activeWireConnect.getIsPlugged().get()){
@@ -52,7 +52,7 @@ public class Wire{
             me.consume();
         }
     };
-    public static final EventHandler WC_MOUSE_RELEAS= (EventHandler<MouseEvent>) new EventHandler<MouseEvent>() {
+    public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent me) {
             //Wire.activeWireConnect.toFront();
@@ -614,8 +614,8 @@ public class Wire{
                         dotList.add(list);
                         
                         
-                        ((Line)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                        ((Line)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+                        ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+                        ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
                         newCont.view.startFullDrag();
                         itsWire.getWireContacts().forEach(wc->{
                             wc.show();
@@ -628,8 +628,8 @@ public class Wire{
     //                    });
                         WireMarker newCont=new WireMarker(itsWire,me.getX(), me.getY());
                         Wire.activeWireConnect=newCont;
-                        ((Line)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                        ((Line)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+                        ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+                        ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
                         newCont.view.startFullDrag();
                         itsWire.addContToCont(WireMarker.this,newCont);
     //                    itsWire.reBindContacts()
@@ -643,7 +643,7 @@ public class Wire{
             itsLines.getEndY().bind(bindY);
 
             //EVENT ZONE
-            EventHandler connDragDetectHandle = (EventHandler<MouseEvent>) (MouseEvent me) -> {
+            EventHandler connDragDetectHandle =(EventHandler<MouseEvent>) (MouseEvent me) -> {
                 if(me.getButton()==MouseButton.PRIMARY){
                     this.pushToBack();
                     view.startFullDrag();
@@ -651,17 +651,17 @@ public class Wire{
                 me.consume();
             };            
 
-            EventHandler dragMouseReleas = (EventHandler<MouseEvent>) (MouseEvent me) -> {
+            EventHandler dragMouseReleas = (EventHandler<MouseEvent>)(MouseEvent me) -> {
                 Wire.activeWireConnect=null;
                 me.consume();
             };
 
-            EventHandler enterMouse= (EventHandler<MouseEvent>) (MouseEvent me) ->{
+            EventHandler enterMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
                 view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
                 view.setCursor(Cursor.HAND);
             };
 
-            EventHandler exitMouse= (EventHandler<MouseEvent>) (MouseEvent me) ->{
+            EventHandler exitMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
                 view.setEffect(null);
                 view.setCursor(Cursor.DEFAULT);
             };

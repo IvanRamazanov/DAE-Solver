@@ -393,7 +393,7 @@ public class Painter {
         plotAndAxArea.setLeft(left);
         plotAndAxArea.setRight(right);
         plotAndAxArea.setTop(top);
-        dragEvent=(EventHandler<MouseEvent>) (MouseEvent e) -> {
+        dragEvent=(EventHandler<MouseEvent>)(MouseEvent e) -> {
             double x=e.getX();
             if(x<0.0)
                 x=0.0;

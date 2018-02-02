@@ -393,11 +393,11 @@ public class MatrixEqu {
                     }
                     if(A.get(0).get(i).getRoot() instanceof Const){
                         if(((Const)A.get(0).get(i).getRoot()).getValue()!=0.0){
-                            double k=1.0-2.0*((double)((i)%2));
+                            double k=1.0-2.0*((i)%2);
                             result.add(StringGraph.mul(StringGraph.mul(A.get(0).get(i), det_s(M), 1), (int) k));
                         }
                     }else{
-                        double k=1.0-2.0*((double)((i)%2));
+                        double k=1.0-2.0*((i)%2);
                         result.add(StringGraph.mul(StringGraph.mul(A.get(0).get(i), det_s(M), 1), (int) k));
                     }
                     
@@ -785,7 +785,7 @@ public class MatrixEqu {
         for(int i=0;i<nRows;i++){
             out.add(new ArrayList(nCols));
             for(int j=0;j<nCols;j++){
-                double k=1.0-2.0*((double)((i+j)%2));
+                double k=1.0-2.0*((i+j)%2);
                 List<List<Double>> M=new ArrayList(nRows);
                 for(List<Double> row:inp) M.add(new ArrayList(row));
                 M.remove(i);
@@ -804,7 +804,7 @@ public class MatrixEqu {
         for(int i=0;i<nRows;i++){
             out.add(new ArrayList(nCols));
             for(int j=0;j<nCols;j++){
-                double k=1.0-2.0*((double)((i+j)%2));
+                double k=1.0-2.0*((i+j)%2);
                 List<List<StringGraph>> M=new ArrayList(nRows);
                 for(List<StringGraph> row:inp) M.add(new ArrayList(row));
                 M.remove(i);

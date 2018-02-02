@@ -67,7 +67,7 @@ public class ListOfElements {
             cat.elements.add(new Voltmeter(true));
             cat.elements.add(new Ampermeter(true));
         }
-        if("Simulink".equals(type)){
+        if("Math".equals(type)){
             cat.elements.add(new Scope(true));
             cat.elements.add(new Gain(true));
             cat.elements.add(new Sinus(true));

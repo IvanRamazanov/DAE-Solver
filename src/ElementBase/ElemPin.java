@@ -42,23 +42,23 @@ public class ElemPin extends Circle{
         this.setRadius(4);
 
         //--Events--
-        EventHandler enterMouse= (EventHandler<MouseEvent>) (MouseEvent me) ->{
+        EventHandler enterMouse=(EventHandler<MouseEvent>) (MouseEvent me) ->{
             this.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
             this.setCursor(Cursor.HAND);
         };
-        EventHandler exitMouse= (EventHandler<MouseEvent>) (MouseEvent me) ->{
+        EventHandler exitMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
             this.setEffect(null);
             this.setCursor(Cursor.DEFAULT);
         };
-        EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>) (MouseDragEvent me) -> {
+        EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
             if(Wire.activeWireConnect!=null&&this.wireCont==null){
                 Wire.activeWireConnect.getWire().setEnd(this);
                 this.toFront();
             }
             
         };
-        EventHandler dragExitHndl =(EventHandler<MouseDragEvent>) (MouseDragEvent me) -> {
-
+        EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
+            
             if(Wire.activeWireConnect!=null){
                 //if(Wire.activeWireConnect.getElemContact()!=this){
                 if(Wire.activeWireConnect.getIsPlugged().getValue()){
@@ -66,31 +66,31 @@ public class ElemPin extends Circle{
                         case PRIMARY:
                             if(me.isPrimaryButtonDown()){
 //                                    this.wireCont=null;
-                                Wire.activeWireConnect.unPlug();
-                                this.setOpacity(1);
+Wire.activeWireConnect.unPlug();
+this.setOpacity(1);
                             }
                             break;
                         case SECONDARY:
                             if(me.isSecondaryButtonDown()){
 //                                    this.wireCont=null;
-                                Wire.activeWireConnect.unPlug();
-                                this.setOpacity(1);
+Wire.activeWireConnect.unPlug();
+this.setOpacity(1);
                             }
                             break;
                     }
                 }
             }
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
 //                if(me.getGestureSource()==null){
 //                    me.consume();
 //                }else   if(((WireConnect)me.getGestureSource()).getElemContact()==this
@@ -115,11 +115,11 @@ public class ElemPin extends Circle{
 //                    }                    
 //                    me.consume();
 //                }
-                
-                
-                
-                
-                
+
+
+
+
+
         };
         this.addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){

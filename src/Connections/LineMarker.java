@@ -34,7 +34,7 @@ public abstract class LineMarker{
     protected EventHandler lineDraggedDetect;
     protected Shape view;
     
-    public static final EventHandler MC_MOUSE_DRAG = (EventHandler<MouseEvent>) new EventHandler<MouseEvent>(){
+    public static final EventHandler MC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
         public void handle(MouseEvent me) {
             if(!MathMarker.activeMathConnect.getIsPlugged().get()){
@@ -43,7 +43,7 @@ public abstract class LineMarker{
             me.consume();
         }
     };
-    public static final EventHandler MC_MOUSE_RELEAS= (EventHandler<MouseEvent>) new EventHandler<MouseEvent>() {
+    public static final EventHandler MC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent me) {
             MathMarker.activeMathConnect.eraseDragSource();

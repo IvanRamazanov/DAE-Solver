@@ -85,9 +85,9 @@ public abstract class ShemeElement extends Element{
     @Override
     public void delete(){        
         this.contacts.forEach(elemCont->{
-            ((ElemPin)elemCont).clear();
-            if(((ElemPin)elemCont).wireCont!=null){
-                ((ElemPin)elemCont).wireCont.unPlug();
+            elemCont.clear();
+            if(elemCont.wireCont!=null){
+                elemCont.wireCont.unPlug();
             }
         });        
         RaschetKz.ElementList.remove(this);
