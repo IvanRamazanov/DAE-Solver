@@ -46,28 +46,19 @@ import raschetkz.RaschetKz;
  */
 public abstract class ShemeElement extends Element{
 //    protected boolean Dymamic=false;
-    protected List<Parameter> parameters=new ArrayList();
-    protected List<InitParam> initials=new ArrayList();
+
     protected List<ElemPin> contacts=new ArrayList();
     protected List<MathInPin> mathInputs=new ArrayList();
     protected List<MathOutPin> mathOutputs=new ArrayList();
     private double contStep=15,maxX,mathContOffset;
     
-    public final static DataFormat customFormat = new DataFormat("helloworld.custom");
+    
     
     public ShemeElement(){
         super();
         maxX=viewPane.getBoundsInLocal().getMaxX();
         mathContOffset=viewPane.getBoundsInLocal().getMaxY()/2;
-        
-        this.viewPane.setOnDragDetected(de->{
-            if(de.getButton().equals(MouseButton.SECONDARY)){
-                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
-                ClipboardContent content = new ClipboardContent();
-                content.put(customFormat, new ElemSerialization(this));
-                db.setContent(content);
-            }
-        });
+
     }
     
     public ShemeElement(boolean catalog){
@@ -76,15 +67,7 @@ public abstract class ShemeElement extends Element{
 //            contacts.add(new ElemPin(this));    //for extend by gost
 //            contacts.add(new ElemPin(this));
 //        }
-        
-        this.viewPane.setOnDragDetected(de->{
-            if(de.getButton().equals(MouseButton.SECONDARY)){
-                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
-                ClipboardContent content = new ClipboardContent();
-                content.put(customFormat, new ElemSerialization(this));
-                db.setContent(content);
-            }
-        });
+
     }
     
     public abstract String[] getStringFunction();
@@ -217,26 +200,7 @@ public abstract class ShemeElement extends Element{
     @Override
     public void init(){}; 
 
-    /**
-     * @return the parameters
-     */
-    public List<Parameter> getParameters() {
-        return parameters;
-    }
-
-    /**
-     * @param parameters the parameters to set
-     */
-    public void setParameters(List<Parameter> parameters) {
-        this.parameters = parameters;
-    }
-
-    /**
-     * @return the initials
-     */
-    public List<InitParam> getInitials() {
-        return initials;
-    }
+    
     
     final protected void addHiddenMathContact(char ch){
         if(ch=='i'){
@@ -270,20 +234,7 @@ public abstract class ShemeElement extends Element{
         }
     }
     
-    public List<Double> getInitialVals() {
-        List<Double> out=new ArrayList();
-        initials.forEach(v->{
-            out.add(v.getDoubleValue());
-        });
-        return out;
-    }
 
-    /**
-     * @param initials the initials to set
-     */
-    public void setInitials(List<InitParam> initials) {
-        this.initials = initials;
-    }
 
     /**
      * @return the inputs
@@ -298,58 +249,6 @@ public abstract class ShemeElement extends Element{
     public List<MathOutPin> getOutputs() {
         return mathOutputs;
     }
-    
-    
-    
-    public class InitParam extends Parameter{
-        boolean priority;
-        ComboBox box;
-        List<Node> layout;
-        
-        /**
-         *
-         * @param name
-         * @param initVal
-         */
-        public InitParam(String name, double initVal){
-            this.name=name;
-            this.initVal=initVal;
-            this.layout=new ArrayList();
-            this.text=new TextField(Double.toString(initVal));
-            layout.add(new Label(name));
-            box=new ComboBox();
-            box.getItems().addAll("High","Low");
-            box.setValue("Low");
-            //box.setMinWidth(box.getc);
-            layout.add(box);
-            layout.add(text);
-        }
 
-        @Override
-        void update(){
-            DoubleStringConverter conv=new DoubleStringConverter();
-            this.initVal=conv.fromString(this.text.getText());
-            this.priority = box.getValue().equals("High");
-        }
-
-        public boolean getPriority(){
-            return(this.priority);
-        }
-        
-        public void setPriority(boolean val){
-            this.priority=val;
-            if(val)
-                box.setValue("High");
-            else
-                box.setValue("Low");
-        }
-        
-//        @Override
-        public List<Node> getLayouts(){
-            return this.layout;
-        }
-    }
-    
-    
 }
 

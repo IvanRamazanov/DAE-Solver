@@ -38,6 +38,7 @@ public class Ramp extends MathElement{
     public Ramp(){
         super();
         addMathContact('o');
+        
         slope=new Parameter("Slope",1);
         parameters.add(slope);
         ton=new Parameter("ON time",0);
@@ -47,6 +48,11 @@ public class Ramp extends MathElement{
     
     public Ramp(boolean flag){
         super(flag);
+        
+        slope=new Parameter("Slope",1);
+        parameters.add(slope);
+        ton=new Parameter("ON time",0);
+        parameters.add(ton);
         name="Ramp";
     }
     

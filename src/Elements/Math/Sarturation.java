@@ -19,17 +19,24 @@ public class Sarturation extends MathElement {
     
     public Sarturation(){
         super();
+        addMathContact('i');
+        addMathContact('o');
+        
         levelUp=new Parameter("Upper", 1);
         levelDown=new Parameter("Lower", -1);
         parameters.add(levelUp);
         parameters.add(levelDown);
-        addMathContact('i');
-        addMathContact('o');
+
         name="Насыщение";
     }
     
     public Sarturation(boolean flag){
         super(flag);
+        
+        levelUp=new Parameter("Upper", 1);
+        levelDown=new Parameter("Lower", -1);
+        parameters.add(levelUp);
+        parameters.add(levelDown);
         name="Насыщение";
     }
     

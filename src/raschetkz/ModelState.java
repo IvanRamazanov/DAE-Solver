@@ -8,6 +8,7 @@ package raschetkz;
 import Connections.MathMarker;
 import Connections.Wire;
 import ElementBase.ElemPin;
+import ElementBase.Element;
 import ElementBase.MathInPin;
 import ElementBase.MathElement;
 import ElementBase.MathOutPin;
@@ -115,7 +116,7 @@ import javafx.scene.layout.Pane;
                     baos.write(temp.array(), 0, 8);
                 }
                 //inits
-                for(ShemeElement.InitParam ip:shE.getInitials()){
+                for(Element.InitParam ip:shE.getInitials()){
                     temp.putDouble(0, ip.getDoubleValue());
                     baos.write(temp.array(), 0, 8);// value
                     if(ip.getPriority()){

@@ -42,11 +42,15 @@ public class Mux extends MathElement{
         addMathContact('i');
         addMathContact('i');
         addMathContact('o');
+        
         name="Мукс";
     }
     
     public Mux(boolean flag){
         super(flag);
+        
+        inpValue=new Parameter("Кол-во входов", 2);
+        parameters.add(inpValue);
         name="Мукс";
     }
     

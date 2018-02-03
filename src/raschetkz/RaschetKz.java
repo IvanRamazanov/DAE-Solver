@@ -9,6 +9,7 @@ import Connections.MathMarker;
 import MathPack.Rechatel;
 import Connections.Wire;
 import ElementBase.ElemSerialization;
+import ElementBase.Element;
 import ElementBase.ListOfElements;
 import ElementBase.MathElement;
 import javafx.application.Application;
@@ -26,12 +27,7 @@ import java.util.List;
 import javafx.scene.input.MouseEvent;
 import ElementBase.ShemeElement;
 import MathPack.WorkSpace;
-import com.sun.media.jfxmedia.AudioClip;
 import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -200,10 +196,15 @@ public class RaschetKz extends Application{
         scrllPane.setOnDragDropped(de->{
             
             ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(ShemeElement.customFormat);
-            ShemeElement obj=content.deserialize();
+            Element obj=content.deserialize();
             obj.getView().setLayoutX(de.getX());
             obj.getView().setLayoutY(de.getY());
-            ElementList.add(obj);
+            if(obj instanceof ShemeElement)
+                ElementList.add((ShemeElement)obj);
+            else if(obj instanceof MathElement)
+                MathElemList.add((MathElement)obj);
+            else
+                throw new Error("error: incompatible types!");
             
             de.setDropCompleted(true);
             de.consume();

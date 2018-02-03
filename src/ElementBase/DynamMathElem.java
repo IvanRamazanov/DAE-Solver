@@ -23,12 +23,15 @@ public class DynamMathElem extends MathElement{
         X_old=new ArrayList();
         dX=new ArrayList();
         x0=new ArrayList();
+        
         x0.add(new Parameter("init X", 0));
         parameters.addAll(x0);
     }
     
     public DynamMathElem(boolean flag){
         super(flag);
+        
+        parameters.add(new Parameter("init X", 0));
     }
     
     //Only for Int!!!!!!!!!!

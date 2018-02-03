@@ -19,15 +19,19 @@ public class Gain extends MathElement{
     
     public Gain(){
         super();
-        gainValue=new Parameter("Gain", 2);
-        parameters.add(gainValue);
         addMathContact('i');
         addMathContact('o');
+        
+        gainValue=new Parameter("Gain", 2);
+        parameters.add(gainValue);
         name="Gain";
     }
     
     public Gain(boolean flag){
         super(flag);
+        
+        gainValue=new Parameter("Gain", 2);
+        parameters.add(gainValue);
         name="Gain";
     }
     

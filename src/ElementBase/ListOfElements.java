@@ -28,7 +28,7 @@ public class ListOfElements {
         list.add(new Categorie("Semiconductor"));
         list.add(new Categorie("Электропривода"));
         list.add(new Categorie("Измерения"));
-        list.add(new Categorie("Simulink"));
+        list.add(new Categorie("Math"));
     }
     public List<Categorie> getCategories() {
         return(list);

@@ -8,7 +8,7 @@ package MathPack;
 import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
 import ElementBase.ShemeElement;
-import ElementBase.ShemeElement.InitParam;
+import ElementBase.Element.InitParam;
 import static MathPack.MatrixEqu.rank;
 import java.io.BufferedWriter;
 import java.io.FileWriter;

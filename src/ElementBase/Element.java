@@ -5,8 +5,10 @@
  */
 package ElementBase;
 
+import static ElementBase.ShemeElement.customFormat;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,15 +17,20 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Pane;
@@ -44,6 +51,10 @@ public abstract class Element {
     protected boolean catalogFlag=false;
     Point2D initialPoint,anchorPoint;
     protected String name;
+    
+    public final static DataFormat customFormat = new DataFormat("helloworld.custom");
+    protected List<Parameter> parameters=new ArrayList();
+    protected List<InitParam> initials=new ArrayList();
     
     EventHandler<MouseEvent> usualHandler = (MouseEvent me)->{
         if(me.getButton()==MouseButton.PRIMARY){
@@ -95,6 +106,15 @@ public abstract class Element {
         cm.getItems().addAll(deleteMenu,paramMenu,rotate);
         imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
         drawBoard.getChildren().add(this.getView());
+        
+        this.viewPane.setOnDragDetected(de->{
+            if(de.getButton().equals(MouseButton.SECONDARY)){
+                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
+                ClipboardContent content = new ClipboardContent();
+                content.put(customFormat, new ElemSerialization(this));
+                db.setContent(content);
+            }
+        });
     }
     
     Element(boolean catalog){
@@ -111,6 +131,15 @@ public abstract class Element {
             
             getView(); //for creation!
         }
+        
+        this.viewPane.setOnDragDetected(de->{
+            if(de.getButton().equals(MouseButton.SECONDARY)){
+                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
+                ClipboardContent content = new ClipboardContent();
+                content.put(customFormat, new ElemSerialization(this));
+                db.setContent(content);
+            }
+        });
     }
     
     void catElemCreation(){
@@ -225,6 +254,42 @@ public abstract class Element {
         return name;
     }
     
+    /**
+     * @return the parameters
+     */
+    public List<Parameter> getParameters() {
+        return parameters;
+    }
+
+    /**
+     * @param parameters the parameters to set
+     */
+    public void setParameters(List<Parameter> parameters) {
+        this.parameters = parameters;
+    }
+
+    /**
+     * @return the initials
+     */
+    public List<InitParam> getInitials() {
+        return initials;
+    }
+    
+        public List<Double> getInitialVals() {
+        List<Double> out=new ArrayList();
+        initials.forEach(v->{
+            out.add(v.getDoubleValue());
+        });
+        return out;
+    }
+
+    /**
+     * @param initials the initials to set
+     */
+    public void setInitials(List<InitParam> initials) {
+        this.initials = initials;
+    }
+    
     
     public class Parameter{
         double initVal=0;
@@ -277,5 +342,54 @@ public abstract class Element {
 //        public List<Node> getLayout(){
 //            return layout;
 //        }
+    }
+    
+    public class InitParam extends Parameter{
+        boolean priority;
+        ComboBox box;
+        List<Node> layout;
+        
+        /**
+         *
+         * @param name
+         * @param initVal
+         */
+        public InitParam(String name, double initVal){
+            this.name=name;
+            this.initVal=initVal;
+            this.layout=new ArrayList();
+            this.text=new TextField(Double.toString(initVal));
+            layout.add(new Label(name));
+            box=new ComboBox();
+            box.getItems().addAll("High","Low");
+            box.setValue("Low");
+            //box.setMinWidth(box.getc);
+            layout.add(box);
+            layout.add(text);
+        }
+
+        @Override
+        void update(){
+            DoubleStringConverter conv=new DoubleStringConverter();
+            this.initVal=conv.fromString(this.text.getText());
+            this.priority = box.getValue().equals("High");
+        }
+
+        public boolean getPriority(){
+            return(this.priority);
+        }
+        
+        public void setPriority(boolean val){
+            this.priority=val;
+            if(val)
+                box.setValue("High");
+            else
+                box.setValue("Low");
+        }
+        
+//        @Override
+        public List<Node> getLayouts(){
+            return this.layout;
+        }
     }
 }

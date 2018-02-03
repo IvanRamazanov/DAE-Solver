@@ -24,7 +24,7 @@
 package ElementBase;
 
 import ElementBase.Element.Parameter;
-import ElementBase.ShemeElement.InitParam;
+import ElementBase.Element.InitParam;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -36,11 +36,11 @@ import java.util.logging.Logger;
  * @author Ivan
  */
 public class ElemSerialization implements Serializable{
-        private String elemName;
-        private double[] initValue,paramValue;
-        private boolean[] priorities;
+        private final String elemName;
+        private final double[] initValue,paramValue;
+        private final boolean[] priorities;
         
-        ElemSerialization(ShemeElement she){
+        ElemSerialization(Element she){
             this.elemName=she.getClass().getName();
             initValue=new double[she.getInitials().size()];
             paramValue=new double[she.getParameters().size()];
@@ -48,31 +48,31 @@ public class ElemSerialization implements Serializable{
             
             int i=0;
             for(Parameter p:she.getParameters()){
-                paramValue[++i]=p.getDoubleValue();
+                paramValue[i++]=p.getDoubleValue();
             }
             i=0;
             for(InitParam p:she.getInitials()){
                 initValue[i]=p.getDoubleValue();
-                priorities[++i]=p.getPriority();
+                priorities[i++]=p.getPriority();
             }
             
         }
         
-        public ShemeElement deserialize(){
-            ShemeElement out=null;
+        public Element deserialize(){
+            Element out=null;
             try {
                 Class<?> clas=Class.forName(elemName);
                 Constructor<?> ctor=clas.getConstructor();
-                out=(ShemeElement)ctor.newInstance(new Object[] {});
+                out=(Element)ctor.newInstance(new Object[] {});
                 
                 int i=0;
                 for(Parameter p:out.getParameters()){
-                    p.setValue(paramValue[++i]);
+                    p.setValue(paramValue[i++]);
                 }
-                
+                i=0;
                 for(InitParam p:out.getInitials()){
                     p.setValue(initValue[i]);
-                    p.setPriority(priorities[++i]);
+                    p.setPriority(priorities[i++]);
                 }
             } catch (Exception ex) {
                 Logger.getLogger(ElemSerialization.class.getName()).log(Level.SEVERE, null, ex);

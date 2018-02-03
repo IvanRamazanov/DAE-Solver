@@ -29,8 +29,7 @@ public abstract class MathElement extends Element{
     protected List<MathInPin> inputs;
     protected List<MathOutPin> outputs;
     public static MathMarker itsMathConnect;
-    protected List<Parameter> parameters;
-    private double contStep=15;
+    private final double contStep=15;
     private double maxX;
     
     public MathElement(){

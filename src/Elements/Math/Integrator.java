@@ -16,11 +16,13 @@ public class Integrator extends DynamMathElem{
         super();
         addMathContact('i');
         addMathContact('o');
+        
         name="Интегратор";
     }
     
     public Integrator(boolean flag){
         super(flag);
+        
         name="Интегратор";
     }
 }

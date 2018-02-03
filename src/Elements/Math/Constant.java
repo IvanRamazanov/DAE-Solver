@@ -37,6 +37,7 @@ public class Constant extends MathElement{
     public Constant(){
         super();
         addMathContact('o');
+        
         apmlitude=new Parameter("Aplitude",1);
         parameters.add(apmlitude);
         name="Константа";
@@ -44,6 +45,9 @@ public class Constant extends MathElement{
     
     public Constant(boolean flag){
         super(flag);
+        
+        apmlitude=new Parameter("Aplitude",1);
+        parameters.add(apmlitude);
         name="Константа";
     }
     
