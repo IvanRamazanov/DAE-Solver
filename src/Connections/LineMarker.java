@@ -132,7 +132,7 @@ public abstract class LineMarker{
     }
     
     public void setStartPoint(double x,double y){
-        itsLines.setCrossMarkerXY(x, y);
+        itsLines.setStartXY(x, y);
     }
     
     /**

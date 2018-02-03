@@ -204,15 +204,16 @@ public class ConnectLine {
         diacive=true;
     }
 
-    List<ExtLine> getLines(){
+    final List<ExtLine> getLines(){
         return this.lines;
     }
     
     void delete(){
         raschetkz.RaschetKz.drawBoard.getChildren().removeAll(lines);
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(getStartMarker());
-        getStartX().unbind();
-        getStartY().unbind();
+//        raschetkz.RaschetKz.drawBoard.getChildren().remove(getStartMarker());
+//        getStartX().unbind();
+//        getStartY().unbind();
+        getStartMarker().delete();
         getEndX().unbind();
         getEndY().unbind();
 //        startPoint=null;
@@ -224,7 +225,7 @@ public class ConnectLine {
     /**
      * @param lineDraggDetect the lineDragDetect to set
      */
-    public void setLineDragDetect(EventHandler lineDraggDetect) {
+    public final void setLineDragDetect(EventHandler lineDraggDetect) {
         this.lineDragDetect = lineDraggDetect;
         for(Line line:lines)
             line.addEventHandler(MouseDragEvent.DRAG_DETECTED,lineDragDetect);
@@ -271,14 +272,14 @@ public class ConnectLine {
     /**
      * @return the endX
      */
-    public SimpleDoubleProperty getEndX() {
+    public final SimpleDoubleProperty getEndX() {
         return endX;
     }
 
     /**
      * @return the endY
      */
-    public SimpleDoubleProperty getEndY() {
+    public final SimpleDoubleProperty getEndY() {
         return endY;
     }
     
@@ -287,7 +288,7 @@ public class ConnectLine {
      * @param x
      * @param y 
      */
-    public void setCrossMarkerXY(double x,double y) {
+    public final void setStartXY(double x,double y) {
         getStartMarker().setCenterX(x);
         getStartMarker().setCenterY(y);
     }
@@ -309,7 +310,7 @@ public class ConnectLine {
     /**
      * @return the crossMarker
      */
-    public Cross getStartMarker() {
+    public final Cross getStartMarker() {
         return startMarker;
     }
     

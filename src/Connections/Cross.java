@@ -79,4 +79,9 @@ public class Cross extends Circle{
         return owner;
     }
     
+    public void delete(){
+        unbind();
+        raschetkz.RaschetKz.drawBoard.getChildren().remove(this);
+        owner=null;
+    }
 }

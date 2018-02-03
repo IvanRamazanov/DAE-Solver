@@ -20,16 +20,16 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
 import javafx.scene.transform.Transform;
 import raschetkz.RaschetKz;
-
 
 /**
  *
@@ -47,15 +47,13 @@ public class Wire{
         public void handle(MouseEvent me) {
             if(!Wire.activeWireConnect.getIsPlugged().get()){
                 Wire.activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
-//                centerX.set(me.getX());
             }
             me.consume();
         }
     };
     public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
         @Override
-        public void handle(MouseEvent me) {
-            //Wire.activeWireConnect.toFront();
+        public void handle(MouseEvent me){
             Wire.activeWireConnect=null;
             ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
             ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
@@ -75,7 +73,6 @@ public class Wire{
         //num of CrToCrWires
         fis.read(temp.array(),0,4);
         int CrToCrNum=temp.getInt(0);
-//                    Wire w=new Wire();
         for(int j=0;j<subNum;j++){ //num of subMarkers
             //index of EC
             fis.read(temp.array(),0,4);
@@ -130,23 +127,16 @@ public class Wire{
                     dotList.get(ii).add(null);
                 dotList.get(ii).set(jj,wm.getItsLine().getStartMarker());
             }
-
             //set up wireCont
             if(indx!=-1){
                 ElemPin ECofWC=ECList.get(indx);
                 wm.setElemContact(ECofWC);
                 ECofWC.setWirePointer(wm);
                 if(redFlag==1){ //?????????? must be no EC
-                    //wm.setElemContact(ECofWC);
-                    
                     wm.setIsPlugged(false);
-//                    wm.getBindX().set(ex);
-//                    wm.getBindY().set(ey);
                 }else{
                     //create cont
-
                     if(subNum==2){
-                        
                         // create second one
                         fis.read(temp.array(),0,4);   //index of EC
                         indx=temp.getInt(0);
@@ -184,14 +174,7 @@ public class Wire{
                         ECofWC.bindWCstartProp(wm);
                         break;
                     }
-//                    else{// bound vals cannot be set !!!!!!!!!!!!?????????
-//                        wc=addContact(ECofWC,ax,ay);
-////                                    wc.setStartXProp(ax);
-////                                    wc.setStartYProp(ay);
-//                        wc.setIsPlugged(true);
-//                    }
                 }
-
             }else{
                 //case of O----O
                 wm.getItsLine().getStartX().set(ax);
@@ -200,8 +183,6 @@ public class Wire{
                 wm.getBindY().set(ey);
                 wm.setIsPlugged(false);
             }
-            // drawing
-            //wc.getItsLine().setEasyDraw(easyDraw);
         }
 
         for(int j=0;j<CrToCrNum;j++){
@@ -238,24 +219,19 @@ public class Wire{
             fis.read(temp.array(),0,4);
             int enj=temp.getInt(0);
             // add Crosses in dotList
-            for(int k=sti-dotList.size()-1;k==0;k++)
+            for(int k=sti-(dotList.size()-1);k>0;k--)
                 dotList.add(new ArrayList());
-            for(int k=stj-dotList.get(sti).size()-1;k==0;k++)
-                dotList.add(new ArrayList());
+            for(int k=stj-(dotList.get(sti).size()-1);k>0;k--)
+                dotList.get(sti).add(null);
             dotList.get(sti).set(stj,line.getStartMarker());
-            for(int k=eni-dotList.size()-1;k==0;k++)
+            for(int k=eni-(dotList.size()-1);k>0;k--)
                 dotList.add(new ArrayList());
-            for(int k=enj-dotList.get(eni).size()-1;k==0;k++)
-                dotList.add(new ArrayList());
-            dotList.get(eni).set(enj,line.endCrossMarker);
+            for(int k=enj-(dotList.get(eni).size()-1);k>0;k--)
+                dotList.get(eni).add(null);
+            dotList.get(eni).set(enj, line.getEndCrossMarker());
         }
         bindCrosses();
     }
-    
-//    public Wire(ElemPin conn1, ElemPin conn2){
-//        wireContList.add(new WireMarker(this,conn1));
-//        wireContList.add(new WireMarker(this,conn2));
-//    }
     
     /**
      * Создает провод и цепляет старт к контакту
@@ -266,7 +242,6 @@ public class Wire{
     public Wire(ElemPin EleCont,double meSceneX,double meSceneY){
         WireMarker wc=new WireMarker(this,EleCont);
         wc.setEndProp(meSceneX,meSceneY);
-        //wireContList.add(wc);
         activeWireConnect=wc;
     }
     
@@ -277,27 +252,17 @@ public class Wire{
     public void setEnd(ElemPin elemCont){
         if(wireContList.size()==1){
             ElemPin oldEc=activeWireConnect.getElemContact();   // начальный O--->
-            //elemCont.bindWCendProp(activeWireConnect);                 // --->О цепляем
-            //elemCont.setPointersBidirect(activeWireConnect);
-            activeWireConnect.setElemContact(elemCont);
+            activeWireConnect.setElemContact(elemCont);           // --->О цепляем
             
             WireMarker wcNew=new WireMarker(this); // ? bind?      // <---O новый
             wcNew.setElemContact(oldEc);
             
             elemCont.bindWCstartProp(wcNew);                           // OX--->O  цепляем
-            //oldEc.bindWCendProp(wcNew);
-            //wireContList.add(wcNew);
-            //wcNew.isPlugged.set(true);
             wcNew.hide();
         }
         else{
             activeWireConnect.setElemContact(elemCont);
-//            elemCont.setWirePointer(activeWireConnect);
-//            elemCont.bindWCendProp(activeWireConnect); 
         }
-        //elemCont.setOpacity(1);
-           //activeWireConnect.getIsPlugged().set(true);
-        //activeWireContact=null;
     }
     
     /**
@@ -314,7 +279,6 @@ public class Wire{
     
     public WireMarker addContact(){
         WireMarker wc=new WireMarker(this);
-        //this.wireContList.add(wc);
         return wc;
     }
     
@@ -359,8 +323,6 @@ public class Wire{
             temp.putShort(0, redFlag);   //detect if line is red
             baos.write(temp.array(), 0, 2);
             
-            
-            
             //easyDraw ?
             if(wc.getItsLine().isEasyDraw()){
                 temp.putInt(0, 1);
@@ -401,14 +363,14 @@ public class Wire{
         //Cross to Cross
         for(CrossToCrossLine lin:getContContList()){
             Point2D st=MathPack.MatrixEqu.findFirst(dotList, lin.getStartMarker());
-            Point2D en=MathPack.MatrixEqu.findFirst(dotList, lin.endCrossMarker);
+            Point2D en=MathPack.MatrixEqu.findFirst(dotList, lin.getEndCrossMarker());
             temp.putDouble(0, lin.getStartX().doubleValue());   //start x
             baos.write(temp.array(), 0, 8);
             temp.putDouble(0, lin.getStartY().doubleValue());   //start y
             baos.write(temp.array(), 0, 8);
-            temp.putDouble(0, lin.endCrossMarker.getCenterX());   //end x
+            temp.putDouble(0, lin.getEndCrossMarker().getCenterX());   //end x
             baos.write(temp.array(), 0, 8);
-            temp.putDouble(0, lin.endCrossMarker.getCenterY());   //end y
+            temp.putDouble(0, lin.getEndCrossMarker().getCenterY());   //end y
             baos.write(temp.array(), 0, 8);
             
             //easyDraw ?
@@ -454,24 +416,17 @@ public class Wire{
     }
     
     public void addContToCont(WireMarker wc1,WireMarker wc2){
-        CrossToCrossLine contToContLine = new CrossToCrossLine(wc1,wc2);
+        CrossToCrossLine contToContLine = new CrossToCrossLine(this,wc1,wc2);
         contToContLine.setColor(COLOR);
         contToContLine.activate();
-        
-        
-        
         getContContList().add(contToContLine);
-//        getCrosses().add(contToContLine.getEndCr());
-//        getCrosses().add(contToContLine.getStartCr());
     }
     
     public CrossToCrossLine addContToCont(double sx,double sy,double ex,double ey){
-        CrossToCrossLine contToContLine = new CrossToCrossLine(sx,sy,ex,ey);
+        CrossToCrossLine contToContLine = new CrossToCrossLine(this,sx,sy,ex,ey);
         contToContLine.setColor(COLOR);
         contToContLine.activate();
         getContContList().add(contToContLine);
-//        getCrosses().add(contToContLine.getEndCr());
-//        getCrosses().add(contToContLine.getStartCr());
         return contToContLine;
     }
     
@@ -486,15 +441,6 @@ public class Wire{
         return wc;
     }
     
-//    public WireMarker addContact(ElemPin elemCont,double startX,double startY){//boolean endbind???
-//        WireMarker wc=new WireMarker(this);
-//        this.wireContList.add(wc);
-//        elemCont.bindWCendProp(wc);
-//        elemCont.setPointersBidirect(wc);
-//        wc.setStartPoint(startX, startY);
-//        return wc;
-//    }
-    
     /**
      * Разбиндивает все узлы
      */
@@ -503,48 +449,6 @@ public class Wire{
             wc.unBindStartPoint();
         }
     }
-    
-//    public void adjustCrosses(List<Cross> inp){
-//            inp.get(0).setVisible(true);
-//            inp.get(0).toFront();
-//            for(int i=1;i<inp.size();i++){
-//                inp.get(i).setVisible(false);
-//                inp.get(i).centerXProperty().unbind();
-//                inp.get(i).centerYProperty().unbind();
-//                inp.get(i).centerXProperty().bind(inp.get(0).centerXProperty());
-//                inp.get(i).centerYProperty().bind(inp.get(0).centerYProperty());
-//            }
-//        }
-    
-//    public void reBindContacts(){
-//        List<Point2D> points=new ArrayList();
-//        //list of all crosses
-//        for(Cross anch:this.getCrosses()){
-//            points.add(new Point2D(anch.getCenterX(),anch.getCenterY()));
-//        }
-//        for(int i=0;i<points.size();i++){
-//            //test for equals anchors
-//            Point2D majorPoint=points.get(i);
-//            int ind;
-//            boolean a=false;
-//            if(majorPoint!=null){
-//                List<Cross> wcs=new ArrayList();
-//                while((ind=points.lastIndexOf(majorPoint))!=-1){
-//                    if(i!=ind){
-//                        wcs.add(this.getCrosses().get(ind));
-//                        points.set(ind, null);
-//                        a=true;
-//                    }else{
-//                        if(a)
-//                            wcs.add(this.getCrosses().get(ind));
-//                        points.set(ind, null);
-//                    }                                    
-//                }
-//                if(!wcs.isEmpty())
-//                    adjustCrosses(wcs);
-//            }
-//        }
-//    }
     
     /**
      * Binds all crosses in dotList to first Cross in each line
@@ -563,13 +467,16 @@ public class Wire{
         raschetkz.RaschetKz.BranchList.remove(this);
         if(!wireContList.isEmpty()){
             activeWireConnect=wireContList.get(0);// for prevent dead loop
-            for(int i=wireContList.size()-1;i>=0;i--){
-                wireContList.get(i).delete();
+            int i=wireContList.size()-1;
+            for(;i>=0;i--){
+                if(!wireContList.isEmpty())
+                    wireContList.get(i).delete();
             }
             activeWireConnect=null;
         }
         for(int i=ContContList.size()-1;i>=0;i--){
-            ContContList.get(i).delete();
+            if(!ContContList.isEmpty())
+                ContContList.get(i).delete();
         }
         
     }
@@ -612,33 +519,26 @@ public class Wire{
                         list.add(itsWire.getWireContacts().get(0).getItsLine().getStartMarker());
                         list.add(itsWire.getWireContacts().get(1).getItsLine().getStartMarker());
                         dotList.add(list);
-                        
-                        
+                             
                         ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
                         ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                        newCont.view.startFullDrag();
+                        newCont.startFullDrag();
                         itsWire.getWireContacts().forEach(wc->{
                             wc.show();
                         });
                         me.consume();
                     }
                     else{
-    //                    itsWire.getWireContacts().forEach(wc->{
-    //                        wc.show();
-    //                    });
                         WireMarker newCont=new WireMarker(itsWire,me.getX(), me.getY());
                         Wire.activeWireConnect=newCont;
                         ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
                         ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                        newCont.view.startFullDrag();
+                        newCont.startFullDrag();
                         itsWire.addContToCont(WireMarker.this,newCont);
-    //                    itsWire.reBindContacts()
                     }
                     me.consume();
                 }
             });
-
-            //((Circle)view).setOpacity(0); //Or opacity???????????
             itsLines.getEndX().bind(bindX);
             itsLines.getEndY().bind(bindY);
 
@@ -646,7 +546,7 @@ public class Wire{
             EventHandler connDragDetectHandle =(EventHandler<MouseEvent>) (MouseEvent me) -> {
                 if(me.getButton()==MouseButton.PRIMARY){
                     this.pushToBack();
-                    view.startFullDrag();
+                    startFullDrag();
                 }
                 me.consume();
             };            
@@ -685,8 +585,6 @@ public class Wire{
             this();
             this.itsWire=thisWire;
             itsWire.getWireContacts().add(this);
-            //itsLines=new ConnectLine(this,0,0);
-    //        thisWire.getCrosses().add(itsLines.getStartPoint());
             pushToBack();
         }
 
@@ -697,11 +595,9 @@ public class Wire{
          */
         WireMarker(Wire thisWire,double sx,double sy){
             this(thisWire);
-            //itsLines=new ConnectLine(this,x,y);
-            itsLines.setCrossMarkerXY(sx, sy);
+            itsLines.setStartXY(sx, sy);
             bindX.set(sx);
             bindY.set(sy);
-    //        thisWire.getCrosses().add(itsLines.getStartPoint());
             this.setIsPlugged(false);
         }
 
@@ -712,22 +608,18 @@ public class Wire{
          */
         WireMarker(Wire thisWire,ElemPin ec){
             this(thisWire);
-            //itsLines=new ConnectLine(this,ec.localToScene(ec.getCenterX(), ec.getCenterY()));
-    //        thisWire.getCrosses().add(itsLines.getStartPoint());
             this.setIsPlugged(false);
             ec.bindWCstartProp(this);
-            //ec.setPointersBidirect(this);
             ec.setWirePointer(this);
             this.itsElemCont=ec;
         }
         
         WireMarker(Wire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
             this(thisWire);
-            itsLines.setCrossMarkerXY(startX, startY);
+            itsLines.setStartXY(startX, startY);
             bindX.set(endX);
             bindY.set(endY);
             itsLines.rearrange(numOfLines,isHorizontal,constrList);
-            
         }
 
         /**
@@ -737,7 +629,7 @@ public class Wire{
         void delete(){
             //reduce dotList
             Point2D p=MathPack.MatrixEqu.findFirst(dotList, this.getItsLine().getStartMarker());
-            if(p!=null){
+            if(p!=null&&activeWireConnect==null){
                 switch(dotList.size()){
                     case 1: //triple line Wire
                         dotList.get(0).remove((int)p.getY());
@@ -751,27 +643,59 @@ public class Wire{
                         dotList.remove(0);
                         break;
                     default: // case of cont to cont
-                        
+                        List<Cross> line=dotList.get((int)p.getX());
+                        int len=line.size(),ind=(int)p.getY();
+                        if(len==3){
+                            if(line.get((ind+1)%len).getOwner() instanceof CrossToCrossLine && line.get((ind+2)%len).getOwner() instanceof CrossToCrossLine){
+                                
+                            }else{ // only one crToCrLine's cross
+                                CrossToCrossLine loser;
+                                ConnectLine master;
+                                Cross reducedOne;
+                                if(line.get((ind+1)%len).getOwner() instanceof CrossToCrossLine){
+                                    loser=(CrossToCrossLine)line.get((ind+1)%len).getOwner();
+                                    master=line.get((ind+2)%len).getOwner();
+                                }else{
+                                    loser=(CrossToCrossLine)line.get((ind+2)%len).getOwner();
+                                    master=line.get((ind+1)%len).getOwner();
+                                }
+                                if(loser.getStartMarker().equals(line.get(ind))){
+                                    reducedOne=loser.getEndCrossMarker();
+                                }else{
+                                    reducedOne=loser.getStartMarker();
+                                }
+                                Point2D nP=MathPack.MatrixEqu.findFirst(dotList,reducedOne);
+                                dotList.get((int)nP.getX()).set((int)nP.getY(),master.getStartMarker());
+                                master.getStartMarker().unbind();
+                                master.setStartXY(reducedOne.getCenterX(), reducedOne.getCenterY());
+                                
+                                dotList.remove((int)p.getX());
+                                //deleting
+                                loser.deleteQuiet();
+                                
+                            }
+                            bindCrosses();
+                        }else if(len>3){
+                            throw new Error("Size > 3 not supported yet...");
+                        }
+                       
                 }
                 
             }
             
-    //        if(Wire.activeWireConnect!=null){
-                if(this.itsElemCont!=null){
-                    this.itsElemCont.clearWireContact();
-                    itsElemCont=null;
-                }
-    //            itsWire.getCrosses().remove(itsLines.getStartPoint());
-                itsWire.getWireContacts().remove(this);
-                if(itsWire.getWireContacts().isEmpty())
-                    itsWire.delete();
-                itsWire=null;
-                RaschetKz.drawBoard.getChildren().remove(view);
-                unBindEndPoint();
-                unBindStartPoint();
-                itsLines.delete();
-                itsLines=null;
-
+            if(this.itsElemCont!=null){
+                this.itsElemCont.clearWireContact();
+                itsElemCont=null;
+            }
+            itsWire.getWireContacts().remove(this);
+            if(itsWire.getWireContacts().size()<2)
+                itsWire.delete();
+            itsWire=null;
+            RaschetKz.drawBoard.getChildren().remove(view);
+            unBindEndPoint();
+            unBindStartPoint();
+            itsLines.delete();
+            itsLines=null;
         }
 
         public ElemPin getElemContact(){
@@ -788,8 +712,6 @@ public class Wire{
             eleCont.setWirePointer(this);
             this.setIsPlugged(true);
         }
-
-        
 
         public void show(){
             this.itsLines.show();
@@ -818,8 +740,6 @@ public class Wire{
                     wc.getItsLine().bindStart(bindX,bindY);
                     this.getStartX().bind(wc.getBindX());
                     this.getStartY().bind(wc.getBindY());
-    //                itsLines.bindCross(wc.getCenterX(), wc.getCenterY());
-    //                this.itsElemCont=null;
                     this.hide();
                     break;
                 case 2:
@@ -831,7 +751,6 @@ public class Wire{
                     }
                     Wire.activeWireConnect=this;
                     ElemPin temp=loser.itsElemCont;
-    //                this.itsElemCont.clearWireContact();
                     loser.delete();
                     temp.setWirePointer(this);
                     this.itsElemCont=temp;
@@ -840,7 +759,6 @@ public class Wire{
                 default:
                     Wire.activeWireConnect=this;
             }
-    //        this.show();
         }
 
         /**
@@ -860,31 +778,34 @@ public class Wire{
     }
     
     private class CrossToCrossLine extends ConnectLine{
-        Cross endCrossMarker;
-
+        private Cross endCrossMarker;
+        private Wire owner;
         /**
          * 
          * @param wc1
          * @param wc2 new one
          */
-        CrossToCrossLine(WireMarker wc1,WireMarker wc2){
+        CrossToCrossLine(Wire owner,WireMarker wc1,WireMarker wc2){
             super();
-            this.getStartMarker().setVisible(true);
-            this.setCrossMarkerXY(wc1.getStartX().get(), wc1.getStartY().get());
+            
+            this.getLines().forEach(extLine->{
+                //extLine.setOnKeyReleased(null);
+                extLine.setOnKeyReleased(k->{
+                    if(k.getCode()==KeyCode.DELETE){
+                        this.delete();
+                    }
+                });
+            });
+            
+            this.owner=owner;
+            //this.getStartMarker().setVisible(true);
+            this.setStartXY(wc1.getStartX().get(), wc1.getStartY().get());
             endCrossMarker=new Cross(this,wc2.bindX.get(),wc2.bindY.get());
-            endCrossMarker.setVisible(true);
+            //endCrossMarker.setVisible(true);
             this.getEndX().bind(endCrossMarker.centerXProperty());
             this.getEndY().bind(endCrossMarker.centerYProperty());
             endCrossMarker.centerXProperty().addListener(super.getPropListen());
             endCrossMarker.centerYProperty().addListener(super.getPropListen());
-              // list of (in general two) another crosses 
-//            if(wc1.getItsLine().getStartMarker().isMajor()){
-//                major=wc1.getItsLine().getStartMarker().getBindMinors();
-//            }else{
-//                major=wc1.getItsLine().getStartMarker().getBindSource().getBindMinors();
-//                wc1.getItsLine().getStartMarker().getBindSource().bindToCross(getStartMarker()); //make wc1 is a minor
-//            }
-
             //find in dotList line with 'major' list
             for(List<Cross> line:dotList){
                 if(line.contains(wc1.getItsLine().getStartMarker())){ // set it's start cross as major
@@ -900,6 +821,33 @@ public class Wire{
                     break;
                 }
             }
+            setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
+                if(me.getButton().equals(MouseButton.SECONDARY)){
+                    double x=me.getX(),y=me.getY();
+                    CrossToCrossLine newOne=owner.addContToCont(x,y,
+                            this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
+                    this.getEndCrossMarker().unbind();
+                    this.setEndXY(x, y);
+                    //create new WireMarker
+                    WireMarker wm=new WireMarker(owner,x,y);
+                    activeWireConnect=wm;
+                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+                    wm.startFullDrag();
+                    // dotList manipulation
+                    int len=dotList.size();
+                    List<Cross> line=new ArrayList();
+                    line.add(wm.getItsLine().getStartMarker());
+                    line.add(this.getEndCrossMarker());
+                    line.add(newOne.getStartMarker());
+                        //replace old crTcr end to new end
+                    Point2D p=MathPack.MatrixEqu.findFirst(dotList, this.getEndCrossMarker());
+                    dotList.get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
+                    dotList.add(line);
+                    
+                    owner.bindCrosses();
+                }
+            });
         }
         
         /**
@@ -909,35 +857,88 @@ public class Wire{
          * @param ex
          * @param ey 
          */
-        CrossToCrossLine(double sx,double sy,double ex,double ey){
+        CrossToCrossLine(Wire owner,double sx,double sy,double ex,double ey){
             super();
-            this.setCrossMarkerXY(sx, sy);
+            
+            this.getLines().forEach(extLine->{
+                //extLine.setOnKeyReleased(null);
+                extLine.setOnKeyReleased(k->{
+                    if(k.getCode()==KeyCode.DELETE){
+                        this.delete();
+                    }
+                });
+            });
+            
+            this.owner=owner;
+            this.setStartXY(sx, sy);
             endCrossMarker=new Cross(this,ex,ey);
             this.getEndX().bind(endCrossMarker.centerXProperty());
             this.getEndY().bind(endCrossMarker.centerYProperty());
             endCrossMarker.centerXProperty().addListener(super.getPropListen());
             endCrossMarker.centerYProperty().addListener(super.getPropListen());
             
-    //        endCr=new Cross(ex,ey);
-    //        super.getStartPoint().setCenterX(sx);
-    //        super.getStartPoint().setCenterY(sy);
-    //        endCr.setFill(Paint.valueOf("#b87333"));
-    //        super.getLines().get(2).endXProperty().bind(endCr.centerXProperty());
-    //        super.getLines().get(2).endYProperty().bind(endCr.centerYProperty());
-    //        endCr.centerXProperty().addListener(super.getPropListen());
-    //        endCr.centerYProperty().addListener(super.getPropListen());
-    //        raschetkz.RaschetKz.drawBoard.getChildren().addAll(endCr);
+            setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
+                if(me.getButton().equals(MouseButton.SECONDARY)){
+                    double x=me.getX(),y=me.getY();
+                    CrossToCrossLine newOne=owner.addContToCont(x,y,
+                            this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
+                    this.getEndCrossMarker().unbind();
+                    this.setEndXY(x, y);
+                    //create new WireMarker
+                    WireMarker wm=new WireMarker(owner,x,y);
+                    activeWireConnect=wm;
+                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+                    wm.startFullDrag();
+                    // dotList manipulation
+                    int len=dotList.size();
+                    List<Cross> line=new ArrayList();
+                    line.add(wm.getItsLine().getStartMarker());
+                    line.add(this.getEndCrossMarker());
+                    line.add(newOne.getStartMarker());
+                        //replace old crTcr end to new end
+                    Point2D p=MathPack.MatrixEqu.findFirst(dotList, this.getEndCrossMarker());
+                    dotList.get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
+                    dotList.add(line);
+                    
+                    owner.bindCrosses();
+                }
+            });
         }
 
         @Override
         public void delete(){
             //implement
+            deleteQuiet();
+            owner.delete();
+        }
+        
+        void deleteQuiet(){
+            super.delete();
+            for(List<Cross> row:dotList){
+                row.remove(this.getStartMarker());
+                row.remove(this.getEndCrossMarker());
+            }
+            owner.getContContList().remove(this);
+            endCrossMarker.delete();
         }
 
         @Override
         public void setColor(String rgb){
             super.setColor(rgb);
-            endCrossMarker.setFill(Paint.valueOf(rgb));
+            getEndCrossMarker().setFill(Paint.valueOf(rgb));
+        }
+
+        /**
+         * @return the endCrossMarker
+         */
+        Cross getEndCrossMarker() {
+            return endCrossMarker;
+        }
+        
+        final void setEndXY(double x,double y){
+            getEndCrossMarker().setCenterX(x);
+            getEndCrossMarker().setCenterY(y);
         }
     }
 }
