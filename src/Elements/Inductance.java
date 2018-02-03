@@ -16,16 +16,22 @@ public class Inductance extends ShemeElement{
     
     public Inductance(){
         super();
-//        Dymamic=true;
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
+        
         this.parameters.add(new Parameter("Индуктивность", 0.01));
         this.parameters.add(new Parameter("Паразитное сопротивление", 1e7));
+        
         this.initials.add(new InitParam("Ток", 0));
         name="Катушка";
     }
     public Inductance(boolean Catalog){
         super(Catalog);
+        
+        this.parameters.add(new Parameter("Индуктивность", 0.01));
+        this.parameters.add(new Parameter("Паразитное сопротивление", 1e7));
+        
+        this.initials.add(new InitParam("Ток", 0));
         name="Катушка";
     }
 

@@ -19,6 +19,7 @@ public class VariableVoltage extends ShemeElement {
 //        Dymamic=false;
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
+        
         this.parameters.add(new Parameter("Амплитуда", 10.0));
         this.parameters.add(new Parameter("Частота", 50.0));
         this.parameters.add(new Parameter("Фаза", 0.0));
@@ -27,6 +28,10 @@ public class VariableVoltage extends ShemeElement {
     
     public VariableVoltage(boolean Catalog){
         super(Catalog);
+        
+        this.parameters.add(new Parameter("Амплитуда", 10.0));
+        this.parameters.add(new Parameter("Частота", 50.0));
+        this.parameters.add(new Parameter("Фаза", 0.0));
         name="Источник переменного\nнапряжения";
     }
 

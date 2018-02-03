@@ -108,6 +108,8 @@ public abstract class Element {
             catCm.getItems().add(menu);
             imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
             catalogFlag=catalog;
+            
+            getView(); //for creation!
         }
     }
     

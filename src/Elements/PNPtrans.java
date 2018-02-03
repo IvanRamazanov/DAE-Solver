@@ -38,6 +38,7 @@ public class PNPtrans extends ShemeElement{
         addElemCont(new ElemPin(this, 32, 9)); //C
         addElemCont(new ElemPin(this, 32, 84)); //E
         addElemCont(new ElemPin(this, 6, 46)); //B
+        
         Is=new Element.Parameter("Обратный ток насыщения",1e-14);
         parameters.add(Is);
         bf=new Element.Parameter("forward common emitter current gain",100);
@@ -51,6 +52,15 @@ public class PNPtrans extends ShemeElement{
     
     public PNPtrans(boolean catalog){
         super(catalog);
+        
+        Is=new Element.Parameter("Обратный ток насыщения",1e-14);
+        parameters.add(Is);
+        bf=new Element.Parameter("forward common emitter current gain",100);
+        parameters.add(bf);
+        br=new Element.Parameter("reverse common emitter current gain",1);
+        parameters.add(br);
+        Vt=new Element.Parameter("thermal voltage",25.0+273.15);
+        parameters.add(Vt);
         name="Транзистор\nNPN";
     }
 

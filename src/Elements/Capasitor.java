@@ -15,9 +15,9 @@ import ElementBase.ShemeElement;
 public class Capasitor extends ShemeElement {
     public Capasitor(){
         super();
-//        Dymamic=true;
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
+        
         this.parameters.add(new Parameter("Емкость", 0.01));
         this.parameters.add(new Parameter("Паразитное сопротивление", 1e-7));
         this.initials.add(new InitParam("Напряжение", 0));
@@ -25,6 +25,9 @@ public class Capasitor extends ShemeElement {
     }
     public Capasitor(boolean Catalog){
         super(Catalog);
+        this.parameters.add(new Parameter("Емкость", 0.01));
+        this.parameters.add(new Parameter("Паразитное сопротивление", 1e-7));
+        this.initials.add(new InitParam("Напряжение", 0));
         name="Емкость";
     }
 

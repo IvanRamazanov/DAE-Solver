@@ -17,11 +17,13 @@ public class ElectricalRefference extends ShemeElement{
     public ElectricalRefference(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
+        
         name="Земля";
     }
     
     public ElectricalRefference(boolean Catalog){
         super(Catalog);
+        
         name="Земля";
     }
 

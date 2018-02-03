@@ -22,6 +22,7 @@ public class ThreePhaseVoltageSourse extends ShemeElement {
         addElemCont(new ElemPin(this, 26, 4));//B
         addElemCont(new ElemPin(this, 43, 4));//C
         addElemCont(new ElemPin(this, 26, 66));//N
+        
         this.parameters.add(new Parameter("Амплитуда", 10.0));
         this.parameters.add(new Parameter("Частота", 50.0));
         this.parameters.add(new Parameter("Фаза", 0.0));
@@ -30,6 +31,10 @@ public class ThreePhaseVoltageSourse extends ShemeElement {
     
     public ThreePhaseVoltageSourse(boolean Catalog){
         super(Catalog);
+        
+        this.parameters.add(new Parameter("Амплитуда", 10.0));
+        this.parameters.add(new Parameter("Частота", 50.0));
+        this.parameters.add(new Parameter("Фаза", 0.0));
         name="Источник напряжения\nтрехфазный";
     }
 

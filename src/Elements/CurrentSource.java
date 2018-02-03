@@ -36,12 +36,15 @@ public class CurrentSource extends ShemeElement{
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
+        
         this.parameters.add(new Element.Parameter("Напряжение", 15.0));
         name="Источник постоянного\nтока";
     }
     
     public CurrentSource(boolean catalog){
         super(catalog);
+        
+        this.parameters.add(new Element.Parameter("Напряжение", 15.0));
         name="Источник постоянного\nтока";
     }
 

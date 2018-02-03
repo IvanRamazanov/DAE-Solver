@@ -6,6 +6,7 @@
 package ElementBase;
 
 import MathPack.StringGraph;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.collections.ObservableList;
@@ -21,6 +22,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -28,6 +32,8 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -47,18 +53,38 @@ public abstract class ShemeElement extends Element{
     protected List<MathOutPin> mathOutputs=new ArrayList();
     private double contStep=15,maxX,mathContOffset;
     
+    public final static DataFormat customFormat = new DataFormat("helloworld.custom");
+    
     public ShemeElement(){
         super();
         maxX=viewPane.getBoundsInLocal().getMaxX();
         mathContOffset=viewPane.getBoundsInLocal().getMaxY()/2;
+        
+        this.viewPane.setOnDragDetected(de->{
+            if(de.getButton().equals(MouseButton.SECONDARY)){
+                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
+                ClipboardContent content = new ClipboardContent();
+                content.put(customFormat, new ElemSerialization(this));
+                db.setContent(content);
+            }
+        });
     }
     
     public ShemeElement(boolean catalog){
         super(catalog);
-        if(!catalog){
-            contacts.add(new ElemPin(this));    //for extend by gost
-            contacts.add(new ElemPin(this));
-        }
+//        if(!catalog){
+//            contacts.add(new ElemPin(this));    //for extend by gost
+//            contacts.add(new ElemPin(this));
+//        }
+        
+        this.viewPane.setOnDragDetected(de->{
+            if(de.getButton().equals(MouseButton.SECONDARY)){
+                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
+                ClipboardContent content = new ClipboardContent();
+                content.put(customFormat, new ElemSerialization(this));
+                db.setContent(content);
+            }
+        });
     }
     
     public abstract String[] getStringFunction();
@@ -78,6 +104,8 @@ public abstract class ShemeElement extends Element{
         this.contacts.add(input);
         this.viewPane.getChildren().add(input);
     }
+    
+    
     
     /**
      * Удаляет элемент
@@ -210,7 +238,7 @@ public abstract class ShemeElement extends Element{
         return initials;
     }
     
-    final protected void addHideMathContact(char ch){
+    final protected void addHiddenMathContact(char ch){
         if(ch=='i'){
             if(mathInputs==null) mathInputs=new ArrayList();
             MathInPin ic=new MathInPin();
@@ -321,5 +349,7 @@ public abstract class ShemeElement extends Element{
             return this.layout;
         }
     }
+    
+    
 }
 

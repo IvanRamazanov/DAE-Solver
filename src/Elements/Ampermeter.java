@@ -13,13 +13,12 @@ import ElementBase.ShemeElement;
  * @author Ivan
  */
 public class Ampermeter extends ShemeElement {
-        public Ampermeter(){
+    public Ampermeter(){
         super();
         addElemCont(new ElemPin(this, 12, 4));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('o');
-        this.parameters.add(new Parameter("Множитель", 1.0));
-//        this.initials.add(new InitParam("Ток", 0.0));
+//        this.parameters.add(new Parameter("Множитель", 1.0));
         name="Константа";
     }
     public Ampermeter(boolean Catalog){

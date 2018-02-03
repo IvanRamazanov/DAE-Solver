@@ -18,7 +18,7 @@ public class Voltmeter extends ShemeElement{
         addElemCont(new ElemPin(this, 12, 4));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('o');
-        this.parameters.add(new Parameter("Множитель", 1.0));
+        
         name="Вольтметер";
     }
     public Voltmeter(boolean Catalog){

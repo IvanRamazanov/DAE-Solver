@@ -37,13 +37,17 @@ public class Diode extends ShemeElement{
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
-        name="Диод";
+        
         Vf=new Parameter("Forward voltage", 0.5);
         this.parameters.add(Vf);
+        name="Диод";
     }
     
     public Diode(boolean catalog){
         super(catalog);
+        
+        Vf=new Parameter("Forward voltage", 0.5);
+        this.parameters.add(Vf);
         name="Диод";
     }
 

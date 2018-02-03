@@ -20,6 +20,9 @@ public class DPTPM extends ShemeElement{
 //        Dymamic=true;
         addElemCont(new ElemPin(this, 31, 4));
         addElemCont(new ElemPin(this, 31, 66));
+        addMathContact('i');
+        addMathContact('o');
+        
         Rya=new Parameter("Сопротивление якоря", 0.6);
         this.parameters.add(Rya);
         Lya=new Parameter("Индуктивность якоря", 0.012);
@@ -32,15 +35,30 @@ public class DPTPM extends ShemeElement{
         this.parameters.add(Cw); 
         F=new Parameter("Ф", 1);
         this.parameters.add(F);
+        
         this.initials.add(new InitParam("Ток", 0));
         this.initials.add(new InitParam("Скорость", 0));
-        addMathContact('i');
-        addMathContact('o');
         name="ДПТПМ";
     }
     
     public DPTPM(boolean Catalog){
         super(Catalog);
+        
+        Rya=new Parameter("Сопротивление якоря", 0.6);
+        this.parameters.add(Rya);
+        Lya=new Parameter("Индуктивность якоря", 0.012);
+        this.parameters.add(Lya);
+        J0=new Parameter("Момент инерции приведенный к якорю", 1);
+        this.parameters.add(J0); 
+        Cm=new Parameter("Cm", 1.8);
+        this.parameters.add(Cm);
+        Cw=new Parameter("Cw", 1.8);
+        this.parameters.add(Cw); 
+        F=new Parameter("Ф", 1);
+        this.parameters.add(F);
+        
+        this.initials.add(new InitParam("Ток", 0));
+        this.initials.add(new InitParam("Скорость", 0));
         name="ДПТПМ";
     }
 

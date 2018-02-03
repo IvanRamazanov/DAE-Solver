@@ -35,10 +35,12 @@ public class InductionMotor extends ShemeElement{
     
     public InductionMotor(){
         super();
-//        Dymamic=true;
         addElemCont(new ElemPin(this, 9, 4));
         addElemCont(new ElemPin(this, 25, 4));
         addElemCont(new ElemPin(this, 40, 4));
+        this.addMathContact('o');
+        this.addMathContact('i');
+        
         Rs=new Parameter("Сопротивление статора", 1.405);
         this.parameters.add(Rs);
         Rr=new Parameter("Сопротивление ротора", 1.395);
@@ -57,19 +59,45 @@ public class InductionMotor extends ShemeElement{
         this.parameters.add(Fc);
         Rp=new Parameter("Паразитное сопротивление", 1e7);
         this.parameters.add(Rp);
+        
         this.initials.add(new InitParam("Ток A", 0));
         this.initials.add(new InitParam("Ток B", 0));
         this.initials.add(new InitParam("Ток a", 0));
         this.initials.add(new InitParam("Ток b", 0));
         this.initials.add(new InitParam("Скорость", 0));
         this.initials.add(new InitParam("angle", 0));
-        this.addMathContact('o');
-        this.addMathContact('i');
+
         name="АДКЗ";
     }
     
     public InductionMotor(boolean Catalog){
         super(Catalog);
+        
+        Rs=new Parameter("Сопротивление статора", 1.405);
+        this.parameters.add(Rs);
+        Rr=new Parameter("Сопротивление ротора", 1.395);
+        this.parameters.add(Rr);
+        Ls=new Parameter("Индуктивность рассеяния статора", 0.005839);
+        this.parameters.add(Ls);
+        Lr=new Parameter("Индуктивность рассеяния ротора", 0.005839);
+        this.parameters.add(Lr);        
+        Lm=new Parameter("Главная намагничивающая индуктивность", 0.1722);
+        this.parameters.add(Lm);
+        J=new Parameter("Момент инерции приведенный к якорю", 0.0131);
+        this.parameters.add(J); 
+        Zp=new Parameter("Число пар полюсов", 2);
+        this.parameters.add(Zp);
+        Fc=new Parameter("Трение", 0.002985);
+        this.parameters.add(Fc);
+        Rp=new Parameter("Паразитное сопротивление", 1e7);
+        this.parameters.add(Rp);
+        
+        this.initials.add(new InitParam("Ток A", 0));
+        this.initials.add(new InitParam("Ток B", 0));
+        this.initials.add(new InitParam("Ток a", 0));
+        this.initials.add(new InitParam("Ток b", 0));
+        this.initials.add(new InitParam("Скорость", 0));
+        this.initials.add(new InitParam("angle", 0));
         name="АДКЗ";
     }
 

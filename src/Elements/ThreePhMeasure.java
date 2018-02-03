@@ -41,10 +41,12 @@ public class ThreePhMeasure extends ShemeElement{
         addElemCont(new ElemPin(this, 20, 60));
         addMathContact('o');
         addMathContact('o');
+        
         name="Трехфазный измеритель";
     }
     public ThreePhMeasure(boolean Catalog){
         super(Catalog);
+        
         name="Трехфазный измеритель";
     }
 

@@ -38,6 +38,9 @@ public class SDPM extends ShemeElement{
         addElemCont(new ElemPin(this, 9, 4));
         addElemCont(new ElemPin(this, 25, 4));
         addElemCont(new ElemPin(this, 40, 4));
+        this.addMathContact('o');
+        this.addMathContact('i');
+        
         Rs=new Parameter("Stator resistance per phase, Rs", 0.18);
         this.parameters.add(Rs);
         Ls=new Parameter("Stator phase inductance, Ls", 8.5e-3);
@@ -52,17 +55,39 @@ public class SDPM extends ShemeElement{
         this.parameters.add(Fc);
         Rp=new Parameter("Parasitic resistence", 1e7);
         this.parameters.add(Rp);
+        
         this.initials.add(new InitParam("Ток A", 0));
         this.initials.add(new InitParam("Ток B", 0));
         this.initials.add(new InitParam("Скорость", 2*Math.PI*50/4));
         this.initials.add(new InitParam("angle", 0));
-        this.addMathContact('o');
-        this.addMathContact('i');
+
         name="СДПМ";
     }
     
     public SDPM(boolean flag){
         super(flag);
+        
+        Rs=new Parameter("Stator resistance per phase, Rs", 0.18);
+        this.parameters.add(Rs);
+        Ls=new Parameter("Stator phase inductance, Ls", 8.5e-3);
+        this.parameters.add(Ls);
+        KsiM=new Parameter("Flux linkage established by magnets", 0.07145);
+        this.parameters.add(KsiM);
+        J=new Parameter("Момент инерции приведенный к якорю", 0.00062);
+        this.parameters.add(J); 
+        Zp=new Parameter("Number of permanent magnet pole pairs on the rotor", 4);
+        this.parameters.add(Zp);
+        Fc=new Parameter("Трение", 0.0);
+        this.parameters.add(Fc);
+        Rp=new Parameter("Parasitic resistence", 1e7);
+        this.parameters.add(Rp);
+        
+        this.initials.add(new InitParam("Ток A", 0));
+        this.initials.add(new InitParam("Ток B", 0));
+        this.initials.add(new InitParam("Скорость", 2*Math.PI*50/4));
+        this.initials.add(new InitParam("angle", 0));
+        
+        name="СДПМ";
     }
 
     @Override

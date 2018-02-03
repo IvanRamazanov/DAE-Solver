@@ -22,6 +22,9 @@ public class DPTnV extends ShemeElement {
         addElemCont(new ElemPin(this, 31, 66));
         addElemCont(new ElemPin(this, 11, 4));
         addElemCont(new ElemPin(this, 11, 66));
+        this.addMathContact('o');
+        this.addMathContact('i');
+        
         Rya=new Parameter("Сопротивление якоря", 0.1);
         this.parameters.add(Rya);
         Lya=new Parameter("Индуктивность якоря", 0.001);
@@ -38,16 +41,36 @@ public class DPTnV extends ShemeElement {
         this.parameters.add(Rf);
         Lf=new Parameter("Индуктивность возбуждения", 0.1);
         this.parameters.add(Lf);
+        
         this.initials.add(new InitParam("Ток якоря", 0));
         this.initials.add(new InitParam("Скорость", 0));
         this.initials.add(new InitParam("Ток возбуждения", 0));
-        this.addMathContact('o');
-        this.addMathContact('i');
         name="ДПТНВ";
     }
     
     public DPTnV(boolean Catalog){
         super(Catalog);
+        
+        Rya=new Parameter("Сопротивление якоря", 0.1);
+        this.parameters.add(Rya);
+        Lya=new Parameter("Индуктивность якоря", 0.001);
+        this.parameters.add(Lya);
+        J0=new Parameter("Момент инерции приведенный к якорю", 10);
+        this.parameters.add(J0); 
+        Cm=new Parameter("Cm", 10);
+        this.parameters.add(Cm);
+        Cw=new Parameter("Cw", 10);
+        this.parameters.add(Cw); 
+        F=new Parameter("Ф", 1);
+        this.parameters.add(F);
+        Rf=new Parameter("Сопротивление возбуждения", 0.1);
+        this.parameters.add(Rf);
+        Lf=new Parameter("Индуктивность возбуждения", 0.1);
+        this.parameters.add(Lf);
+        
+        this.initials.add(new InitParam("Ток якоря", 0));
+        this.initials.add(new InitParam("Скорость", 0));
+        this.initials.add(new InitParam("Ток возбуждения", 0));
         name="ДПТНВ";
     }
 

@@ -36,11 +36,13 @@ public class IdealKey extends ShemeElement {
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('i');
+        
         name="Ключ";
     }
     
     public IdealKey(boolean catalog){
         super(catalog);
+        
         name="Ключ";
     }
     

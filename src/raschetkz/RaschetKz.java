@@ -8,6 +8,7 @@ package raschetkz;
 import Connections.MathMarker;
 import MathPack.Rechatel;
 import Connections.Wire;
+import ElementBase.ElemSerialization;
 import ElementBase.ListOfElements;
 import ElementBase.MathElement;
 import javafx.application.Application;
@@ -51,6 +52,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.TilePane;
 
@@ -190,6 +192,23 @@ public class RaschetKz extends Application{
         scrllPane.setOnDragDetected((MouseEvent me)->{
            scrllPane.setCursor(Cursor.CLOSED_HAND);
         });
+        
+        scrllPane.setOnDragOver(de->{
+            //de.getDragboard().getContentTypes().contains(de)
+            de.acceptTransferModes(TransferMode.ANY);
+        });
+        scrllPane.setOnDragDropped(de->{
+            
+            ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(ShemeElement.customFormat);
+            ShemeElement obj=content.deserialize();
+            obj.getView().setLayoutX(de.getX());
+            obj.getView().setLayoutY(de.getY());
+            ElementList.add(obj);
+            
+            de.setDropCompleted(true);
+            de.consume();
+        });
+        
         rootBp.setCenter(scrllPane);
     }
     

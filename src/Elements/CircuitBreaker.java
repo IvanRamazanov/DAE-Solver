@@ -41,16 +41,19 @@ public class CircuitBreaker extends ShemeElement{
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
-        addHideMathContact('i');
-        addHideMathContact('o');
+        addHiddenMathContact('i');
+        addHiddenMathContact('o');
         itsLogic=new Logic(false);
         linkLogic(itsLogic);
+        
         this.parameters.add(new Parameter("Max curr, A", 15.0));
         name="Автомат";
     }
     
     public CircuitBreaker(boolean catalog){
         super(catalog);
+        
+        this.parameters.add(new Parameter("Max curr, A", 15.0));
         name="Автомат";
     }
     
