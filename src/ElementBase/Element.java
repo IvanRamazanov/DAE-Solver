@@ -49,10 +49,11 @@ import static ElementBase.ShemeElement.CUSTOM_FORMAT;
 public abstract class Element {
     protected ContextMenu cm,catCm;
     protected Pane viewPane;
+    private VBox layout;
     private String imagePath;
     protected boolean catalogFlag=false;
     private Point2D initialPoint,anchorPoint;
-    protected String name;
+    protected Label name;
     private static double HEIGHT_FIT=5;
     
     public final static DataFormat CUSTOM_FORMAT = new DataFormat("ivan.ramazanov");
@@ -110,6 +111,7 @@ public abstract class Element {
         imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
         drawBoard.getChildren().add(this.getView());
         
+        setParams();
         this.viewPane.setOnDragDetected(de->{
             if(de.getButton().equals(MouseButton.PRIMARY)&&de.isControlDown()){
                 initDND();
@@ -132,6 +134,7 @@ public abstract class Element {
             getView(); //for creation!
         }
         
+        setParams();
         this.viewPane.setOnDragDetected(de->{
             if(de.getButton().equals(MouseButton.PRIMARY)){
                 initDND();
@@ -168,6 +171,9 @@ public abstract class Element {
     final public Pane getView(){
         if(viewPane==null){
             viewPane=new Pane();
+            
+            layout=new VBox();
+            layout.setAlignment(Pos.TOP_CENTER);
             //viewPane.setStyle("-fx-border-color: #ff0000");
             
             View view=new View(imagePath,0,0);
@@ -181,6 +187,8 @@ public abstract class Element {
                 }
             });
             viewPane.getChildren().add(view);
+            name=new Label();
+            layout.getChildren().addAll(viewPane,name);
 //            viewPane.setMaxSize(view.getLayoutBounds().getWidth(), view.getLayoutBounds().getHeight());
             if(catalogFlag){
                 viewPane.setOnMouseClicked(catHandler);
@@ -194,8 +202,8 @@ public abstract class Element {
                     }
                     if(me.getButton()==MouseButton.PRIMARY){
                         anchorPoint=new Point2D(me.getSceneX(),me.getSceneY());
-                        initialPoint=new Point2D(viewPane.getLayoutX(),viewPane.getLayoutY());
-                        viewPane.toFront();
+                        initialPoint=new Point2D(layout.getLayoutX(),layout.getLayoutY());
+                        layout.toFront();
                         me.consume();
                     }
                 });
@@ -207,8 +215,10 @@ public abstract class Element {
                             x=0;
                         if(y<0)
                             y=0;
-                        viewPane.setLayoutX(x);
-                        viewPane.setLayoutY(y);
+//                        viewPane.setLayoutX(x);
+//                        viewPane.setLayoutY(y);
+                        layout.setLayoutX(x);
+                        layout.setLayoutY(y);
                         me.consume();
                     }
                 });
@@ -220,29 +230,30 @@ public abstract class Element {
             });
             viewPane.setOnKeyPressed(ke->{
                 if(ke.getCode()==KeyCode.LEFT){
-                    viewPane.setLayoutX(viewPane.getLayoutX()-1);
+                    layout.setLayoutX(layout.getLayoutX()-1);
                 }else
                 if(ke.getCode()==KeyCode.RIGHT){
-                    viewPane.setLayoutX(viewPane.getLayoutX()+1);
+                    layout.setLayoutX(layout.getLayoutX()+1);
                 }else
                 if(ke.getCode()==KeyCode.UP){
-                    viewPane.setLayoutY(viewPane.getLayoutY()-1);
+                    layout.setLayoutY(layout.getLayoutY()-1);
                 }else
                 if(ke.getCode()==KeyCode.DOWN){
-                    viewPane.setLayoutY(viewPane.getLayoutY()+1);
+                    layout.setLayoutY(layout.getLayoutY()+1);
                 }else
                 if(ke.getCode()==KeyCode.R&&ke.isControlDown()){
                     rotate();
                 }
             });
         }
-//        Label lbl=new Label(name);
+        
 //        lbl.setTextAlignment(TextAlignment.CENTER);
 //        VBox out=new VBox(viewPane,lbl);
 //        out.setAlignment(Pos.CENTER);
 //        out.setLayoutX(100);
 //        out.setLayoutY(100);
-        return(viewPane);
+        return layout;
+//        return(viewPane);
     }
     
     abstract protected void init();
@@ -261,8 +272,10 @@ public abstract class Element {
      * @return the name
      */
     public String getName() {
-        return name;
+        return name.getText();
     }
+    
+    abstract protected void setParams();
     
     /**
      * @return the parameters
@@ -414,5 +427,12 @@ public abstract class Element {
             this.setTranslateX(x);
             this.setTranslateY(y);
         }
+    }
+
+    /**
+     * @param name the name to set
+     */
+    protected final void setName(String name) {
+        this.name.setText(name);
     }
 }

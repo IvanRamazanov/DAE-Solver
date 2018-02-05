@@ -45,16 +45,11 @@ public class CircuitBreaker extends ShemeElement{
         addHiddenMathContact('o');
         itsLogic=new Logic(false);
         linkLogic(itsLogic);
-        
-        this.parameters.add(new Parameter("Max curr, A", 15.0));
-        name="Автомат";
+
     }
     
     public CircuitBreaker(boolean catalog){
         super(catalog);
-        
-        this.parameters.add(new Parameter("Max curr, A", 15.0));
-        name="Автомат";
     }
     
     private void linkLogic(Logic logic){
@@ -78,6 +73,12 @@ public class CircuitBreaker extends ShemeElement{
     @Override
     public void init(){
         this.itsLogic.init();
+    }
+    
+    @Override
+    protected void setParams(){
+        this.parameters.add(new Parameter("Max curr, A", 15.0));
+        setName("Circuit breaker");
     }
     
     
@@ -115,6 +116,11 @@ public class CircuitBreaker extends ShemeElement{
         @Override
         protected void init(){
             flag=false;
+        }
+        
+        @Override
+        protected void setParams(){
+
         }
         
     }

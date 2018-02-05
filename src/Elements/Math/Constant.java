@@ -37,18 +37,10 @@ public class Constant extends MathElement{
     public Constant(){
         super();
         addMathContact('o');
-        
-        apmlitude=new Parameter("Aplitude",1);
-        parameters.add(apmlitude);
-        name="Константа";
     }
     
     public Constant(boolean flag){
         super(flag);
-        
-        apmlitude=new Parameter("Aplitude",1);
-        parameters.add(apmlitude);
-        name="Константа";
     }
     
     @Override
@@ -58,4 +50,10 @@ public class Constant extends MathElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        apmlitude=new Parameter("Aplitude",1);
+        parameters.add(apmlitude);
+        setName("Constant");
+    }
 }

@@ -31,7 +31,7 @@ import ElementBase.ShemeElement;
  * @author Иван
  */
 public class SDPM extends ShemeElement{
-    Parameter Rs,Ls,J,KsiM,Rp,Zp,Fc;
+    Parameter Rs,Ls,J,KsiM,Zp,Fc;
     
     public SDPM(){
         super();
@@ -40,60 +40,15 @@ public class SDPM extends ShemeElement{
         addElemCont(new ElemPin(this, 40, 4));
         this.addMathContact('o');
         this.addMathContact('i');
-        
-        Rs=new Parameter("Stator resistance per phase, Rs", 0.18);
-        this.parameters.add(Rs);
-        Ls=new Parameter("Stator phase inductance, Ls", 8.5e-3);
-        this.parameters.add(Ls);
-        KsiM=new Parameter("Flux linkage established by magnets", 0.07145);
-        this.parameters.add(KsiM);
-        J=new Parameter("Момент инерции приведенный к якорю", 0.00062);
-        this.parameters.add(J); 
-        Zp=new Parameter("Number of permanent magnet pole pairs on the rotor", 4);
-        this.parameters.add(Zp);
-        Fc=new Parameter("Трение", 0.0);
-        this.parameters.add(Fc);
-        Rp=new Parameter("Parasitic resistence", 1e7);
-        this.parameters.add(Rp);
-        
-        this.initials.add(new InitParam("Ток A", 0));
-        this.initials.add(new InitParam("Ток B", 0));
-        this.initials.add(new InitParam("Скорость", 2*Math.PI*50/4));
-        this.initials.add(new InitParam("angle", 0));
-
-        name="СДПМ";
     }
     
     public SDPM(boolean flag){
         super(flag);
-        
-        Rs=new Parameter("Stator resistance per phase, Rs", 0.18);
-        this.parameters.add(Rs);
-        Ls=new Parameter("Stator phase inductance, Ls", 8.5e-3);
-        this.parameters.add(Ls);
-        KsiM=new Parameter("Flux linkage established by magnets", 0.07145);
-        this.parameters.add(KsiM);
-        J=new Parameter("Момент инерции приведенный к якорю", 0.00062);
-        this.parameters.add(J); 
-        Zp=new Parameter("Number of permanent magnet pole pairs on the rotor", 4);
-        this.parameters.add(Zp);
-        Fc=new Parameter("Трение", 0.0);
-        this.parameters.add(Fc);
-        Rp=new Parameter("Parasitic resistence", 1e7);
-        this.parameters.add(Rp);
-        
-        this.initials.add(new InitParam("Ток A", 0));
-        this.initials.add(new InitParam("Ток B", 0));
-        this.initials.add(new InitParam("Скорость", 2*Math.PI*50/4));
-        this.initials.add(new InitParam("angle", 0));
-        
-        name="СДПМ";
     }
 
     @Override
     public String[] getStringFunction() {
-        String M="zp*ksim*(cos(X.4)*X.1+cos(X.4+2/3*pi)*X.2-cos(X.4+4/3*pi)*(X.1+X.2))",
-                rp=Rp.getStringValue();
+        String M="zp*ksim*(cos(X.4)*X.1+cos(X.4+2/3*pi)*X.2-cos(X.4+4/3*pi)*(X.1+X.2))";
         String[] out={
             "d.X.1=1/(3*ls)*(2*(p.1-p.2)+p.2-p.3-3*rs*X.1+ksim*zp*X.3*(cos(X.4+2/3*pi)-2*cos(X.4)+cos(X.4+4/3*pi)))",
             "d.X.2=1/(3*ls)*(p.2-p.1+p.2-p.3-3*rs*X.2+ksim*zp*X.3*(cos(X.4)-2*cos(X.4+2/3*pi)+cos(X.4+4/3*pi)))",
@@ -116,6 +71,28 @@ public class SDPM extends ShemeElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        Rs=new Parameter("Stator resistance per phase, Rs", 0.18);
+        this.parameters.add(Rs);
+        Ls=new Parameter("Stator phase inductance, Ls", 8.5e-3);
+        this.parameters.add(Ls);
+        KsiM=new Parameter("Flux linkage established by magnets", 0.07145);
+        this.parameters.add(KsiM);
+        J=new Parameter("Inertia", 0.00062);
+        this.parameters.add(J); 
+        Zp=new Parameter("Number of permanent magnet pole pairs on the rotor", 4);
+        this.parameters.add(Zp);
+        Fc=new Parameter("Friction", 0.0);
+        this.parameters.add(Fc);
+        
+        this.initials.add(new InitParam("Stator current A", 0));
+        this.initials.add(new InitParam("Stator current B", 0));
+        this.initials.add(new InitParam("Angular velocity", 2*Math.PI*50/4));
+        this.initials.add(new InitParam("Rotor angle", 0));
+        
+        setName("Synchronous motor\npermanent magnets");
+    }
     
     
 //d.X.1=(4*ls*(p.1-p.2)+4*ls*(p.1-p.3)+4*ms*(p.1-p.2)+4*ms*(p.1-p.3)-12*ls*Rs*X.1-12*ms*Rs*X.1-6*lm*(p.1-p.2)*cos(2*X.4*zp)-6*lm*(p.1-p.3)*cos(2*X.4*zp)+18*lm*Rs*X.1*cos(2*X.4*zp)+6*3^(1/2)*lm*(p.1-p.2)*sin(2*X.4*zp)-6*3^(1/2)*lm*(p.1-p.3)*sin(2*X.4*zp)+18*lm*ksim*X.3*sin(X.4*zp)+12*ls*ksim*X.3*sin(X.4*zp)+12*ms*ksim*X.3*sin(X.4*zp)+18*3^(1/2)*lm^2*X.1*X.3+36*3^(1/2)*lm^2*X.2*X.3+6*3^(1/2)*lm*Rs*X.1*sin(2*X.4*zp)+12*3^(1/2)*lm*Rs*X.2*sin(2*X.4*zp)+36*lm*ls*X.1*X.3*sin(2*X.4*zp)+36*lm*ms*X.1*X.3*sin(2*X.4*zp)-12*3^(1/2)*lm*ls*X.1*X.3*cos(2*X.4*zp)-24*3^(1/2)*lm*ls*X.2*X.3*cos(2*X.4*zp)-12*3^(1/2)*lm*ms*X.1*X.3*cos(2*X.4*zp)-24*3^(1/2)*lm*ms*X.2*X.3*cos(2*X.4*zp))/(-27*lm^2+12*ls^2+24*ls*ms+12*ms^2)

@@ -39,11 +39,9 @@ public class KZsensor extends OutputElement{
     public KZsensor(){
         super();
         addMathContact('i');
-        name="Анализатор тока\nКЗ";
     }
     public KZsensor(boolean catalog){
         super(catalog);
-        name="Анализатор тока\nКЗ";
     }
 
     @Override
@@ -80,7 +78,7 @@ public class KZsensor extends OutputElement{
             txt=new Label(maxItime.toString());
             root.add(txt, 1, 1);
         }else{
-            Label txt=new Label("Nu nihuya sebe");
+            Label txt=new Label("No results. Start simulation");
             root.add(txt, 0, 0);
         }
         plotStage.show();
@@ -89,5 +87,10 @@ public class KZsensor extends OutputElement{
     @Override
     protected List<Double> getValue(int outIndex) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    @Override
+    protected void setParams(){
+        setName("Current peak\nanalizer");
     }
 }

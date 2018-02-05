@@ -21,18 +21,10 @@ public class Gain extends MathElement{
         super();
         addMathContact('i');
         addMathContact('o');
-        
-        gainValue=new Parameter("Gain", 2);
-        parameters.add(gainValue);
-        name="Gain";
     }
     
     public Gain(boolean flag){
         super(flag);
-        
-        gainValue=new Parameter("Gain", 2);
-        parameters.add(gainValue);
-        name="Gain";
     }
     
     @Override
@@ -45,4 +37,10 @@ public class Gain extends MathElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        gainValue=new Parameter("Gain", 2);
+        parameters.add(gainValue);
+        setName("Gain");
+    }
 }

@@ -21,23 +21,12 @@ public class Sarturation extends MathElement {
         super();
         addMathContact('i');
         addMathContact('o');
-        
-        levelUp=new Parameter("Upper", 1);
-        levelDown=new Parameter("Lower", -1);
-        parameters.add(levelUp);
-        parameters.add(levelDown);
-
-        name="Насыщение";
     }
     
     public Sarturation(boolean flag){
         super(flag);
         
-        levelUp=new Parameter("Upper", 1);
-        levelDown=new Parameter("Lower", -1);
-        parameters.add(levelUp);
-        parameters.add(levelDown);
-        name="Насыщение";
+        
     }
     
     @Override
@@ -55,4 +44,12 @@ public class Sarturation extends MathElement {
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        levelUp=new Parameter("Upper limit", 1);
+        levelDown=new Parameter("Lower limit", -1);
+        parameters.add(levelUp);
+        parameters.add(levelDown);
+        setName("Sarturation");
+    }
 }

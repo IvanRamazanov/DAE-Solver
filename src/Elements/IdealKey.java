@@ -36,14 +36,10 @@ public class IdealKey extends ShemeElement {
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('i');
-        
-        name="Ключ";
     }
     
     public IdealKey(boolean catalog){
         super(catalog);
-        
-        name="Ключ";
     }
     
 
@@ -52,5 +48,9 @@ public class IdealKey extends ShemeElement {
         String[] str={"p.1-p.2=i.1*if(gr(I.1,0),0.001,10000000)","i.1+i.2=0"};
         return str;
     }
-
+    
+    @Override
+    protected void setParams(){
+        setName("Ideal key");
+    }
 }

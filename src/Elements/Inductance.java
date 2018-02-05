@@ -18,21 +18,9 @@ public class Inductance extends ShemeElement{
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
-        
-        this.parameters.add(new Parameter("Индуктивность", 0.01));
-        this.parameters.add(new Parameter("Паразитное сопротивление", 1e7));
-        
-        this.initials.add(new InitParam("Ток", 0));
-        name="Катушка";
     }
     public Inductance(boolean Catalog){
         super(Catalog);
-        
-        this.parameters.add(new Parameter("Индуктивность", 0.01));
-        this.parameters.add(new Parameter("Паразитное сопротивление", 1e7));
-        
-        this.initials.add(new InitParam("Ток", 0));
-        name="Катушка";
     }
 
     @Override
@@ -44,5 +32,13 @@ public class Inductance extends ShemeElement{
                         "X.1=i.1",
                         "i.1+i.2=0"};
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        this.parameters.add(new Parameter("Inductance", 0.01));
+        
+        this.initials.add(new InitParam("Current", 0));
+        setName("Inductance");
     }
 }

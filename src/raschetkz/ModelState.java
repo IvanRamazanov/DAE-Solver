@@ -55,7 +55,8 @@ import javafx.scene.layout.Pane;
             dt=new SimpleDoubleProperty();
             tend=new SimpleDoubleProperty();
             solver=new SimpleStringProperty();
-            jacobianEstimationType=0;
+            solver.setValue("Adams4");
+            jacobianEstimationType=2;
         }
         
         

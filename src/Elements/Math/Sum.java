@@ -41,12 +41,10 @@ public class Sum extends MathElement{
         addMathContact('i');
         addMathContact('i');
         addMathContact('o');
-        name="Сумма";
     }
     
     public Sum(boolean flag){
         super(flag);
-        name="Сумма";
     }
 
     @Override
@@ -60,6 +58,11 @@ public class Sum extends MathElement{
             sum.add(val);
         }
         return sum;
+    }
+    
+    @Override
+    protected void setParams(){
+        setName("Sum");
     }
     
     private class StrParam extends Parameter{

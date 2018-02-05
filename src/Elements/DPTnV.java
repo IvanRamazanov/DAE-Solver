@@ -25,53 +25,11 @@ public class DPTnV extends ShemeElement {
         this.addMathContact('o');
         this.addMathContact('i');
         
-        Rya=new Parameter("Сопротивление якоря", 0.1);
-        this.parameters.add(Rya);
-        Lya=new Parameter("Индуктивность якоря", 0.001);
-        this.parameters.add(Lya);
-        J0=new Parameter("Момент инерции приведенный к якорю", 10);
-        this.parameters.add(J0); 
-        Cm=new Parameter("Cm", 10);
-        this.parameters.add(Cm);
-        Cw=new Parameter("Cw", 10);
-        this.parameters.add(Cw); 
-        F=new Parameter("Ф", 1);
-        this.parameters.add(F);
-        Rf=new Parameter("Сопротивление возбуждения", 0.1);
-        this.parameters.add(Rf);
-        Lf=new Parameter("Индуктивность возбуждения", 0.1);
-        this.parameters.add(Lf);
         
-        this.initials.add(new InitParam("Ток якоря", 0));
-        this.initials.add(new InitParam("Скорость", 0));
-        this.initials.add(new InitParam("Ток возбуждения", 0));
-        name="ДПТНВ";
     }
     
     public DPTnV(boolean Catalog){
         super(Catalog);
-        
-        Rya=new Parameter("Сопротивление якоря", 0.1);
-        this.parameters.add(Rya);
-        Lya=new Parameter("Индуктивность якоря", 0.001);
-        this.parameters.add(Lya);
-        J0=new Parameter("Момент инерции приведенный к якорю", 10);
-        this.parameters.add(J0); 
-        Cm=new Parameter("Cm", 10);
-        this.parameters.add(Cm);
-        Cw=new Parameter("Cw", 10);
-        this.parameters.add(Cw); 
-        F=new Parameter("Ф", 1);
-        this.parameters.add(F);
-        Rf=new Parameter("Сопротивление возбуждения", 0.1);
-        this.parameters.add(Rf);
-        Lf=new Parameter("Индуктивность возбуждения", 0.1);
-        this.parameters.add(Lf);
-        
-        this.initials.add(new InitParam("Ток якоря", 0));
-        this.initials.add(new InitParam("Скорость", 0));
-        this.initials.add(new InitParam("Ток возбуждения", 0));
-        name="ДПТНВ";
     }
 
     @Override
@@ -91,6 +49,31 @@ public class DPTnV extends ShemeElement {
                       "X.3=i.3",
                       "O.1=X.2","i.1+i.2=0","i.3+i.4=0"}; //I.1==1.1
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        Rya=new Parameter("Rotor reluctance", 0.1);
+        this.parameters.add(Rya);
+        Lya=new Parameter("Rotor inductance", 0.001);
+        this.parameters.add(Lya);
+        J0=new Parameter("Inertia", 10);
+        this.parameters.add(J0); 
+        Cm=new Parameter("Cm", 10);
+        this.parameters.add(Cm);
+        Cw=new Parameter("Cw", 10);
+        this.parameters.add(Cw); 
+        F=new Parameter("Flux", 1);
+        this.parameters.add(F);
+        Rf=new Parameter("Stator reluctance", 0.1);
+        this.parameters.add(Rf);
+        Lf=new Parameter("Stator inductance", 0.1);
+        this.parameters.add(Lf);
+        
+        this.initials.add(new InitParam("Rotor current", 0));
+        this.initials.add(new InitParam("Anrular velocity", 0));
+        this.initials.add(new InitParam("Stator current", 0));
+        setName("DC motor");
     }
     
 }

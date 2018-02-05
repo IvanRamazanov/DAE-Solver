@@ -17,19 +17,20 @@ public class ElectricalRefference extends ShemeElement{
     public ElectricalRefference(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
-        
-        name="Земля";
     }
     
     public ElectricalRefference(boolean Catalog){
         super(Catalog);
-        
-        name="Земля";
     }
 
     @Override
     public String[] getStringFunction() {
         String[] str={"p.1=0"};
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        setName("Electical refference");
     }
 }

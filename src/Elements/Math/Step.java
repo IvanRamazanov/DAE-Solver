@@ -38,26 +38,10 @@ public class Step extends MathElement{
     public Step(){
         super();
         addMathContact('o');
-        
-        amplitudeOn=new Parameter("level on",1);
-        parameters.add(amplitudeOn);
-        amplitudeOff=new Parameter("level off",0);
-        parameters.add(amplitudeOff);
-        moment=new Parameter("Время",0.5);
-        parameters.add(moment);
-        name="Хэвисайд";
     }
     
     public Step(boolean flag){
         super(flag);
-        
-        amplitudeOn=new Parameter("level on",1);
-        parameters.add(amplitudeOn);
-        amplitudeOff=new Parameter("level off",0);
-        parameters.add(amplitudeOff);
-        moment=new Parameter("Время",0.5);
-        parameters.add(moment);
-        name="Хэвисайд";
     }
 
     @Override
@@ -70,4 +54,14 @@ public class Step extends MathElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        amplitudeOn=new Parameter("level on",1);
+        parameters.add(amplitudeOn);
+        amplitudeOff=new Parameter("level off",0);
+        parameters.add(amplitudeOff);
+        moment=new Parameter("Switch time",0.5);
+        parameters.add(moment);
+        setName("Step");
+    }
 }

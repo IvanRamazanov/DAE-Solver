@@ -17,18 +17,10 @@ public class VoltageSourse extends ShemeElement {
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
-        
-        this.parameters.add(new Parameter("Напряжение", 15.0));
-        this.parameters.add(new Parameter("Паразитное сопротивление", 1e-7));
-        name="Источник постоянного\nнапряжения";
     }
     
     public VoltageSourse(boolean catalog){
         super(catalog);
-        
-        this.parameters.add(new Parameter("Напряжение", 15.0));
-        this.parameters.add(new Parameter("Паразитное сопротивление", 1e-7));
-        name="Источник постоянного\nнапряжения";
     }
     
 //    @Override
@@ -54,5 +46,11 @@ public class VoltageSourse extends ShemeElement {
                     "i.1+i.2=0"
                 };
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        this.parameters.add(new Parameter("Voltage", 15.0));
+        setName("DC voltage source");
     }
 }

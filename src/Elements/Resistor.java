@@ -18,15 +18,9 @@ public class Resistor extends ShemeElement {
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
-        
-        this.parameters.add(new Parameter("Сопротивление", 10.0));
-        name="Резистор";
     }
     public Resistor(boolean Catalog){
         super(Catalog);
-        
-        this.parameters.add(new Parameter("Сопротивление", 10.0));
-        name="Резистор";
     }
 
     @Override
@@ -38,4 +32,9 @@ public class Resistor extends ShemeElement {
         return str;
     }
     
+    @Override
+    protected void setParams(){
+        this.parameters.add(new Parameter("Resistance", 10.0));
+        setName("Resistance");
+    }
 }

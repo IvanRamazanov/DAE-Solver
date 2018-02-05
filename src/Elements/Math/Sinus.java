@@ -24,26 +24,10 @@ public class Sinus extends MathElement{
     public Sinus(){
         super();
         addMathContact('o');
-        
-        apmlitude=new Parameter("Aplitude",1);
-        parameters.add(apmlitude);
-        freq=new Parameter("Frequency",1);
-        parameters.add(freq);
-        phase=new Parameter("Phase lag",0);
-        parameters.add(phase);
-        name="Синус";
     }
     
     public Sinus(boolean flag){
         super(flag);
-        
-        apmlitude=new Parameter("Aplitude",1);
-        parameters.add(apmlitude);
-        freq=new Parameter("Frequency",1);
-        parameters.add(freq);
-        phase=new Parameter("Phase lag",0);
-        parameters.add(phase);
-        name="Синус";
     }
 
     @Override
@@ -56,4 +40,14 @@ public class Sinus extends MathElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        apmlitude=new Parameter("Amplitude",1);
+        parameters.add(apmlitude);
+        freq=new Parameter("Frequency",1);
+        parameters.add(freq);
+        phase=new Parameter("Phase shift",0);
+        parameters.add(phase);
+        setName("Sinus wave");
+    }
 }

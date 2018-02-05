@@ -20,14 +20,10 @@ public class ControlledVoltage extends ShemeElement{
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('i');
-        
-        name="Зависимый ИН";
     }
     
     public ControlledVoltage(boolean catalog){
         super(catalog);
-        
-        name="Зависимый ИН";
     }
     
 
@@ -37,4 +33,8 @@ public class ControlledVoltage extends ShemeElement{
         return str;
     }
     
+    @Override
+    protected void setParams(){
+        setName("Depended voltage\nsource");
+    }
 }

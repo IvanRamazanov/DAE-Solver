@@ -47,11 +47,9 @@ public class Scope extends OutputElement{
             }
         });
         cm.getItems().add(export);
-        name="Скопе";
     }
     public Scope(boolean catalog){
         super(catalog);
-        name="Скопе";
     }
     
     void plot(){
@@ -98,5 +96,8 @@ public class Scope extends OutputElement{
         plot();
     }
     
-    
+    @Override
+    protected void setParams(){
+        setName("Scope");
+    }
 }

@@ -22,20 +22,10 @@ public class ThreePhaseVoltageSourse extends ShemeElement {
         addElemCont(new ElemPin(this, 26, 4));//B
         addElemCont(new ElemPin(this, 43, 4));//C
         addElemCont(new ElemPin(this, 26, 66));//N
-        
-        this.parameters.add(new Parameter("Амплитуда", 10.0));
-        this.parameters.add(new Parameter("Частота", 50.0));
-        this.parameters.add(new Parameter("Фаза", 0.0));
-        name="Источник напряжения\nтрехфазный";
     }
     
     public ThreePhaseVoltageSourse(boolean Catalog){
         super(Catalog);
-        
-        this.parameters.add(new Parameter("Амплитуда", 10.0));
-        this.parameters.add(new Parameter("Частота", 50.0));
-        this.parameters.add(new Parameter("Фаза", 0.0));
-        name="Источник напряжения\nтрехфазный";
     }
 
     @Override
@@ -47,5 +37,13 @@ public class ThreePhaseVoltageSourse extends ShemeElement {
                         "p.2="+A+"*"+"sin("+(2*PI)+"*"+fq+"*time+"+phi+"-"+(2*PI/3)+")+p.4",
                         "p.3="+A+"*"+"sin("+(2*PI)+"*"+fq+"*time+"+phi+"+"+(2*PI/3)+")+p.4","i.1+i.2+i.3+i.4=0"};
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        this.parameters.add(new Parameter("Amplitude", 10.0));
+        this.parameters.add(new Parameter("Frequency", 50.0));
+        this.parameters.add(new Parameter("Phase", 0.0));
+        setName("Three-phase voltage\nsource");
     }
 }

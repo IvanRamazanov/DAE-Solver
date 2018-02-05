@@ -18,17 +18,19 @@ public class Ampermeter extends ShemeElement {
         addElemCont(new ElemPin(this, 12, 4));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('o');
-//        this.parameters.add(new Parameter("Множитель", 1.0));
-        name="Константа";
     }
     public Ampermeter(boolean Catalog){
         super(Catalog);
-        name="Константа";
     }
 
     @Override
     public String[] getStringFunction() {
         String[] str={"p.1-p.2=0","O.1=i.1","i.1+i.2=0"};
         return str;
+    }
+
+    @Override
+    protected void setParams() {
+        setName("Ampermeter");
     }
 }

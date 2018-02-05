@@ -22,13 +22,13 @@ public class ListOfElements {
     List<Categorie> list=new ArrayList<>();
     
     public ListOfElements(){
-        list.add(new Categorie("Базовые элементы"));
-        list.add(new Categorie("Источники"));
-        list.add(new Categorie("Специальные элементы"));
-        list.add(new Categorie("Semiconductor"));
-        list.add(new Categorie("Электропривода"));
-        list.add(new Categorie("Измерения"));
-        list.add(new Categorie("Math"));
+        list.add(new Categorie("Basics"));
+        list.add(new Categorie("Electric sources"));
+        list.add(new Categorie("Special elements"));
+        list.add(new Categorie("Semiconductors"));
+        list.add(new Categorie("Electrical machines"));
+        list.add(new Categorie("Measurments"));
+        list.add(new Categorie("Maths"));
     }
     public List<Categorie> getCategories() {
         return(list);
@@ -39,35 +39,35 @@ public class ListOfElements {
     }
     
     private void addToCategorie(String type,Categorie cat){
-        if("Базовые элементы".equals(type)){
+        if("Basics".equals(type)){
             cat.elements.add(new Resistor(true));
             cat.elements.add(new Inductance(true));
             cat.elements.add(new Capasitor(true));
             cat.elements.add(new ElectricalRefference(true));
         }
-        if("Источники".equals(type)){
+        if("Electric sources".equals(type)){
             cat.elements.add(new VoltageSourse(true));
             cat.elements.add(new VariableVoltage(true));
             cat.elements.add(new ThreePhaseVoltageSourse(true));
             cat.elements.add(new ControlledVoltage(true));
             cat.elements.add(new CurrentSource(true));
         }
-        if("Специальные элементы".equals(type)){
+        if("Special elements".equals(type)){
             cat.elements.add(new ShortCircuit(true));
             cat.elements.add(new IdealKey(true));
             cat.elements.add(new CircuitBreaker(true));
         }
-        if("Электропривода".equals(type)){
+        if("Electrical machines".equals(type)){
             cat.elements.add(new DPTPM(true));
             cat.elements.add(new DPTnV(true));
             cat.elements.add(new InductionMotor(true));
             cat.elements.add(new SDPM(true));
         }
-        if("Измерения".equals(type)){
+        if("Measurments".equals(type)){
             cat.elements.add(new Voltmeter(true));
             cat.elements.add(new Ampermeter(true));
         }
-        if("Math".equals(type)){
+        if("Maths".equals(type)){
             cat.elements.add(new Scope(true));
             cat.elements.add(new Gain(true));
             cat.elements.add(new Sinus(true));
@@ -82,7 +82,7 @@ public class ListOfElements {
             cat.elements.add(new KZsensor(true));
             cat.elements.add(new SimulationTime(true));
         }
-        if("Semiconductor".equals(type)){
+        if("Semiconductors".equals(type)){
             cat.elements.add(new Diode(true));
             cat.elements.add(new NPNtrans(true));
             cat.elements.add(new PNPtrans(true));
@@ -93,10 +93,11 @@ public class ListOfElements {
         String type;
         List<Element> elements=new ArrayList<>();
         
+        
         Categorie(String name){
             this.type=name;
             this.setText(name);
-            this.setPrefSize(100, 30);
+            this.setPrefSize(150, 30);
             this.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
             addToCategorie(name,this);
 //            this.setOnAction((ActionEvent ae)->{

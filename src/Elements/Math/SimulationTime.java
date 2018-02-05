@@ -37,12 +37,10 @@ public class SimulationTime extends MathElement{
     public SimulationTime(){
         super();
         addMathContact('o');
-        name="Время";
     }
     
     public SimulationTime(boolean flag){
         super(flag);
-        name="Время";
     }
 
     @Override
@@ -52,4 +50,8 @@ public class SimulationTime extends MathElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        setName("Simulation time");
+    }
 }

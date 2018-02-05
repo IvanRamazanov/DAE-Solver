@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author Ivan
  */
-public class DynamMathElem extends MathElement{
+abstract public class DynamMathElem extends MathElement{
     private List<Double> X_old;
     List<Double> dX;
     List<Parameter> x0;

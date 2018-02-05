@@ -38,22 +38,10 @@ public class Ramp extends MathElement{
     public Ramp(){
         super();
         addMathContact('o');
-        
-        slope=new Parameter("Slope",1);
-        parameters.add(slope);
-        ton=new Parameter("ON time",0);
-        parameters.add(ton);
-        name="Ramp";
     }
     
     public Ramp(boolean flag){
         super(flag);
-        
-        slope=new Parameter("Slope",1);
-        parameters.add(slope);
-        ton=new Parameter("ON time",0);
-        parameters.add(ton);
-        name="Ramp";
     }
     
     @Override
@@ -69,5 +57,14 @@ public class Ramp extends MathElement{
         }
         
         return out;
+    }
+    
+    @Override
+    protected void setParams(){
+        slope=new Parameter("Slope",1);
+        parameters.add(slope);
+        ton=new Parameter("ON time",0);
+        parameters.add(ton);
+        setName("Ramp");
     }
 }

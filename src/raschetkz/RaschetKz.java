@@ -87,7 +87,6 @@ public class RaschetKz extends Application{
         t_end=state.getTend();
         t_end.set(1);
         solverType=state.getSolver();
-        solverType.set("Euler");
         parentStage=primaryStage;
         drawBoard=state.getDrawBoard();
         BranchList=state.GetWires();
@@ -101,7 +100,7 @@ public class RaschetKz extends Application{
                 currentFile.setText(f.getName());
             }
         BorderPane root = new BorderPane();        
-        Scene scene = new Scene(root, 500, 350);
+        Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add("raschetkz/mod.css");
         initGui(root);
         primaryStage.setTitle("OmniSystem Simulator");
@@ -215,11 +214,11 @@ public class RaschetKz extends Application{
     
     void createElementCatalog(){
         Stage elementStage=new Stage();
-        elementStage.setTitle("Библиотека элементов");
+        elementStage.setTitle("Element catalogue");
         elementStage.initOwner(parentStage);
         HBox root=new HBox(10);
         root.setStyle("-fx-border-style: solid");
-        Scene scene=new Scene(root,300, 300,Color.ANTIQUEWHITE);
+        Scene scene=new Scene(root,400, 500,Color.ANTIQUEWHITE);
         VBox cats=new VBox(0);
         scene.getStylesheets().add("raschetkz/mod.css");
         TilePane elems=new TilePane(Orientation.HORIZONTAL, 5, 5);
@@ -234,7 +233,7 @@ public class RaschetKz extends Application{
     MenuBar createMenu(){
         FileChooser fileChoose = new FileChooser();
         MenuBar menuBar = new MenuBar();
-        Menu fileMenu = new Menu("Файл");
+        Menu fileMenu = new Menu("File");
         MenuItem newFile= new MenuItem("New");
         newFile.setOnAction((ActionEvent ae)->{
             if(isSaveNeeded){
@@ -254,25 +253,25 @@ public class RaschetKz extends Application{
                 currentFile.setText("Untitled.rim");
             }
         });
-        MenuItem menuOpenFile = new MenuItem("Открыть");
+        MenuItem menuOpenFile = new MenuItem("Open");
         menuOpenFile.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+o"));
         menuOpenFile.setOnAction((ActionEvent ae) -> {
             FileChooser filechoose=new FileChooser();
             filechoose.getExtensionFilters().add(new FileChooser.ExtensionFilter("RIM", "*.rim"));
-            filechoose.setTitle("Выберите файл");
+            filechoose.setTitle("Choose a file");
             File file=filechoose.showOpenDialog(parentStage);
             if(file!=null){
                 state.Load(file.toString());
                 currentFile.setText(file.getName());
             }
         });
-        MenuItem menuSaveFile = new MenuItem("Сохранить");
+        MenuItem menuSaveFile = new MenuItem("Save");
         menuSaveFile.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+s"));
         menuSaveFile.setOnAction((ActionEvent ae)->{
             if(state.getName()==null){
                 FileChooser filechoose=new FileChooser();
                 filechoose.getExtensionFilters().add(new FileChooser.ExtensionFilter("RIM", "*.rim"));
-                filechoose.setTitle("Сохранить как...");
+                filechoose.setTitle("Save as...");
                 File file=filechoose.showSaveDialog(parentStage);
                 if(file!=null){
                     state.Save(file.toString());
@@ -282,36 +281,36 @@ public class RaschetKz extends Application{
                 state.Save();
             }
         });
-        MenuItem menuSaveAsFile = new MenuItem("Сохранить как...");
+        MenuItem menuSaveAsFile = new MenuItem("Save as...");
         menuSaveAsFile.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+"+KeyCombination.ALT_DOWN+"+s"));
         menuSaveAsFile.setOnAction((ActionEvent ae)->{
             FileChooser filechoose=new FileChooser();
             filechoose.getExtensionFilters().add(new FileChooser.ExtensionFilter("RIM", "*.rim"));
-            filechoose.setTitle("Сохранить как...");
+            filechoose.setTitle("Save as...");
             File file=filechoose.showSaveDialog(parentStage);
             if(file!=null){
                 state.Save(file.toString());
                 currentFile.setText(file.getName());
             }
         });
-        MenuItem menuExit = new MenuItem("Выход");
+        MenuItem menuExit = new MenuItem("Exit");
 //        menuExit.setAccelerator(KeyCombination.keyCombination("Esc"));
         menuExit.setOnAction((ActionEvent ae) -> {
             System.exit(0);
         });
         fileMenu.getItems().addAll(newFile,menuOpenFile,menuSaveFile,menuSaveAsFile,menuExit);
-        Menu evalMenu = new Menu("Симуляция");
+        Menu evalMenu = new Menu("Simulation");
         //MenuItem run=new MenuItem("Запуск");
         
-        MenuItem config=new MenuItem("Конфигурация решателя");
+        MenuItem config=new MenuItem("Solver configuration");
         config.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+g"));
         config.setOnAction((ActionEvent ae)->{
             showConfigurator();
         });
         evalMenu.getItems().addAll(config);
         menuBar.getMenus().addAll(fileMenu,evalMenu);
-        Menu catMenu = new Menu("Каталог");
-        MenuItem item=new MenuItem("Открыть");
+        Menu catMenu = new Menu("Element catalogue");
+        MenuItem item=new MenuItem("Open catalogue");
         item.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+l"));
         item.setOnAction((ActionEvent ae)->{
             createElementCatalog();
@@ -319,87 +318,12 @@ public class RaschetKz extends Application{
         catMenu.getItems().add(item);
         menuBar.getMenus().add(catMenu);
         
-        
-        Menu test=new Menu("test");
-        MenuItem itemm=new MenuItem("simply");
-        itemm.setOnAction(e->{
-            List<List<MathPack.StringGraph>> A=new java.util.ArrayList();
-            for(int i=0;i<3;i++)  A.add(new java.util.ArrayList());
-            A.get(0).add(new MathPack.StringGraph("0.792207329559554"));
-            A.get(0).add(new MathPack.StringGraph("0.035711678574190"));
-            A.get(0).add(new MathPack.StringGraph("0.678735154857773"));
-            A.get(1).add(new MathPack.StringGraph("0.959492426392903"));
-            A.get(1).add(new MathPack.StringGraph("0.849129305868777"));
-            A.get(1).add(new MathPack.StringGraph("0.757740130578333"));
-            A.get(2).add(new MathPack.StringGraph("0.655740699156587"));
-            A.get(2).add(new MathPack.StringGraph("0.933993247757551"));
-            A.get(2).add(new MathPack.StringGraph("0.743132468124916"));
-            A=MathPack.MatrixEqu.invMatrSymb(A);
-            for(int i=0;i<3;i++){
-                for(int j=0;j<3;j++)
-                    System.out.print(A.get(i).get(j).toString()+" ");
-                System.out.print("\n");
-            }
-            Stage stag=new Stage();
-            Pane root=new Pane();
-            Label lbl=new Label();
-            lbl.setLayoutY(50);
-            TextField txinp=new TextField();
-            Button btn=new Button("Go!"); 
-            btn.setLayoutY(150);
-            btn.setOnAction(ee->{
-                System.out.println(txinp.getText());
-                MathPack.StringGraph gr=new MathPack.StringGraph(txinp.getText());
-                System.out.println(gr.toString());
-                WorkSpace wc=new WorkSpace();
-                wc.add("f",1.0);
-                gr.simplify();
-                gr=gr.getDiffer("f");
-                lbl.setText(gr.toString());
-            });
-            root.getChildren().addAll(lbl,txinp,btn);
-            Scene sc=new Scene(root,300,175);
-            stag.setScene(sc);
-    //        stag.setResizable(false);
-            stag.show();
-        });
-        test.getItems().add(itemm);
-        menuBar.getMenus().add(test);
-        
-        test=new Menu("test2");
-        itemm=new MenuItem("simplyOlo");
-        itemm.setOnAction(e->{
-//            File f=fileChoose.showOpenDialog(parentStage);
-//            try {
-//                AudioClip a=AudioClip.load(f.toURI());
-//                a.play();
-//            } catch (URISyntaxException|IOException ex) {
-//                Logger.getLogger(RaschetKz.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-            
-            int[][] A=
-            {{0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 1, 0, 0},
-            {0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 1, 0, 0},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, -1},
-            {0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, -1, 0},
-            {1, 0, 0, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0},
-            {1, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {1, 0, 0, 0, 0, 0, -1, 0, 0, 0, 0, 0, 0, 0},
-            {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-            {0, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}};
-            
-            layoutString("     rank:    "+Integer.toString(MathPack.MatrixEqu.rank(MathPack.MatrixEqu.ArrayTolist(A))));
-        });
-        test.getItems().add(itemm);
-        menuBar.getMenus().add(test);
         return(menuBar);
     }
     
     private void showConfigurator(){
         Stage subWind=new Stage();
-        subWind.setTitle("Конфигурация решателя");
+        subWind.setTitle("Solver confuguration");
         BorderPane root=new BorderPane();
         Scene scene=new Scene(root, 400, 300);
         scene.getStylesheets().add("raschetkz/mod.css");
@@ -424,10 +348,10 @@ public class RaschetKz extends Application{
                 jacobEstType.setValue("Symbolic only Jacobian");
                 break;
         }
-        Label deltaL=new Label("Шаг расчета:");
-        Label endL=new Label("Время расчета:");
-        Label solvL=new Label("Метод решения:"); 
-        Label jacoL=new Label("Метод оценки Якобиана:"); 
+        Label deltaL=new Label("Fixed step size:");
+        Label endL=new Label("Simulation time:");
+        Label solvL=new Label("Solver type:"); 
+        Label jacoL=new Label("Jacobian type:"); 
         GridPane top=new GridPane();
         top.setVgap(5);
         top.setHgap(5);

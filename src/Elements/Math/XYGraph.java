@@ -43,12 +43,10 @@ public class XYGraph extends OutputElement{
         data.add(new ArrayList());
         addMathContact('i');
         addMathContact('i');
-        name="ХУскопе";
     }
     
     public XYGraph(boolean inp){
         super(inp);
-        name="ХУскопе";
     }
 
     @Override
@@ -90,6 +88,11 @@ public class XYGraph extends OutputElement{
     @Override
     public void init(){
         this.data.clear();
+    }
+    
+    @Override
+    protected void setParams(){
+        setName("ХУ graph");
     }
 
 }

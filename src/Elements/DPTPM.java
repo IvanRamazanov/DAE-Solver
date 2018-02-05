@@ -22,44 +22,10 @@ public class DPTPM extends ShemeElement{
         addElemCont(new ElemPin(this, 31, 66));
         addMathContact('i');
         addMathContact('o');
-        
-        Rya=new Parameter("Сопротивление якоря", 0.6);
-        this.parameters.add(Rya);
-        Lya=new Parameter("Индуктивность якоря", 0.012);
-        this.parameters.add(Lya);
-        J0=new Parameter("Момент инерции приведенный к якорю", 1);
-        this.parameters.add(J0); 
-        Cm=new Parameter("Cm", 1.8);
-        this.parameters.add(Cm);
-        Cw=new Parameter("Cw", 1.8);
-        this.parameters.add(Cw); 
-        F=new Parameter("Ф", 1);
-        this.parameters.add(F);
-        
-        this.initials.add(new InitParam("Ток", 0));
-        this.initials.add(new InitParam("Скорость", 0));
-        name="ДПТПМ";
     }
     
     public DPTPM(boolean Catalog){
         super(Catalog);
-        
-        Rya=new Parameter("Сопротивление якоря", 0.6);
-        this.parameters.add(Rya);
-        Lya=new Parameter("Индуктивность якоря", 0.012);
-        this.parameters.add(Lya);
-        J0=new Parameter("Момент инерции приведенный к якорю", 1);
-        this.parameters.add(J0); 
-        Cm=new Parameter("Cm", 1.8);
-        this.parameters.add(Cm);
-        Cw=new Parameter("Cw", 1.8);
-        this.parameters.add(Cw); 
-        F=new Parameter("Ф", 1);
-        this.parameters.add(F);
-        
-        this.initials.add(new InitParam("Ток", 0));
-        this.initials.add(new InitParam("Скорость", 0));
-        name="ДПТПМ";
     }
 
     @Override
@@ -75,5 +41,25 @@ public class DPTPM extends ShemeElement{
             "d.X.2=(i.1*"+f+"*"+cm+"-I.1)/"+J,
             "O.1=X.2","i.1+i.2=0"};
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        Rya=new Parameter("Rotor reluctance", 0.6);
+        this.parameters.add(Rya);
+        Lya=new Parameter("Rotor inductance", 0.012);
+        this.parameters.add(Lya);
+        J0=new Parameter("Inertia", 1);
+        this.parameters.add(J0); 
+        Cm=new Parameter("Cm", 1.8);
+        this.parameters.add(Cm);
+        Cw=new Parameter("Cw", 1.8);
+        this.parameters.add(Cw); 
+        F=new Parameter("Flux", 1);
+        this.parameters.add(F);
+        
+        this.initials.add(new InitParam("Current", 0));
+        this.initials.add(new InitParam("Angular velocity", 0));
+        setName("DC motor with\npermanent magnets");
     }
 }

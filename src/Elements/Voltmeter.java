@@ -18,17 +18,20 @@ public class Voltmeter extends ShemeElement{
         addElemCont(new ElemPin(this, 12, 4));
         addElemCont(new ElemPin(this, 12, 60));
         addMathContact('o');
-        
-        name="Вольтметер";
     }
     public Voltmeter(boolean Catalog){
         super(Catalog);
-        name="Вольтметер";
+        
     }
 
     @Override
     public String[] getStringFunction() {
         String[] str={"i.1=0","O.1=p.1-p.2","i.1+i.2=0"};
         return str;
+    }
+    
+    @Override
+    protected void setParams(){
+        setName("Voltmeter");
     }
 }

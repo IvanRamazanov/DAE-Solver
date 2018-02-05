@@ -18,18 +18,10 @@ public class ShortCircuit extends ShemeElement {
         super();
         addElemCont(new ElemPin(this, 12, 5));
         addElemCont(new ElemPin(this, 12, 60));
-        
-        t=new Parameter("Время КЗ, с", 1.0);
-        this.parameters.add(t);
-        name="Короткое замыкание";
     }
     
     public ShortCircuit(boolean Catalog){
         super(Catalog);
-        
-        t=new Parameter("Время КЗ, с", 1.0);
-        this.parameters.add(t);
-        name="Короткое замыкание";
     }
 
     @Override
@@ -39,4 +31,12 @@ public class ShortCircuit extends ShemeElement {
             "i.1+i.2=0"};
         return str;
     }
+    
+    @Override
+    protected void setParams(){
+        t=new Parameter("Trigger time, с", 1.0);
+        this.parameters.add(t);
+        setName("Short circuit");
+    }
+    
 }

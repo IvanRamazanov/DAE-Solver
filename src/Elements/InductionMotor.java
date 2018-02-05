@@ -40,65 +40,10 @@ public class InductionMotor extends ShemeElement{
         addElemCont(new ElemPin(this, 40, 4));
         this.addMathContact('o');
         this.addMathContact('i');
-        
-        Rs=new Parameter("Сопротивление статора", 1.405);
-        this.parameters.add(Rs);
-        Rr=new Parameter("Сопротивление ротора", 1.395);
-        this.parameters.add(Rr);
-        Ls=new Parameter("Индуктивность рассеяния статора", 0.005839);
-        this.parameters.add(Ls);
-        Lr=new Parameter("Индуктивность рассеяния ротора", 0.005839);
-        this.parameters.add(Lr);        
-        Lm=new Parameter("Главная намагничивающая индуктивность", 0.1722);
-        this.parameters.add(Lm);
-        J=new Parameter("Момент инерции приведенный к якорю", 0.0131);
-        this.parameters.add(J); 
-        Zp=new Parameter("Число пар полюсов", 2);
-        this.parameters.add(Zp);
-        Fc=new Parameter("Трение", 0.002985);
-        this.parameters.add(Fc);
-        Rp=new Parameter("Паразитное сопротивление", 1e7);
-        this.parameters.add(Rp);
-        
-        this.initials.add(new InitParam("Ток A", 0));
-        this.initials.add(new InitParam("Ток B", 0));
-        this.initials.add(new InitParam("Ток a", 0));
-        this.initials.add(new InitParam("Ток b", 0));
-        this.initials.add(new InitParam("Скорость", 0));
-        this.initials.add(new InitParam("angle", 0));
-
-        name="АДКЗ";
     }
     
     public InductionMotor(boolean Catalog){
         super(Catalog);
-        
-        Rs=new Parameter("Сопротивление статора", 1.405);
-        this.parameters.add(Rs);
-        Rr=new Parameter("Сопротивление ротора", 1.395);
-        this.parameters.add(Rr);
-        Ls=new Parameter("Индуктивность рассеяния статора", 0.005839);
-        this.parameters.add(Ls);
-        Lr=new Parameter("Индуктивность рассеяния ротора", 0.005839);
-        this.parameters.add(Lr);        
-        Lm=new Parameter("Главная намагничивающая индуктивность", 0.1722);
-        this.parameters.add(Lm);
-        J=new Parameter("Момент инерции приведенный к якорю", 0.0131);
-        this.parameters.add(J); 
-        Zp=new Parameter("Число пар полюсов", 2);
-        this.parameters.add(Zp);
-        Fc=new Parameter("Трение", 0.002985);
-        this.parameters.add(Fc);
-        Rp=new Parameter("Паразитное сопротивление", 1e7);
-        this.parameters.add(Rp);
-        
-        this.initials.add(new InitParam("Ток A", 0));
-        this.initials.add(new InitParam("Ток B", 0));
-        this.initials.add(new InitParam("Ток a", 0));
-        this.initials.add(new InitParam("Ток b", 0));
-        this.initials.add(new InitParam("Скорость", 0));
-        this.initials.add(new InitParam("angle", 0));
-        name="АДКЗ";
     }
 
     @Override
@@ -198,6 +143,33 @@ public class InductionMotor extends ShemeElement{
         return str;
     }
     
+    @Override
+    protected void setParams(){
+        Rs=new Parameter("Stator reluctance", 1.405);
+        this.parameters.add(Rs);
+        Rr=new Parameter("Rotor reluctance", 1.395);
+        this.parameters.add(Rr);
+        Ls=new Parameter("Stator leakage inductance", 0.005839);
+        this.parameters.add(Ls);
+        Lr=new Parameter("Rotor leakage inductance", 0.005839);
+        this.parameters.add(Lr);        
+        Lm=new Parameter("Magnetizing inductance", 0.1722);
+        this.parameters.add(Lm);
+        J=new Parameter("Inertia", 0.0131);
+        this.parameters.add(J); 
+        Zp=new Parameter("Pole pairs", 2);
+        this.parameters.add(Zp);
+        Fc=new Parameter("Friction", 0.002985);
+        this.parameters.add(Fc);
+        
+        this.initials.add(new InitParam("Stator A phase current", 0));
+        this.initials.add(new InitParam("Stator B phase current", 0));
+        this.initials.add(new InitParam("Stator a phase current", 0));
+        this.initials.add(new InitParam("Stator b phase current", 0));
+        this.initials.add(new InitParam("Angular velocity", 0));
+        this.initials.add(new InitParam("Rotor angle", 0));
+        setName("Asynchronous motor");
+    }
 }
 
 

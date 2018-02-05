@@ -37,21 +37,13 @@ public class Mux extends MathElement{
     
     public Mux(){
         super();
-        inpValue=new Parameter("Кол-во входов", 2);
-        parameters.add(inpValue);
         addMathContact('i');
         addMathContact('i');
         addMathContact('o');
-        
-        name="Мукс";
     }
     
     public Mux(boolean flag){
         super(flag);
-        
-        inpValue=new Parameter("Кол-во входов", 2);
-        parameters.add(inpValue);
-        name="Мукс";
     }
     
     @Override
@@ -62,4 +54,10 @@ public class Mux extends MathElement{
         return out;
     }
     
+    @Override
+    protected void setParams(){
+        inpValue=new Parameter("Number of inputs", 2);
+        parameters.add(inpValue);
+        setName("Mux");
+    }
 }
