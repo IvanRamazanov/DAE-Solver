@@ -7,7 +7,7 @@ package MathPackODE;
 
 import java.util.List;
 import ElementBase.ShemeElement;
-import Connections.Wire;
+import Connections.ElectricWire;
 import ElementBase.DynamMathElem;
 import ElementBase.MathElement;
 import ElementBase.OutputElement;
@@ -27,7 +27,7 @@ public class Compiler {
     List<ShemeElement> elemList=new ArrayList();
     List<DynamMathElem> dynMathElemList=new ArrayList();
     List<OutputElement> outputs=new ArrayList();
-    List<Wire> wireList=new ArrayList();
+    List<ElectricWire> wireList=new ArrayList();
     SimpleBooleanProperty recompile;
     //StringFunctionSystem ODEfunc;
     DAE DAEsys;
@@ -93,7 +93,7 @@ public class Compiler {
     
     public DAE evalNumState(ModelState state) throws Exception{
         List<ShemeElement> eleList=state.GetElems();
-        List<Wire> wires=state.GetWires();
+        List<ElectricWire> wires=state.GetWires();
         
         if(recompile.get()){
             if(!elemList.isEmpty())

@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import Connections.MathMarker;
+import Connections.MathWire.MathMarker;
 import java.util.List;
 
 /**
@@ -15,11 +15,10 @@ import java.util.List;
 public class MathOutPin extends MathPin{
     private int index;
     private MathElement owner;
-    private MathInPin source;
+//    private MathInPin source;
 
     public MathOutPin(){
         super();
-        type='o';
     }
 
     public MathOutPin(MathElement own){
@@ -53,29 +52,36 @@ public class MathOutPin extends MathPin{
         raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
         owner=null;
     }
-
-    /**
-     * @return the source
-     */
-    public MathInPin getSource() {
-        return source;
+    
+    @Override
+    public void setItsConnection(MathMarker itsConnection) {
+        super.setItsConnection(itsConnection);
+        itsConnection.getWire().setSourcePointer(this);
     }
+
+//    /**
+//     * @return the source
+//     */
+//    public MathInPin getSource() {
+//        return source;
+//    }
     
     public void setMathConnLink(MathMarker mc){
         setItsConnection(mc);
-        setSource(mc.getDestin());
+//        setSource(mc.getWire().getSource());
     }
 
-    /**
-     * @param source the source to set
-     */
-    public void setSource(MathInPin source) {
-        this.source = source;
-    }
+//    /**
+//     * @param source the source to set
+//     */
+//    public void setSource(MathInPin source) {
+//        this.source = source;
+//    }
     
-    @Override
-    public void clearPin(){
-        source=null;
-    }
+//    @Override
+//    public void clearPin(){
+////        source=null;
+//        owner=null;
+//    }
 }
 

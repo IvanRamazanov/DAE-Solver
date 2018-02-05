@@ -5,7 +5,7 @@
  */
 package MathPack;
 
-import Connections.Wire;
+import Connections.ElectricWire;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,10 +14,10 @@ import java.util.List;
  * @author Ivan
  */
 public class Graph {
-    public static List<Arc> getTree(List<Wire> nodes, List<Arc> arcs){
+    public static List<Arc> getTree(List<ElectricWire> nodes, List<Arc> arcs){
         List<Arc> tree=new ArrayList<>();
-        List<Wire> blacklist=new ArrayList<>();
-        List<Wire> whitelist=new ArrayList<>();
+        List<ElectricWire> blacklist=new ArrayList<>();
+        List<ElectricWire> whitelist=new ArrayList<>();
         whitelist.addAll(nodes);
         tree.add(arcs.get(0));
         blacklist.add(arcs.get(0).getPositive());
@@ -50,7 +50,7 @@ public class Graph {
 
     public static List<Arc> getCycle(List<Arc> tree, Arc coArc) {
         List<Arc> cycle=new ArrayList<>();
-        List<Wire> nodes=new ArrayList<>();
+        List<ElectricWire> nodes=new ArrayList<>();
         int length;
         cycle.addAll(tree);
         cycle.add(coArc);
@@ -73,7 +73,7 @@ public class Graph {
         cycle.get(0).setMuliplex(1);
         for(int i=0;i<cycle.size()-1;i++){
             for(int j=i+1;j<cycle.size();j++){
-                Wire end=cycle.get(i).getNegative();
+                ElectricWire end=cycle.get(i).getNegative();
                 if(end==cycle.get(j).getNegative()){
                     cycle.add(i+1, cycle.get(j));
                     cycle.remove(j+1);

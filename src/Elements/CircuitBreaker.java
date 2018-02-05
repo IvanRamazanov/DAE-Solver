@@ -59,9 +59,9 @@ public class CircuitBreaker extends ShemeElement{
     
     private void linkLogic(Logic logic){
         this.mathInputs.get(0).setSource(logic.getOutputs().get(0));
-        this.mathOutputs.get(0).setSource(logic.getInputs().get(0));
+//        this.mathOutputs.get(0).setSource(logic.getInputs().get(0));
         logic.getInputs().get(0).setSource(this.mathOutputs.get(0));
-        logic.getOutputs().get(0).setSource(this.mathInputs.get(0));
+//        logic.getOutputs().get(0).setSource(this.mathInputs.get(0));
     }
 
     @Override

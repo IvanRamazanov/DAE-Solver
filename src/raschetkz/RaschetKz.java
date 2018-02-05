@@ -5,9 +5,9 @@
  */
 package raschetkz;
 
-import Connections.MathMarker;
+import Connections.MathWire;
 import MathPack.Rechatel;
-import Connections.Wire;
+import Connections.ElectricWire;
 import ElementBase.ElemSerialization;
 import ElementBase.Element;
 import ElementBase.ListOfElements;
@@ -63,9 +63,9 @@ public class RaschetKz extends Application{
     public SimpleStringProperty solverType;
     public static List<ShemeElement> ElementList;
     public static List<MathElement> MathElemList;
-    public static List<Wire> BranchList;
+    public static List<ElectricWire> BranchList;
     
-    public static List<MathMarker> mathContsList;//!!!!!!!!!!!!
+    public static List<MathWire> mathContsList;//!!!!!!!!!!!!
     
     public static Pane drawBoard;
     public static ProgressBar progBar=new ProgressBar(0);
@@ -195,7 +195,7 @@ public class RaschetKz extends Application{
         });
         scrllPane.setOnDragDropped(de->{
             
-            ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(ShemeElement.customFormat);
+            ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(ShemeElement.CUSTOM_FORMAT);
             Element obj=content.deserialize();
             obj.getView().setLayoutX(de.getX());
             obj.getView().setLayoutY(de.getY());

@@ -51,7 +51,7 @@ public class Cross extends Circle{
      * @param cX
      * @param cY 
      */
-    public void bind(SimpleDoubleProperty cX,SimpleDoubleProperty cY){
+    public final void bindThis(SimpleDoubleProperty cX,SimpleDoubleProperty cY){
         cX.bind(centerXProperty());
         cY.bind(centerYProperty());
         
@@ -59,6 +59,16 @@ public class Cross extends Circle{
 //            bindSource.getBindMinors().remove(this);
 //            bindSource=null;
 //        }
+    }
+    
+    /**
+     * Binds cross to cX, cY
+     * @param cX
+     * @param cY 
+     */
+    public final void bind(SimpleDoubleProperty cX,SimpleDoubleProperty cY){
+        centerXProperty().bind(cX);
+        centerYProperty().bind(cY);
     }
     
     public void unbind(){

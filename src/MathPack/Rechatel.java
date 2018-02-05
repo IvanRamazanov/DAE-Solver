@@ -5,7 +5,7 @@
  */
 package MathPack;
 
-import Connections.Wire;
+import Connections.ElectricWire;
 import ElementBase.DynamMathElem;
 import ElementBase.OutputElement;
 import java.util.ArrayList;

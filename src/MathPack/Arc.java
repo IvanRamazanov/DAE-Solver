@@ -5,7 +5,7 @@
  */
 package MathPack;
 
-import Connections.Wire;
+import Connections.ElectricWire;
 import ElementBase.ShemeElement;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class Arc{
     private List<ShemeElement> elements;
-    private Wire positive,negative;
+    private ElectricWire positive,negative;
     private int muliplex=0;
     private double i;
 
@@ -41,14 +41,14 @@ public class Arc{
     /**
      * @return the positive
      */
-    public Wire getPositive() {
+    public ElectricWire getPositive() {
         return positive;
     }
 
     /**
      * @param positive the positive to set
      */
-    public void setPositive(Wire positive) {
+    public void setPositive(ElectricWire positive) {
         this.positive = positive;
     }
     
@@ -66,14 +66,14 @@ public class Arc{
     /**
      * @return the negative
      */
-    public Wire getNegative() {
+    public ElectricWire getNegative() {
         return negative;
     }
 
     /**
      * @param negative the negative to set
      */
-    public void setNegative(Wire negative) {
+    public void setNegative(ElectricWire negative) {
         this.negative = negative;
     }
 

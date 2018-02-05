@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import Connections.MathMarker;
+import Connections.MathWire.MathMarker;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.event.ActionEvent;
@@ -97,7 +97,7 @@ public abstract class MathElement extends Element{
     public void delete(){
         //disconnect !!!!!
         this.inputs.forEach(pin->{
-            pin.getItsConnection().unPlug(pin);
+            pin.getItsConnection().unPlug();
         });
         RaschetKz.MathElemList.remove(this);
         RaschetKz.drawBoard.getChildren().remove(this.viewPane);

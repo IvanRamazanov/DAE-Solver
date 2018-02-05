@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import Connections.MathMarker;
+import Connections.MathWire.MathMarker;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +18,6 @@ public class MathInPin extends MathPin{
     
     MathInPin(){
         super();
-        type='i';
     }
 
     MathInPin(double x,double y){
@@ -44,13 +43,14 @@ public class MathInPin extends MathPin{
 
     public void setMathConnLink(MathMarker mc){
         setItsConnection(mc);
-        setSource(mc.getSource());
+        setSource(mc.getWire().getSource());
     }
     
-    @Override
-    public void clearPin(){
-        source=null;
-    }
+//    @Override
+//    public void clearPin(){
+//        source=null;
+//        view.setOpacity(1.0);
+//    }
 
     /**
      * @return the source
@@ -64,5 +64,17 @@ public class MathInPin extends MathPin{
      */
     public void setSource(MathOutPin source) {
         this.source = source;
+    }
+    
+    @Override
+    public void setItsConnection(MathMarker itsConnection) {
+        this.itsConnection = itsConnection;
+        //view.setOpacity(0.0);
+    }
+    
+    @Override
+    final public void clearPin(){
+        super.clearPin();
+        source=null;
     }
 }

@@ -5,7 +5,6 @@
  */
 package ElementBase;
 
-import static ElementBase.ShemeElement.customFormat;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -24,6 +23,8 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
@@ -38,6 +39,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.TextAlignment;
 import javafx.util.converter.DoubleStringConverter;
 import static raschetkz.RaschetKz.drawBoard;
+import static ElementBase.ShemeElement.CUSTOM_FORMAT;
 
 
 /**
@@ -47,12 +49,13 @@ import static raschetkz.RaschetKz.drawBoard;
 public abstract class Element {
     protected ContextMenu cm,catCm;
     protected Pane viewPane;
-    String imagePath;
+    private String imagePath;
     protected boolean catalogFlag=false;
-    Point2D initialPoint,anchorPoint;
+    private Point2D initialPoint,anchorPoint;
     protected String name;
+    private static double HEIGHT_FIT=5;
     
-    public final static DataFormat customFormat = new DataFormat("helloworld.custom");
+    public final static DataFormat CUSTOM_FORMAT = new DataFormat("ivan.ramazanov");
     protected List<Parameter> parameters=new ArrayList();
     protected List<InitParam> initials=new ArrayList();
     
@@ -108,11 +111,8 @@ public abstract class Element {
         drawBoard.getChildren().add(this.getView());
         
         this.viewPane.setOnDragDetected(de->{
-            if(de.getButton().equals(MouseButton.SECONDARY)){
-                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
-                ClipboardContent content = new ClipboardContent();
-                content.put(customFormat, new ElemSerialization(this));
-                db.setContent(content);
+            if(de.getButton().equals(MouseButton.PRIMARY)&&de.isControlDown()){
+                initDND();
             }
         });
     }
@@ -133,13 +133,20 @@ public abstract class Element {
         }
         
         this.viewPane.setOnDragDetected(de->{
-            if(de.getButton().equals(MouseButton.SECONDARY)){
-                Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
-                ClipboardContent content = new ClipboardContent();
-                content.put(customFormat, new ElemSerialization(this));
-                db.setContent(content);
+            if(de.getButton().equals(MouseButton.PRIMARY)){
+                initDND();
             }
         });
+    }
+    
+    private void initDND(){
+        Dragboard db=this.viewPane.startDragAndDrop(TransferMode.ANY);
+        ClipboardContent content = new ClipboardContent();
+        content.put(CUSTOM_FORMAT, new ElemSerialization(this));
+        Image img=new Image(imagePath,0,0,false,false);
+        double h=img.getHeight()/HEIGHT_FIT;
+        db.setDragView(new Image(imagePath,0,h,true,false));
+        db.setContent(content);
     }
     
     void catElemCreation(){
@@ -181,16 +188,19 @@ public abstract class Element {
             else{
                 viewPane.setOnMouseClicked(usualHandler);
                 viewPane.setOnMousePressed((MouseEvent me) -> {
-                    if(me.getButton()!=MouseButton.MIDDLE)
+                    if(me.getButton()!=MouseButton.MIDDLE){
                         viewPane.requestFocus();
+                        me.consume();
+                    }
                     if(me.getButton()==MouseButton.PRIMARY){
                         anchorPoint=new Point2D(me.getSceneX(),me.getSceneY());
                         initialPoint=new Point2D(viewPane.getLayoutX(),viewPane.getLayoutY());
+                        viewPane.toFront();
                         me.consume();
                     }
                 });
                 viewPane.setOnMouseDragged((MouseEvent me)->{
-                    if(me.getButton()==MouseButton.PRIMARY){
+                    if(me.getButton()==MouseButton.PRIMARY&&!me.isControlDown()){
                         double x=initialPoint.getX()+me.getSceneX()-anchorPoint.getX();
                         double y=initialPoint.getY()+me.getSceneY()-anchorPoint.getY();
                         if(x<0)
@@ -390,6 +400,19 @@ public abstract class Element {
 //        @Override
         public List<Node> getLayouts(){
             return this.layout;
+        }
+    }
+    
+    class View extends ImageView{
+        
+        View(String root,double x,double y){
+            this.setImage(new Image(root));
+            this.setSmooth(true);
+            this.setPreserveRatio(true);
+            double h=this.getImage().getHeight();
+            this.setFitHeight(h/HEIGHT_FIT);            
+            this.setTranslateX(x);
+            this.setTranslateY(y);
         }
     }
 }

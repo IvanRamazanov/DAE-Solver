@@ -5,8 +5,8 @@
  */
 package MathPack;
 
-import Connections.Wire;
-import Connections.Wire.WireMarker;
+import Connections.ElectricWire;
+import Connections.ElectricWire.WireMarker;
 import ElementBase.ShemeElement;
 import ElementBase.ElemPin;
 import ElementBase.MathInPin;
@@ -816,7 +816,7 @@ public class MatrixEqu {
         return transpose_s(out);
     }
     
-    public static int[][] getPotentialsMap(List<Wire> Wires, List<ShemeElement> Elems) throws Exception{
+    public static int[][] getPotentialsMap(List<ElectricWire> Wires, List<ShemeElement> Elems) throws Exception{
         if(Wires.isEmpty()&&Elems.isEmpty()) return null;
         List<ElemPin> conts=new ArrayList();
         int rowLength=0;
@@ -825,7 +825,7 @@ public class MatrixEqu {
             rowLength+=elem.getElemContactList().size();
         }
         int columnLength=0;
-        for(Wire wire:Wires){
+        for(ElectricWire wire:Wires){
             int rank=wire.getRank();
             columnLength+=rank-1;
         }
@@ -841,7 +841,7 @@ public class MatrixEqu {
             columnLength++;         //for zero poten?
         int[][] out=new int[columnLength][rowLength];
         int row=0;
-        for(Wire wire:Wires){
+        for(ElectricWire wire:Wires){
             ElemPin mainPapa=wire.getWireContacts().get(0).getElemContact();
             for(int j=1;j<wire.getWireContacts().size();j++){
                 ElemPin papa=wire.getWireContacts().get(j).getElemContact();
@@ -863,7 +863,7 @@ public class MatrixEqu {
         return(out);
     }
     
-    public static int[][] getCurrentsMap(List<Wire> Wires, List<ShemeElement> Elems){
+    public static int[][] getCurrentsMap(List<ElectricWire> Wires, List<ShemeElement> Elems){
         if(Wires.isEmpty()&&Elems.isEmpty()) return null;
         List<ElemPin> conts=new ArrayList();
         int rowLength=0,columnLength=0;
@@ -892,7 +892,7 @@ public class MatrixEqu {
         int row=0;
         
         //Сумма узловых токов
-        for(Wire wire:Wires.subList(0, Wires.size()-1)){
+        for(ElectricWire wire:Wires.subList(0, Wires.size()-1)){
             for(WireMarker wc:wire.getWireContacts()){
                 ElemPin papa=wc.getElemContact();
                 out[row][conts.indexOf(papa)]=1;

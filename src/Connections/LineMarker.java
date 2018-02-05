@@ -29,38 +29,20 @@ public abstract class LineMarker{
     protected SimpleDoubleProperty bindX=new SimpleDoubleProperty(),
             bindY=new SimpleDoubleProperty();
     protected ConnectLine itsLines;
-    protected SimpleBooleanProperty isPlugged;
+    protected SimpleBooleanProperty plugged;
     //Cross anchor;
     protected EventHandler lineDraggedDetect;
     protected Shape view;
     
-    public static final EventHandler MC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
-        @Override
-        public void handle(MouseEvent me) {
-            if(!MathMarker.activeMathConnect.getIsPlugged().get()){
-                MathMarker.activeMathConnect.setEndProp(me.getSceneX(), me.getSceneY());
-            }
-            me.consume();
-        }
-    };
-    public static final EventHandler MC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent me) {
-            MathMarker.activeMathConnect.eraseDragSource();
-            MathMarker.activeMathConnect=null;
-            ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-            ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-            me.consume();
-        }    
-    };
+    
     
     
     
     
     LineMarker(){
         itsLines=new ConnectLine(this);
-        this.isPlugged=new SimpleBooleanProperty(false);
-        this.isPlugged.addListener((Boolean,old,newval)->{
+        this.plugged=new SimpleBooleanProperty(false);
+        this.plugged.addListener((Boolean,old,newval)->{
             if(newval){
                 this.activate();
             }else{
@@ -79,15 +61,15 @@ public abstract class LineMarker{
     }
     
     public SimpleBooleanProperty getIsPlugged() {
-        return isPlugged;
+        return plugged;
     }
     
     public final void setIsPlugged(boolean val) {
-        isPlugged.set(val);
+        plugged.set(val);
     }
     
-    public boolean isFine(){
-        return(this.itsLines.isDiacive());
+    public boolean isPlugged(){
+        return(plugged.get());
     }
     
     void Draw(){
@@ -95,17 +77,28 @@ public abstract class LineMarker{
     }
     
     public void hide(){
-            this.itsLines.hide();
-        }
+        this.itsLines.hide();
+    }
     
     void unBindStartPoint(){
         itsLines.getStartX().unbind();
         itsLines.getStartY().unbind();
     }
     
-    void unBindEndPoint(){
-        itsLines.getEndX().unbind();
-        itsLines.getEndY().unbind();
+    final void bindStartTo(SimpleDoubleProperty x,SimpleDoubleProperty y){
+        this.itsLines.getStartMarker().bind(x, y);
+    }
+    
+    final void bindEndTo(SimpleDoubleProperty x,SimpleDoubleProperty y){
+        bindX.bind(x);
+        bindY.bind(y);
+    }
+    
+    void unbindEndPoint(){
+        bindX.unbind();
+        bindY.unbind();
+//        itsLines.getEndX().unbind();
+//        itsLines.getEndY().unbind();
     }
     
     /**

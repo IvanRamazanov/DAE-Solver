@@ -43,7 +43,7 @@ public class ConnectLine {
 
     ConnectLine(){
         startMarker=new Cross(this);
-        startMarker.bind(startX, startY);
+        startMarker.bindThis(startX, startY);
         lines=new ArrayList();
         this.lines.add(new ExtLine(0,0,0,0,true));
         this.lines.add(new ExtLine(0,0,0,0,false));                   
@@ -98,7 +98,7 @@ public class ConnectLine {
 //        Draw();
 //    }
 
-    void bindLines(){
+    final void bindLines(){
         int len=lines.size()-1;
         for(int i=0;i<len;i++){
             lines.get(i).endXProperty().bindBidirectional(lines.get(i+1).startXProperty());
@@ -110,6 +110,7 @@ public class ConnectLine {
         lines.forEach(lin->{
             lin.setVisible(false);
         });
+        startMarker.setVisible(false);
     }
     
     public void show(){

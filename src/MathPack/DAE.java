@@ -142,8 +142,10 @@ public class DAE {
         for(int i=0;i<oldOuts.size();i++){
             DaeToMatOut out=new DaeToMatOut(sfs.getOutFuncs().get(i));
             outs.add(out);
-            if(oldOuts.get(i).getSource()!=null)
-                oldOuts.get(i).getSource().setSource(out);
+            if(oldOuts.get(i).getItsConnection()!=null){  // check if this out pin connect to smthg (ex. to Scope)
+                //oldOuts.get(i).getSource().setSource(out);
+                oldOuts.get(i).getItsConnection().getWire().setSourcePointer(out);
+            }
         }
     }
     
@@ -162,17 +164,17 @@ public class DAE {
         return outs.get(outIndex).getValue();
     }
 
-    /**
-     * @param outs the outs to set
-     * @param funcs
-     */
-    public void setOuts(List<MathOutPin> outs,List<StringGraph> funcs) {
-        for(int i=0;i<outs.size();i++){
-            DaeToMatOut out=new DaeToMatOut(funcs.get(i));
-            this.outs.add(out);
-            outs.get(i).getItsConnection().setSource(out);
-        }
-    }
+//    /**
+//     * @param outs the outs to set
+//     * @param funcs
+//     */
+//    public void setOuts(List<MathOutPin> outs,List<StringGraph> funcs) {
+//        for(int i=0;i<outs.size();i++){
+//            DaeToMatOut out=new DaeToMatOut(funcs.get(i));
+//            this.outs.add(out);
+//            outs.get(i).getItsConnection().setSource(out);
+//        }
+//    }
 
     /**
      * @return the inps

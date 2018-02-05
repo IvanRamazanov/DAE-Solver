@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * what for is this?
  * @author Ivan
  */
 public class PhysSubsystem{
@@ -37,7 +37,7 @@ public class PhysSubsystem{
         for(int i=0;i<oldOuts.size();i++){
             PhysToMatOut out=new PhysToMatOut(ode.getOutFuncs().get(i));
             outputs.add(out);
-            oldOuts.get(i).getItsConnection().setSource(out);
+//            oldOuts.get(i).getItsConnection().setSource(out);
         }
         int i=0;
         for(Double x:xes){

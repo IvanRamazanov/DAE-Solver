@@ -5,8 +5,8 @@
  */
 package ElementBase;
 
-import Connections.Wire;
-import Connections.Wire.WireMarker;
+import Connections.ElectricWire;
+import Connections.ElectricWire.WireMarker;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -51,30 +51,30 @@ public class ElemPin extends Circle{
             this.setCursor(Cursor.DEFAULT);
         };
         EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            if(Wire.activeWireConnect!=null&&this.wireCont==null){
-                Wire.activeWireConnect.getWire().setEnd(this);
+            if(ElectricWire.activeWireConnect!=null&&this.wireCont==null){
+                ElectricWire.activeWireConnect.getWire().setEnd(this);
                 this.toFront();
             }
             
         };
         EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
             
-            if(Wire.activeWireConnect!=null){
+            if(ElectricWire.activeWireConnect!=null){
                 //if(Wire.activeWireConnect.getElemContact()!=this){
-                if(Wire.activeWireConnect.getIsPlugged().getValue()){
+                if(ElectricWire.activeWireConnect.getIsPlugged().getValue()){
                     switch(me.getButton()){
                         case PRIMARY:
                             if(me.isPrimaryButtonDown()){
 //                                    this.wireCont=null;
-Wire.activeWireConnect.unPlug();
-this.setOpacity(1);
+                                ElectricWire.activeWireConnect.unPlug();
+                                this.setOpacity(1);
                             }
                             break;
                         case SECONDARY:
                             if(me.isSecondaryButtonDown()){
 //                                    this.wireCont=null;
-Wire.activeWireConnect.unPlug();
-this.setOpacity(1);
+                                ElectricWire.activeWireConnect.unPlug();
+                                this.setOpacity(1);
                             }
                             break;
                     }
@@ -124,21 +124,21 @@ this.setOpacity(1);
         this.addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){
                 if(wireCont==null){
-                    this.setOpacity(0);
-                    RaschetKz.BranchList.add(new Wire((ElemPin)me.getSource(),
+//                    this.setOpacity(0);
+                    RaschetKz.BranchList.add(new ElectricWire((ElemPin)me.getSource(),
                             me.getSceneX(),me.getSceneY()));
-                    Wire.activeWireConnect.startFullDrag();
-                    this.addEventFilter(MouseEvent.MOUSE_DRAGGED, Wire.WC_MOUSE_DRAG);
-                    this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Wire.WC_MOUSE_RELEAS);
+                    ElectricWire.activeWireConnect.startFullDrag();
+                    this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
+                    this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
 
                 }else{
 //                    this.setOpacity(1);
 //                    Wire.activeWireConnect=wireCont;
                     this.wireCont.unPlug();
 //                    this.wireCont=null;
-                    Wire.activeWireConnect.startFullDrag();
-                    this.addEventFilter(MouseEvent.MOUSE_DRAGGED, Wire.WC_MOUSE_DRAG);
-                    this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Wire.WC_MOUSE_RELEAS);
+                    ElectricWire.activeWireConnect.startFullDrag();
+                    this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
+                    this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
                 }
                 me.consume();
             }
@@ -174,8 +174,10 @@ this.setOpacity(1);
      */
     void clear(){
         this.owner=null;
-        if(this.wireCont!=null)
-            this.wireCont.setIsPlugged(false);
+        if(wireCont!=null){
+            wireCont.unPlug(); //??????????
+            wireCont.setIsPlugged(false);
+        }
     }
 
     /**
@@ -191,15 +193,23 @@ this.setOpacity(1);
         //this.setVisible(false);
     }
 
-    public void bindWCendProp(WireMarker wCont){
-        wCont.getBindX().bind(centerX);
-        wCont.getBindY().bind(centerY);
-    }
+//    public void bindWCendProp(WireMarker wCont){
+//        wCont.getBindX().bind(centerX);
+//        wCont.getBindY().bind(centerY);
+//    }
 
-    public void bindWCstartProp(WireMarker wCont){
-//        wCont.getItsLine().bindCross(wCont.getCenterX(), wCont.getCenterY());
-        wCont.getItsLine().getStartX().bind(centerX);
-        wCont.getItsLine().getStartY().bind(centerY);
+//    public void bindWCstartProp(WireMarker wCont){
+////        wCont.getItsLine().bindCross(wCont.getCenterX(), wCont.getCenterY());
+//        wCont.getItsLine().getStartX().bind(centerX);
+//        wCont.getItsLine().getStartY().bind(centerY);
+//    }
+    
+    public SimpleDoubleProperty getBindX(){
+        return centerX;
+    }
+    
+    public SimpleDoubleProperty getBindY(){
+        return centerY;
     }
 
     public WireMarker getWireContact(){

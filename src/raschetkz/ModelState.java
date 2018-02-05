@@ -5,8 +5,9 @@
  */
 package raschetkz;
 
-import Connections.MathMarker;
-import Connections.Wire;
+import Connections.MathWire;
+
+import Connections.ElectricWire;
 import ElementBase.ElemPin;
 import ElementBase.Element;
 import ElementBase.MathInPin;
@@ -34,8 +35,8 @@ import javafx.scene.layout.Pane;
     public class ModelState{
         List<ShemeElement> ElementList;
         List<MathElement> MathElemList;
-        private List<MathMarker> mathConnList;
-        List<Wire> BranchList;
+        private List<MathWire> mathConnList;
+        List<ElectricWire> BranchList;
         Pane draws;
 //        int numOfElems;
         //double dt,tend;
@@ -142,7 +143,7 @@ import javafx.scene.layout.Pane;
             temp.putInt(0, this.BranchList.size());
             baos.write(temp.array(), 0, 4);
             
-            for(Wire w:this.BranchList){
+            for(ElectricWire w:this.BranchList){
                 w.Save(baos, ECList);
             }
             
@@ -181,14 +182,16 @@ import javafx.scene.layout.Pane;
             temp.putInt(0, this.mathConnList.size());
             baos.write(temp.array(), 0, 4);
             
-            for(MathMarker mc:this.mathConnList){
+            for(MathWire mc:this.mathConnList){
                 //source (start)
                 int tma=outConts.indexOf(mc.getSource());
                 temp.putInt(0, outConts.indexOf(mc.getSource()));
                 baos.write(temp.array(), 0, 4);
                 //destin (end)
-                tma=inpConts.indexOf(mc.getDestin());
-                temp.putInt(0, inpConts.indexOf(mc.getDestin()));
+//                tma=inpConts.indexOf(mc.get());
+//                temp.putInt(0, inpConts.indexOf(mc.getDestin()));
+                
+                
                 baos.write(temp.array(), 0, 4);
                 // !!!! NOT PLUGGED CASE !!!!
             }
@@ -301,7 +304,7 @@ import javafx.scene.layout.Pane;
                 numOfElems=temp.getInt(0);
                 //wire cycle
                 for(int i=0;i<numOfElems;i++){  
-                    BranchList.add(new Wire(fis,ECList));
+                    BranchList.add(new ElectricWire(fis,ECList));
                 }
                 
                 //math elems
@@ -356,8 +359,8 @@ import javafx.scene.layout.Pane;
                     //index of destin (inp)
                     fis.read(temp.array(),0,4);   
                     int inpIndx=temp.getInt(0);
-                    //creation
-                    this.mathConnList.add(new MathMarker(outConts.get(outIndx),inpConts.get(inpIndx)));
+                    //creation !?
+//                    this.mathConnList.add(new MathWire(outConts.get(outIndx),inpConts.get(inpIndx)));
                 }
                 
                 fis.close();
@@ -369,7 +372,7 @@ import javafx.scene.layout.Pane;
             }
         }       
 
-        public List<Wire> GetWires() {
+        public List<ElectricWire> GetWires() {
             return(this.BranchList);
         }
 
@@ -400,7 +403,7 @@ import javafx.scene.layout.Pane;
     /**
      * @return the mathConnList
      */
-    public List<MathMarker> getMathConnList() {
+    public List<MathWire> getMathConnList() {
         return mathConnList;
     }
 

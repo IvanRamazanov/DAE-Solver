@@ -5,7 +5,8 @@
  */
 package ElementBase;
 
-import Connections.MathMarker;
+import Connections.MathWire;
+import Connections.MathWire.MathMarker;
 //import static ElementBase.MathElement.mathCont;
 
 import javafx.beans.property.SimpleDoubleProperty;
@@ -31,7 +32,7 @@ abstract public class MathPin {
     protected SimpleDoubleProperty arrowY;
     protected MathMarker itsConnection;
     protected final double arrowHeight=8,arrowWidth=6;
-    protected char type;
+    //protected char type;
     
     public MathPin(){
         view=new Polygon(0,0,0,arrowHeight,arrowWidth,arrowHeight/2);
@@ -55,8 +56,8 @@ abstract public class MathPin {
         };
         view.addEventHandler(MouseDragEvent.MOUSE_DRAG_ENTERED, e->{
             if(itsConnection==null){
-                MathMarker.activeMathConnect.plug(this);
-                itsConnection=MathMarker.activeMathConnect;
+                Connections.MathWire.activeMathMarker.getWire().setEnd(this);
+                itsConnection=Connections.MathWire.activeMathMarker;
 //                view.setOpacity(0);
                 view.toFront();
             }
@@ -64,30 +65,51 @@ abstract public class MathPin {
         view.addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){
                 if(itsConnection==null){
-//                    view.setOpacity(0);
-                    view.toFront();
-                    MathMarker mc=new MathMarker(this);
-                    itsConnection=mc;
-                    raschetkz.RaschetKz.mathContsList.add(mc);
-                    mc.pushToBack();
-                    MathMarker.activeMathConnect=mc;
-                    view.startFullDrag();
-                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, Connections.LineMarker.MC_MOUSE_DRAG);
-                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Connections.LineMarker.MC_MOUSE_RELEAS);
+                    view.setOpacity(0);
+                    raschetkz.RaschetKz.mathContsList.add(new MathWire(this,
+                            me.getSceneX(),me.getSceneY()));
+                    MathWire.activeMathMarker.startFullDrag();
+                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
+                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
+
                 }else{
-                    System.out.println("Hi, im dragger!");
-                    itsConnection.unPlug(this);
-                    
-//                    view.setOpacity(1);
-////                    //Wire.activeWireContact=wireCont;
-//                    itsConnection.unPlug();
-                    itsConnection=null;
-                    view.startFullDrag(); //ACTIVE CONTACT!!!!!
-                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, Connections.LineMarker.MC_MOUSE_DRAG);
-                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Connections.LineMarker.MC_MOUSE_RELEAS);
+//                    this.setOpacity(1);
+//                    Wire.activeWireConnect=wireCont;
+                    itsConnection.unPlug();
+//                    this.wireCont=null;
+                    MathWire.activeMathMarker.startFullDrag();
+                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
+                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
                 }
                 me.consume();
             }
+            // old version
+//            if(me.getButton()==MouseButton.PRIMARY){
+//                if(itsConnection==null){
+////                    view.setOpacity(0);
+//                    view.toFront();
+//                    MathWire mc=new MathWire(this);
+//                    itsConnection=mc;
+//                    raschetkz.RaschetKz.mathContsList.add(mc);
+//                    mc.pushToBack();
+//                    Connections.MathWire.activeMathMarker=mc;
+//                    view.startFullDrag();
+//                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, Connections.MathWire.MC_MOUSE_DRAG);
+//                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Connections.MathWire.MC_MOUSE_RELEAS);
+//                }else{
+//                    System.out.println("Hi, im dragger!");
+//                    itsConnection.unPlug(this);
+//                    
+////                    view.setOpacity(1);
+//////                    //Wire.activeWireContact=wireCont;
+////                    itsConnection.unPlug();
+//                    itsConnection=null;
+//                    view.startFullDrag(); //ACTIVE CONTACT!!!!!
+//                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, Connections.MathWire.MC_MOUSE_DRAG);
+//                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Connections.MathWire.MC_MOUSE_RELEAS);
+//                }
+//                me.consume();
+//            }
         });
         EventHandler dragExitHndl = new EventHandler<MouseDragEvent>(){
             @Override
@@ -153,7 +175,10 @@ abstract public class MathPin {
         return arrowX;
     }
     
-    abstract public void clearPin();
+    public void clearPin(){
+        itsConnection=null;
+        view.setOpacity(1.0);
+    }
 
     /**
      * @return the arrowY
@@ -162,27 +187,11 @@ abstract public class MathPin {
         return arrowY;
     }
     
-    public void hide(){
-        this.view.setOpacity(0);
-    }
-    
-    public void show(){
-        this.view.setOpacity(1);
-    }
-
     /**
      * @return the itsConnection
      */
     public MathMarker getItsConnection() {
         return itsConnection;
-    }
-    
-    /**
-     * 
-     * @return 'i' or 'o'
-     */
-    public char getType(){
-        return type;
     }
 
     /**
@@ -190,5 +199,6 @@ abstract public class MathPin {
      */
     public void setItsConnection(MathMarker itsConnection) {
         this.itsConnection = itsConnection;
+        view.setOpacity(0.0);
     }
 }

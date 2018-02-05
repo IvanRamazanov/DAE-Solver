@@ -5,7 +5,7 @@
  */
 package MathPack;
 
-import Connections.Wire;
+import Connections.ElectricWire;
 import ElementBase.ElemPin;
 import ElementBase.ShemeElement;
 import java.util.ArrayList;
@@ -20,10 +20,10 @@ import java.util.List;
         List<Double> values;
         List<ShemeElement> elems;
         //List<ShemeElement> dElems;
-        List<Wire> brchs;
+        List<ElectricWire> brchs;
 //        boolean isDynamic=false;
         
-        Variables(List<ShemeElement> elementList, List<Wire> branchList){
+        Variables(List<ShemeElement> elementList, List<ElectricWire> branchList){
             elems=elementList;
             brchs=branchList;
             pointers=new ArrayList();
@@ -93,7 +93,7 @@ import java.util.List;
             int row=0;
             //potencials
             for(int i=0;i<this.brchs.size();i++){
-                Wire currentBr=this.brchs.get(i);
+                ElectricWire currentBr=this.brchs.get(i);
                 ElemPin mainPapa=currentBr.getWireContacts().get(0).getElemContact();
                 for(int j=1;j<currentBr.getWireContacts().size();j++){
                     ElemPin papa=currentBr.getWireContacts().get(j).getElemContact();
@@ -108,7 +108,7 @@ import java.util.List;
             }
             //currents
             for(int i=0;i<this.brchs.size()-1;i++){
-                Wire currentBr=this.brchs.get(i);
+                ElectricWire currentBr=this.brchs.get(i);
                 output.add(new ArrayList());
                 for(int m=0;m<pointers.size()*2+1;m++){
                     output.get(row).add(new Double(0));
