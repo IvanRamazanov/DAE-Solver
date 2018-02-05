@@ -198,26 +198,26 @@ abstract public class Solver {
             }
             //for logout
             
-            if(time==0){
-                try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt"))){
-                    bw.write("t ");
-                    for(String entry:vars.getVarNameList()){
-                        //if(entry.getKey().startsWith("X.")){
-                            bw.write(entry+" ");
-                        //}
-                    }
-                    bw.write(" numOfJac");
-                    bw.newLine();
-                } catch (IOException e) { System.err.println(e.getMessage()); }
-            }
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt",true))){
-                bw.write(Double.toString(time)+" ");
-                for(Double entry:vars.getVarList()){
-                    bw.write(entry+" ");
-                }
-                bw.write(Integer.toString(cnt));
-                bw.newLine();
-            } catch (IOException e) { System.err.println(e.getMessage()); }
+//            if(time==0){
+//                try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt"))){
+//                    bw.write("t ");
+//                    for(String entry:vars.getVarNameList()){
+//                        //if(entry.getKey().startsWith("X.")){
+//                            bw.write(entry+" ");
+//                        //}
+//                    }
+//                    bw.write(" numOfJac");
+//                    bw.newLine();
+//                } catch (IOException e) { System.err.println(e.getMessage()); }
+//            }
+//            try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt",true))){
+//                bw.write(Double.toString(time)+" ");
+//                for(Double entry:vars.getVarList()){
+//                    bw.write(entry+" ");
+//                }
+//                bw.write(Integer.toString(cnt));
+//                bw.newLine();
+//            } catch (IOException e) { System.err.println(e.getMessage()); }
 
     }
     

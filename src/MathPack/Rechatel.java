@@ -110,7 +110,7 @@ public class Rechatel extends Task<Integer>{
             //}
             solver.solve(tEnd);
             
-            sys.layout();
+            //sys.layout();
             long end=System.currentTimeMillis();
             System.out.println("eval time: "+(end-start));
             //this.updateProgress(tEnd, tEnd);

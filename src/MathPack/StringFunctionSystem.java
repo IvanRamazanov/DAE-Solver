@@ -34,6 +34,7 @@ public class StringFunctionSystem {
     private int varCntTemp,inpCntTmp,outCntTmp;
     
     private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
+    private static boolean LOG_FLAG=false;
     
     public StringFunctionSystem(ShemeElement element){
         initials=new ArrayList();
@@ -193,7 +194,8 @@ public class StringFunctionSystem {
                 }
             }
             
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
+            
+            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
                 bw.write("Initial data");
                 bw.newLine();
                 bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());
@@ -244,7 +246,7 @@ public class StringFunctionSystem {
             List<StringGraph> Pmc= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
             List<StringGraph> Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
             
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.write("New data");
                 bw.newLine();
                 bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());
@@ -328,7 +330,7 @@ public class StringFunctionSystem {
                     bigMassage+=message;
                 }
             }
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.write(bigMassage);
             } catch (IOException e) {
                 System.err.println(e.getMessage());
@@ -390,7 +392,7 @@ public class StringFunctionSystem {
             }
             
             // layout
-            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.newLine();
                 bw.write("Замена переменных.");
                 bw.newLine();
@@ -703,7 +705,7 @@ public class StringFunctionSystem {
         StringFunctionSystem output=new StringFunctionSystem(list);
         
                         //Layout
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
             bw.write("Initial data");
             bw.newLine();
             bw.write("Потенциалы:");
@@ -773,7 +775,7 @@ public class StringFunctionSystem {
         
         
                                 //Layout
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
             bw.write("After 'filtering' data");
             bw.newLine();
@@ -821,7 +823,7 @@ public class StringFunctionSystem {
         }
         
                 //Layout
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
             bw.write("Final data:");
             bw.newLine();
@@ -853,7 +855,7 @@ public class StringFunctionSystem {
             System.err.println(e.getMessage());
         }
         //---end of layout---
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
             bw.write("In progress...");
             bw.newLine();
@@ -877,7 +879,7 @@ public class StringFunctionSystem {
                     String name="p."+Integer.toString(indx+1);
                     vars.add(name);
                     answers.add(new StringGraph(right));
-                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                    if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                         bw.write(name+"="+right.toString());
                         bw.newLine();
                     } catch (IOException e) {}
@@ -920,7 +922,7 @@ public class StringFunctionSystem {
                     String name="i."+Integer.toString(indx+1);
                     vars.add(name);
                     answers.add(new StringGraph(right));
-                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                    if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                         bw.write(name+"="+right.toString());
                         bw.newLine();
                     } catch (IOException e) {}
@@ -992,7 +994,7 @@ public class StringFunctionSystem {
         }
         
         //Layout
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
             bw.write("Finish:");
             bw.newLine();
@@ -1616,7 +1618,7 @@ public class StringFunctionSystem {
         }
         
         // test layout
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.write("After Xes data");
             bw.newLine();
             bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());
