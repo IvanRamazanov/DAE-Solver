@@ -291,16 +291,16 @@ public class MathWire extends Wire{
 //    public void setEnd(MathPin elemCont){
 //        if(wireContList.size()==1){
 //            MathPin oldEc=activeMathMarker.getElemContact();   // начальный O--->
-//            activeMathMarker.setElemContact(elemCont);           // --->О цепляем
+//            activeMathMarker.bindElemContact(elemCont);           // --->О цепляем
 //
 //            MathMarker wcNew=new MathMarker(this); // ? bind?      // <---O новый
-//            wcNew.setElemContact(oldEc);
+//            wcNew.bindElemContact(oldEc);
 //
 //            elemCont.bindWCstartProp(wcNew);                           // OX--->O  цепляем
 //            wcNew.hide();
 //        }
 //        else{
-//            activeMathMarker.setElemContact(elemCont);
+//            activeMathMarker.bindElemContact(elemCont);
 //        }
 //    }
 

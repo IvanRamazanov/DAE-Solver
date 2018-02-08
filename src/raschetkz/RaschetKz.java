@@ -19,8 +19,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.util.List;
@@ -38,9 +37,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import javafx.util.converter.DoubleStringConverter;
@@ -49,8 +45,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.TilePane;
 
 /**
  *
@@ -132,9 +126,15 @@ public class RaschetKz extends Application{
         bottomBox.getColumnConstraints().add(new ColumnConstraints(100));
         bottomBox.getColumnConstraints().add(new ColumnConstraints());
         bottomBox.getColumnConstraints().add(new ColumnConstraints(120));
+        progBar.setPrefHeight(Region.USE_COMPUTED_SIZE);
         progBar.progressProperty().addListener((type,old,New)->{
-            if(Status.textProperty().isBound()) Status.textProperty().unbind();
-            Status.setText("T="+(New.doubleValue()*state.getTend().doubleValue()));
+            if(Status.textProperty().isBound())
+                Status.textProperty().unbind();
+            if(New.doubleValue()==1.0){
+                Status.setText("Done!");
+            }else{
+                Status.setText("T="+String.format("%.3f",New.doubleValue()*state.getTend().doubleValue()));
+            }
         });
         bottomBox.add(progBar, 1, 0);
         bottomBox.add(Status, 0, 0);

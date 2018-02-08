@@ -116,9 +116,10 @@ public abstract class LineMarker{
 //            itsLines.getEndX().set(a.getX());
 //            itsLines.getEndY().set(a.getY());
 //        }
-//        if(itsLines.getEndX().isBound()){
-        bindX.set(a.getX());
-        bindY.set(a.getY());
+        if(!bindX.isBound()){
+            bindX.set(a.getX());
+            bindY.set(a.getY());
+        }
 //        }else{
 //            itsLines.setCrossMarkerXY(a.getX(),a.getY());
 //        }
@@ -144,6 +145,10 @@ public abstract class LineMarker{
         getItsLine().diactivate();
         view.setVisible(true);
         //activeWireContact=null;
+    }
+
+    void hideStartMarker(){
+        getItsLine().getStartMarker().setVisible(false);
     }
 
     /**

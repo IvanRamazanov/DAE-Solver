@@ -46,7 +46,7 @@ public class CurrentSource extends ShemeElement{
     public String[] getStringFunction() {
         String A=this.parameters.get(0).getStringValue();
         String[] str={
-                "i.1="+A,
+                "i.2="+A,
                 "i.1+i.2=0"
         };
         return str;

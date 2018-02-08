@@ -233,6 +233,13 @@ public class ConnectLine {
 
     }
 
+    public final void setLineDragOver(EventHandler lineDragOver) {
+        //this.lineDragDetect = lineDraggDetect;
+        for(Line line:lines)
+            line.addEventHandler(MouseDragEvent.MOUSE_DRAG_OVER,lineDragOver);
+
+    }
+
     /**
      *
      * @param rgb "#rrggbb"
