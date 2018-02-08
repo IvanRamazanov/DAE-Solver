@@ -143,7 +143,7 @@ public abstract class Wire{
 //            //set up wireCont
 //            if(indx!=-1){
 //                ElemPin ECofWC=ECList.get(indx);
-//                wm.setElemContact(ECofWC);
+//                wm.bindElemContact(ECofWC);
 //                ECofWC.setWirePointer(wm);
 //                if(redFlag==1){ //?????????? must be no EC
 //                    wm.setIsPlugged(false);
@@ -182,7 +182,7 @@ public abstract class Wire{
 //                            wm=new WireMarker(this);
 //                        }
 //                        wm.hide();
-//                        wm.setElemContact(ECofWM1);
+//                        wm.bindElemContact(ECofWM1);
 //                        ECofWM1.setWirePointer(wm);
 //                        ECofWC.bindWCstartProp(wm);
 //                        break;
@@ -265,16 +265,16 @@ public abstract class Wire{
 //    public void setEnd(ElemPin elemCont){
 //        if(wireContList.size()==1){
 //            ElemPin oldEc=activeWireConnect.getElemContact();   // начальный O--->
-//            activeWireConnect.setElemContact(elemCont);           // --->О цепляем
+//            activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
 //
 //            WireMarker wcNew=new WireMarker(this); // ? bind?      // <---O новый
-//            wcNew.setElemContact(oldEc);
+//            wcNew.bindElemContact(oldEc);
 //
 //            elemCont.bindWCstartProp(wcNew);                           // OX--->O  цепляем
 //            wcNew.hide();
 //        }
 //        else{
-//            activeWireConnect.setElemContact(elemCont);
+//            activeWireConnect.bindElemContact(elemCont);
 //        }
 //    }
 //
@@ -719,7 +719,7 @@ public abstract class Wire{
 //         *
 //         * @param eleCont
 //         */
-//        public void setElemContact(ElemPin eleCont){
+//        public void bindElemContact(ElemPin eleCont){
 //            this.itsElemCont=eleCont;
 //            eleCont.bindWCendProp(this);
 //            eleCont.setWirePointer(this);

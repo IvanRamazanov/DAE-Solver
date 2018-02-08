@@ -113,7 +113,7 @@ public class Rechatel extends Task<Integer>{
             //sys.layout();
             long end=System.currentTimeMillis();
             System.out.println("eval time: "+(end-start));
-            //this.updateProgress(tEnd, tEnd);
+            this.updateProgress(tEnd, tEnd);
             //this.cancel();
         }catch(Exception|Error e){
             e.printStackTrace(System.err);

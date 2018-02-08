@@ -6,7 +6,7 @@
 package MathPack;
 
 import Connections.ElectricWire;
-import Connections.ElectricWire.WireMarker;
+import Connections.WireMarker;
 import ElementBase.ShemeElement;
 import ElementBase.ElemPin;
 import ElementBase.MathInPin;

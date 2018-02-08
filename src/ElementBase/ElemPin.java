@@ -6,7 +6,7 @@
 package ElementBase;
 
 import Connections.ElectricWire;
-import Connections.ElectricWire.WireMarker;
+import Connections.WireMarker;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -52,16 +52,16 @@ public class ElemPin extends Circle{
         };
         EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
             if(ElectricWire.activeWireConnect!=null&&this.wireCont==null){
+                System.out.println("You are plugged");
                 ElectricWire.activeWireConnect.getWire().setEnd(this);
                 this.toFront();
             }
 
         };
         EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-
-            if(ElectricWire.activeWireConnect!=null){
-                //if(Wire.activeWireConnect.getElemContact()!=this){
-                if(ElectricWire.activeWireConnect.getIsPlugged().getValue()){
+            System.out.println("Hello from drag exit (in ElemPin)! Source: "+me.getGestureSource());
+            if(ElectricWire.activeWireConnect!=null)
+                //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
                     switch(me.getButton()){
                         case PRIMARY:
                             if(me.isPrimaryButtonDown()){
@@ -78,8 +78,17 @@ public class ElemPin extends Circle{
                             }
                             break;
                     }
+//            this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
+//            this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
+
+            if(ElectricWire.activeWireConnect!=null&&getWireContact()!=null){
+                //if(Wire.activeWireConnect.getElemContact()!=this){
+                if(ElectricWire.activeWireConnect.getIsPlugged().getValue()){
+
+
                 }
             }
+            me.consume();
 
 
 
@@ -134,9 +143,11 @@ public class ElemPin extends Circle{
                 }else{
 //                    this.setOpacity(1);
 //                    Wire.activeWireConnect=wireCont;
+                    System.out.println("Hello from drag detect!");
                     this.wireCont.unPlug();
 //                    this.wireCont=null;
-                    ElectricWire.activeWireConnect.startFullDrag();
+//                    ElectricWire.activeWireConnect=getWireContact();
+                    this.startFullDrag();
                     this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
                     this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
                 }
@@ -144,7 +155,7 @@ public class ElemPin extends Circle{
             }
         });
         this.addEventHandler(MouseDragEvent.MOUSE_DRAG_ENTERED, dragEnterHndl);
-        this.addEventHandler(MouseDragEvent.MOUSE_DRAG_EXITED, dragExitHndl);
+        this.addEventHandler(MouseDragEvent.MOUSE_DRAG_EXITED_TARGET, dragExitHndl);
         this.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
             e.consume();
         });
@@ -189,7 +200,7 @@ public class ElemPin extends Circle{
         this.wireCont=contactr;
         this.setOpacity(0);
         //this.wireCont.activate();
-        //contactr.setElemContact(this);
+        //contactr.bindElemContact(this);
         //this.setVisible(false);
     }
 
