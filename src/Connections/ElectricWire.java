@@ -287,13 +287,15 @@ public class ElectricWire{
     void consumeWire(WireMarker eventSource,MouseDragEvent mde){
         double x=mde.getX(),y=mde.getY();
         ElectricWire consumedWire=activeWireConnect.getWire();
-        activeWireConnect.setWire(this);
 
-        // add to this wire
-        this.getWireContacts().add(activeWireConnect);
 
         switch(consumedWire.getRank()){
             case 1:
+                activeWireConnect.setWire(this);
+
+                // add to this wire
+                this.getWireContacts().add(activeWireConnect);
+
                 consumedWire.getWireContacts().remove(0);
                 consumedWire.delete();  // remove empty wire
                 //flip
@@ -303,6 +305,8 @@ public class ElectricWire{
 
                 switch(this.getRank()) {
                     case 1+1:
+
+
                         WireMarker wm = new WireMarker(this, x, y);
                         // adjustment
                         List<Cross> row = new ArrayList();
@@ -338,7 +342,7 @@ public class ElectricWire{
             default:
                 double sx=activeWireConnect.getStartX().get(),
                         sy=activeWireConnect.getStartY().get();
-
+                int rank=this.getRank();
                 // merge lists
                 Point2D p=MathPack.MatrixEqu.findFirst(consumedWire.dotList,activeWireConnect.getItsLine().getStartMarker());
                 p=p.add(dotList.size(),0);
@@ -355,10 +359,17 @@ public class ElectricWire{
                 dotList.get((int) p.getX()).set((int)p.getY(),replacementLine.getStartMarker());
                 activeWireConnect.delete();
 
-                switch(this.getRank()){
+                switch(rank){
                     case 1:
                         break;
                     case 2:
+                        List<Cross> row=new ArrayList();
+                        row.add(replacementLine.getEndCrossMarker());
+                        row.add(this.getWireContacts().get(0).getItsLine().getStartMarker());
+                        row.add(this.getWireContacts().get(1).getItsLine().getStartMarker());
+                        this.dotList.add(row);
+                        this.bindCrosses();
+                        showAll();
                         break;
                     default:
                         this.addContToCont(eventSource.getItsLine().getStartMarker(),replacementLine.getEndCrossMarker());
