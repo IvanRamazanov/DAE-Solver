@@ -24,13 +24,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class SDPM extends ShemeElement{
+public class SDPM extends SchemeElement {
     Parameter Rs,Ls,J,KsiM,Zp,Fc;
 
     public SDPM(){
@@ -92,6 +92,13 @@ public class SDPM extends ShemeElement{
         this.initials.add(new InitParam("Rotor angle", 0));
 
         setName("Synchronous motor\npermanent magnets");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a synchronous AC machine with permanent magnets on rotor." +
+                "Input: mechanical torque in N*m.\n" +
+                "Output: angular velocity in rad/sec.";
     }
 
 

@@ -25,13 +25,13 @@ package Elements;
 
 import ElementBase.ElemPin;
 import ElementBase.Element;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class PNPtrans extends ShemeElement{
+public class PNPtrans extends SchemeElement {
     Element.Parameter Is,bf,br,Vt;
     public PNPtrans(){
         super();
@@ -74,6 +74,12 @@ public class PNPtrans extends ShemeElement{
         Vt=new Element.Parameter("Thermal voltage",25.0+273.15);
         parameters.add(Vt);
         setName("Bipolar transistor\nNPN");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a PNP bipolar transistor.\n" +
+                "Model: Ebers Moll.";
     }
 }
 

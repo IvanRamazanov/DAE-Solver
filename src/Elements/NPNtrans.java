@@ -24,13 +24,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class NPNtrans extends ShemeElement{
+public class NPNtrans extends SchemeElement {
     Parameter Is,bf,br,Vt;
     public NPNtrans(){
         super();
@@ -74,6 +74,12 @@ public class NPNtrans extends ShemeElement{
         parameters.add(Vt);
 
         setName("Bipolar transistor\nNPN");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a NPN bipolar transistor.\n" +
+                "Model: Ebers Moll.";
     }
 }
 

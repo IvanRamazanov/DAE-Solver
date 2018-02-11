@@ -95,5 +95,10 @@ public class XYGraph extends OutputElement{
         setName("ХУ graph");
     }
 
+    @Override
+    protected String getDescription(){
+        return "";
+    }
+
 }
 

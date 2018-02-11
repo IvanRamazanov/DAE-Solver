@@ -100,5 +100,10 @@ public class Scope extends OutputElement{
     protected void setParams(){
         setName("Scope");
     }
+
+    @Override
+    protected String getDescription(){
+        return "";
+    }
 }
 

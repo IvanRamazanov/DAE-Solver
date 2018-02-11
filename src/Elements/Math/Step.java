@@ -64,5 +64,11 @@ public class Step extends MathElement{
         parameters.add(moment);
         setName("Step");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a step function output.\n" +
+                "It changes value from 'level off' to 'level on' at 'Switch time' moment of time.";
+    }
 }
 

@@ -91,6 +91,12 @@ public class KZsensor extends OutputElement{
 
     @Override
     protected void setParams(){
-        setName("Current peak\nanalizer");
+        setName("Current peak\nanalyzer");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block performs current analyzer.\n" +
+                "While simulation this block records maximum Input value and point in time when it occurs.";
     }
 }

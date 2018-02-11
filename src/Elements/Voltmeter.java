@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class Voltmeter extends ShemeElement{
+public class Voltmeter extends SchemeElement {
     public Voltmeter(){
         super();
         addElemCont(new ElemPin(this, 12, 4));
@@ -33,5 +33,11 @@ public class Voltmeter extends ShemeElement{
     @Override
     protected void setParams(){
         setName("Voltmeter");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a voltmeter.\n" +
+                "Output in volts.";
     }
 }

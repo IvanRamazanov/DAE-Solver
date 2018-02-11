@@ -56,5 +56,10 @@ public class Constant extends MathElement{
         parameters.add(apmlitude);
         setName("Constant");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a constant value.";
+    }
 }
 

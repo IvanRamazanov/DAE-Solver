@@ -26,5 +26,10 @@ public class Integrator extends DynamMathElem{
     protected void setParams(){
         setName("Integrator");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an ideal integration unit.";
+    }
 }
 

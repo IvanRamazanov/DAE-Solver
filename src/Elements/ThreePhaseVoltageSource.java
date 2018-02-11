@@ -7,13 +7,13 @@ package Elements;
 
 import static java.lang.StrictMath.PI;
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class ThreePhaseVoltageSource extends ShemeElement {
+public class ThreePhaseVoltageSource extends SchemeElement {
 
     public ThreePhaseVoltageSource(){
         super();
@@ -45,6 +45,11 @@ public class ThreePhaseVoltageSource extends ShemeElement {
         this.parameters.add(new Parameter("Frequency", 50.0));
         this.parameters.add(new Parameter("Phase", 0.0));
         setName("Three-phase voltage\nsource");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a three-phase voltage source.";
     }
 }
 

@@ -24,13 +24,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class IdealKey extends ShemeElement {
+public class IdealKey extends SchemeElement {
     public IdealKey(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
@@ -52,6 +52,12 @@ public class IdealKey extends ShemeElement {
     @Override
     protected void setParams(){
         setName("Ideal key");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an ideal switch.\n" +
+                "When input value is equals zero, circuit is breaks. Otherwise circuit is connects.";
     }
 }
 

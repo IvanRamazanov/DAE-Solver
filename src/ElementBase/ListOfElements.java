@@ -43,7 +43,7 @@ public class ListOfElements {
             cat.elements.add(new Resistor(true));
             cat.elements.add(new Inductance(true));
             cat.elements.add(new Capasitor(true));
-            cat.elements.add(new ElectricalRefference(true));
+            cat.elements.add(new ElectricalReference(true));
         }
         if("Electric sources".equals(type)){
             cat.elements.add(new VoltageSource(true));
@@ -72,7 +72,7 @@ public class ListOfElements {
             cat.elements.add(new Gain(true));
             cat.elements.add(new Sinus(true));
             cat.elements.add(new Ramp(true));
-            cat.elements.add(new Sarturation(true));
+            cat.elements.add(new Saturation(true));
             cat.elements.add(new Integrator(true));
             cat.elements.add(new Constant(true));
             cat.elements.add(new Step(true));

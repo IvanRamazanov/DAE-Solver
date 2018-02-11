@@ -48,16 +48,16 @@ public class Rechatel extends Task<Integer>{
 
 //    @Override
 //    protected Integer call(){
-//        List<ShemeElement> elems=new ArrayList();
+//        List<SchemeElement> elems=new ArrayList();
 //        List<Wire> branchs=new ArrayList();
 //        if(expandSheme(elems, branchs)){
-//            ShemeElement.time=0;
+//            SchemeElement.time=0;
 //            Variables vector=new Variables(elems,branchs);
 //            vector.updateElems(true);
 //            if(vector.isDynamic){
 //                for(double t=dt;t<=tEnd;t=t+dt){
-//                    ShemeElement.time=t;
-//                    for(ShemeElement data:this.elemList){
+//                    SchemeElement.time=t;
+//                    for(SchemeElement data:this.elemList){
 //                        data.EvalNextStep(dt);
 //                    }
 //                    vector.reSolve();
@@ -66,8 +66,8 @@ public class Rechatel extends Task<Integer>{
 //                }
 //            }else{
 //                for(double t=dt;t<=tEnd;t=t+dt){
-//                    ShemeElement.time=t;
-//                    for(ShemeElement data:this.elemList){
+//                    SchemeElement.time=t;
+//                    for(SchemeElement data:this.elemList){
 //                        data.EvalNextStep(dt);
 //                    }
 //                    vector.reSolve();

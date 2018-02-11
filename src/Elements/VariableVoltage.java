@@ -7,13 +7,13 @@ package Elements;
 
 import static java.lang.StrictMath.PI;
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class VariableVoltage extends ShemeElement {
+public class VariableVoltage extends SchemeElement {
     public VariableVoltage(){
         super();
 //        Dymamic=false;
@@ -40,6 +40,11 @@ public class VariableVoltage extends ShemeElement {
         this.parameters.add(new Parameter("Frequency", 50.0));
         this.parameters.add(new Parameter("Phase", 0.0));
         setName("AC voltage source");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a alternate voltage source.";
     }
 }
 

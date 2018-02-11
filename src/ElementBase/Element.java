@@ -16,10 +16,12 @@ import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ContextMenu;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
@@ -32,13 +34,15 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
-import javafx.scene.layout.Pane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
+import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import static raschetkz.RaschetKz.drawBoard;
-import static ElementBase.ShemeElement.CUSTOM_FORMAT;
 
 
 /**
@@ -53,6 +57,8 @@ public abstract class Element {
     protected boolean catalogFlag=false;
     private Point2D initialPoint,anchorPoint;
     protected Label name;
+    protected List<MathInPin> mathInputs=new ArrayList();
+    protected List<MathOutPin> mathOutputs=new ArrayList();
     private static double HEIGHT_FIT=5;
 
     public final static DataFormat CUSTOM_FORMAT = new DataFormat("ivan.ramazanov");
@@ -102,9 +108,11 @@ public abstract class Element {
         rotate.setOnAction(ae-> rotate());
         cm.getItems().addAll(deleteMenu,paramMenu,rotate);
         imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
-        drawBoard.getChildren().add(this.getView());
 
+
+        drawBoard.getChildren().add(this.getView());
         setParams();
+
         this.viewPane.setOnDragDetected(de->{
             if(de.getButton().equals(MouseButton.PRIMARY)&&de.isControlDown()){
                 initDND();
@@ -154,7 +162,7 @@ public abstract class Element {
             elem.getView().setLayoutX(x);
             double y=0;
             elem.getView().setLayoutY(y);
-            if(elem instanceof ShemeElement)    raschetkz.RaschetKz.ElementList.add((ShemeElement)elem);
+            if(elem instanceof SchemeElement)    raschetkz.RaschetKz.ElementList.add((SchemeElement)elem);
             if(elem instanceof MathElement) raschetkz.RaschetKz.MathElemList.add((MathElement)elem);
         }catch(NoSuchMethodException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException ex){
             Logger.getLogger(Element.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
@@ -269,7 +277,102 @@ public abstract class Element {
 
     abstract protected void delete();
 
-    abstract protected void openDialogStage();
+    protected void openDialogStage() {
+        double maxnamelenght=0;
+        Stage subWind=new Stage();
+        subWind.setTitle("Параметры: "+this.getName());
+        VBox root=new VBox();
+        Scene scene=new Scene(root,300,200,Color.DARKCYAN);
+        subWind.setScene(scene);
+//        subWind.
+
+        Text header=new Text(getName()+"\n\n");
+        header.setFont(Font.font("Times New Roman", FontWeight.BOLD, 12));
+        root.getChildren().add(new TextFlow(header, new Text(getDescription())));
+
+        VBox top=new VBox();
+        for(Parameter p:this.getParameters()){
+            top.getChildren().add(p.getLayout());
+        }
+        Tab params=new Tab("Параметры элемента");
+        ScrollPane asd=new ScrollPane(top);
+//        asd.setPannable(true);
+        //asd.setFitToWidth(true);
+        asd.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        //asd.setPrefViewportHeight(150);
+        //asd.setHvalue(0.5);
+        params.setContent(asd);
+
+        TabPane pane;
+
+        if(this.getInitials().isEmpty()){
+            pane=new TabPane(params);
+            pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+            root.getChildren().add(pane);
+        }else{
+            GridPane ttop=new GridPane();
+            ttop.addRow(0, new Label("Переменная"),new Label("Приоритет"),new Label("Значение"));
+            for(int k=0;k<this.getInitials().size();k++){
+                InitParam p=this.getInitials().get(k);
+                List<Node> pn=new ArrayList(p.getLayouts());
+                int siz=pn.size();
+                for(int i=siz-1;i>=0;i--){
+                    ttop.add(pn.get(i),i,k+1);
+                }
+            }
+            Tab inits=new Tab("Начальные условия");
+            ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
+            ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
+            ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
+            ttop.setHgap(2);
+            inits.setContent(ttop);
+//            ttop.getChildren().f
+            pane=new TabPane(params,inits);
+            pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+            root.getChildren().add(pane);
+        }
+        //---buttns
+        HBox bot=new HBox();
+        Button btn=new Button("Отмена");
+        btn.setOnAction((ActionEvent ae)->{
+            subWind.close();
+        });
+        bot.getChildren().add(btn);
+        btn=new Button("Ок");
+        btn.setOnAction((ActionEvent ae)->{
+            this.getParameters().forEach(data->{
+                data.update();
+            });
+            this.getInitials().forEach(data->{
+                data.update();
+            });
+            subWind.close();
+        });
+
+        bot.setAlignment(Pos.CENTER_RIGHT);
+        bot.getChildren().add(btn);
+        root.getChildren().add(bot);
+        //
+        //subWind.sizeToScene();
+        subWind.show();
+        //subWind.setMaxHeight(root.getLayoutBounds().getHeight()+bot.getHeight()+pane.getHeight());
+        scene.setOnKeyReleased(ke->{
+            if(ke.getCode()==KeyCode.ENTER){
+                this.getParameters().forEach(data->{
+                    data.update();
+                });
+                this.getInitials().forEach(data->{
+                    data.update();
+                });
+                subWind.close();
+            }
+        });
+        if(this.getParameters().size()>0){
+            this.getParameters().get(0).requestFocus();
+        }
+    }
+
+    abstract protected String getDescription();
 
     /**
      * @return the name

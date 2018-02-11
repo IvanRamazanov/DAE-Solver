@@ -26,17 +26,13 @@ import raschetkz.RaschetKz;
  * @author Ivan
  */
 public abstract class MathElement extends Element{
-    protected List<MathInPin> inputs;
-    protected List<MathOutPin> outputs;
     public static MathMarker itsMathConnect;
     private final double contStep=15;
     private double maxX;
 
     public MathElement(){
         super();
-        inputs=new ArrayList();
-        outputs=new ArrayList();
-        parameters=new ArrayList();
+        //        parameters=new ArrayList();
         maxX=viewPane.getBoundsInLocal().getMaxX();
     }
 
@@ -44,50 +40,50 @@ public abstract class MathElement extends Element{
         super(catalog);
     }
 
-    @Override
-    protected void openDialogStage(){
-        Stage subWind=new Stage();
-        BorderPane root=new BorderPane();
-        Scene scene=new Scene(root,300,200,Color.DARKCYAN);
-        subWind.setScene(scene);
-
-        VBox top=new VBox();
-        for(Parameter p:getParameters()){
-            top.getChildren().add(p.layout);
-        }
-        Tab params=new Tab("Параметры элемента");
-        params.setContent(top);
-        TabPane pane=new TabPane(params);
-        pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-        root.setTop(pane);
-
-        //---buttns
-        Button btn=new Button("Ок");
-        btn.setOnAction((ActionEvent ae)->{
-            getParameters().forEach(data->{
-                data.update();
-            });
-            subWind.close();
-        });
-        HBox bot=new HBox();
-        bot.setAlignment(Pos.CENTER_RIGHT);
-        bot.getChildren().add(btn);
-        btn=new Button("Отмена");
-        btn.setOnAction((ActionEvent ae)->{
-            subWind.close();
-        });
-        bot.getChildren().add(btn);
-        root.setBottom(bot);
-        subWind.show();
-    }
+//    @Override
+//    protected void openDialogStage(){
+//        Stage subWind=new Stage();
+//        BorderPane root=new BorderPane();
+//        Scene scene=new Scene(root,300,200,Color.DARKCYAN);
+//        subWind.setScene(scene);
+//
+//        VBox top=new VBox();
+//        for(Parameter p:getParameters()){
+//            top.getChildren().add(p.layout);
+//        }
+//        Tab params=new Tab("Параметры элемента");
+//        params.setContent(top);
+//        TabPane pane=new TabPane(params);
+//        pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
+//        root.setTop(pane);
+//
+//        //---buttns
+//        Button btn=new Button("Ок");
+//        btn.setOnAction((ActionEvent ae)->{
+//            getParameters().forEach(data->{
+//                data.update();
+//            });
+//            subWind.close();
+//        });
+//        HBox bot=new HBox();
+//        bot.setAlignment(Pos.CENTER_RIGHT);
+//        bot.getChildren().add(btn);
+//        btn=new Button("Отмена");
+//        btn.setOnAction((ActionEvent ae)->{
+//            subWind.close();
+//        });
+//        bot.getChildren().add(btn);
+//        root.setBottom(bot);
+//        subWind.show();
+//    }
 
     final protected void addHideMathContact(char ch){
         if(ch=='i'){
-            if(inputs==null) inputs=new ArrayList();
+            //if(mathInputs==null) inputs=new ArrayList();
             MathInPin ic=new MathInPin();
             getInputs().add(ic);
         }else{
-            if(outputs==null) outputs=new ArrayList();
+            //if(outputs==null) outputs=new ArrayList();
             MathOutPin oc=new MathOutPin(this);
             getOutputs().add(oc);
         }
@@ -96,7 +92,7 @@ public abstract class MathElement extends Element{
     @Override
     public void delete(){
         //disconnect !!!!!
-        this.inputs.forEach(pin->{
+        this.getInputs().forEach(pin->{
             pin.getItsConnection().unPlug();
         });
         RaschetKz.MathElemList.remove(this);
@@ -139,13 +135,13 @@ public abstract class MathElement extends Element{
      * @return the inputs
      */
     public List<MathInPin> getInputs() {
-        return inputs;
+        return mathInputs;
     }
 
     /**
      * @return the outputs
      */
     public List<MathOutPin> getOutputs() {
-        return outputs;
+        return mathOutputs;
     }
 }

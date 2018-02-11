@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class DPTnV extends ShemeElement {
+public class DPTnV extends SchemeElement {
     private Parameter Rya,Lya,J0,Cm,Cw,F,Rf,Lf;
 
     public DPTnV(){
@@ -75,4 +75,10 @@ public class DPTnV extends ShemeElement {
         setName("DC motor");
     }
 
+    @Override
+    protected String getDescription(){
+        return "This block represents a DC motor with external excitation winding.\n" +
+                "Input: mechanical torque in N*m.\n" +
+                "Output: angular velocity in rad/sec.";
+    }
 }

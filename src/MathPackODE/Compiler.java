@@ -6,7 +6,8 @@
 package MathPackODE;
 
 import java.util.List;
-import ElementBase.ShemeElement;
+
+import ElementBase.SchemeElement;
 import Connections.ElectricWire;
 import ElementBase.DynamMathElem;
 import ElementBase.MathElement;
@@ -14,7 +15,6 @@ import ElementBase.OutputElement;
 import MathPack.DAE;
 import javafx.beans.property.SimpleBooleanProperty;
 import MathPack.MatrixEqu;
-import MathPack.Rechatel;
 import MathPack.StringFunctionSystem;
 import java.util.ArrayList;
 import raschetkz.ModelState;
@@ -24,7 +24,7 @@ import raschetkz.ModelState;
  * @author Ivan
  */
 public class Compiler {
-    List<ShemeElement> elemList=new ArrayList();
+    List<SchemeElement> elemList=new ArrayList();
     List<DynamMathElem> dynMathElemList=new ArrayList();
     List<OutputElement> outputs=new ArrayList();
     List<ElectricWire> wireList=new ArrayList();
@@ -38,7 +38,7 @@ public class Compiler {
     }
 
 //    public void eval(ModelState state){
-//        List<ShemeElement> eleList=state.GetElems();
+//        List<SchemeElement> eleList=state.GetElems();
 //        List<Wire> wires=state.GetWires();
 //
 //        if(recompile.get()){
@@ -65,7 +65,7 @@ public class Compiler {
 //                //somehow eval functions matrix
 //                StringFunctionSystem.initVarCount();
 //                List<StringFunctionSystem> elemFuncs=new ArrayList();
-//                for(ShemeElement elem:this.elemList){
+//                for(SchemeElement elem:this.elemList){
 //                    elemFuncs.add(new StringFunctionSystem(elem));
 //                }
 //
@@ -92,7 +92,7 @@ public class Compiler {
 //    }
 
     public DAE evalNumState(ModelState state) throws Exception{
-        List<ShemeElement> eleList=state.GetElems();
+        List<SchemeElement> eleList=state.GetElems();
         List<ElectricWire> wires=state.GetWires();
 
         if(recompile.get()){
@@ -118,7 +118,7 @@ public class Compiler {
                 //somehow eval functions matrix
                 StringFunctionSystem.initVarCount();
                 List<StringFunctionSystem> elemFuncs=new ArrayList();
-                for(ShemeElement elem:this.elemList){
+                for(SchemeElement elem:this.elemList){
                     elemFuncs.add(new StringFunctionSystem(elem));
                 }
                 DAEsys=StringFunctionSystem.getNumODE(elemFuncs, potM, currM);
@@ -152,7 +152,7 @@ public class Compiler {
         return dynMathElemList;
     }
 
-//    public void alternateEval(List<ShemeElement> eleList,List<Wire> wires){
+//    public void alternateEval(List<SchemeElement> eleList,List<Wire> wires){
 //        if(recompile.get()){
 //            if(!elemList.isEmpty())
 //                elemList.clear();

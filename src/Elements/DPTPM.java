@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class DPTPM extends ShemeElement{
+public class DPTPM extends SchemeElement {
     private Parameter Rya,Lya,J0,Cm,Cw,F;
 
     public DPTPM(){
@@ -60,5 +60,12 @@ public class DPTPM extends ShemeElement{
         this.initials.add(new InitParam("Current", 0));
         this.initials.add(new InitParam("Angular velocity", 0));
         setName("DC motor with\npermanent magnets");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a DC motor with permanent magnets on stator." +
+                "Input: mechanical torque in N*m.\n" +
+                "Output: angular velocity in rad/sec.";
     }
 }

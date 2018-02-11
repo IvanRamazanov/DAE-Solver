@@ -8,11 +8,8 @@ package raschetkz;
 import Connections.MathWire;
 
 import Connections.ElectricWire;
-import ElementBase.ElemPin;
-import ElementBase.Element;
-import ElementBase.MathPin;
-import ElementBase.MathElement;
-import ElementBase.ShemeElement;
+import ElementBase.*;
+import ElementBase.SchemeElement;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,7 +29,7 @@ import javafx.scene.layout.Pane;
  * @author Иван
  */
 public class ModelState{
-    List<ShemeElement> ElementList;
+    List<SchemeElement> ElementList;
     List<MathElement> MathElemList;
     private List<MathWire> mathConnList;
     List<ElectricWire> BranchList;
@@ -95,7 +92,7 @@ public class ModelState{
 
         temp.putInt(0, this.ElementList.size());    //num of elems
         baos.write(temp.array(), 0, 4);
-        for(ShemeElement shE:this.ElementList){
+        for(SchemeElement shE:this.ElementList){
             //name
             for(char c:shE.getClass().getName().toCharArray()){
                 temp.putChar(0,c);
@@ -112,7 +109,7 @@ public class ModelState{
             temp.putDouble(0, shE.getView().getRotate());
             baos.write(temp.array(), 0, 8);
             //params
-            for(ShemeElement.Parameter p:shE.getParameters()){
+            for(SchemeElement.Parameter p:shE.getParameters()){
                 temp.putDouble(0, p.getDoubleValue());
                 baos.write(temp.array(), 0, 8);
             }
@@ -135,7 +132,7 @@ public class ModelState{
 
         //Wires
         List<ElemPin> ECList=new ArrayList();
-        for(ShemeElement e:this.ElementList){
+        for(SchemeElement e:this.ElementList){
             ECList.addAll(e.getElemContactList());
         }
 
@@ -167,7 +164,7 @@ public class ModelState{
             temp.putDouble(0, mathE.getView().getRotate());
             baos.write(temp.array(), 0, 8);
             //params
-            for(ShemeElement.Parameter p:mathE.getParameters()){
+            for(SchemeElement.Parameter p:mathE.getParameters()){
                 temp.putDouble(0, p.getDoubleValue());
                 baos.write(temp.array(), 0, 8);
             }
@@ -249,7 +246,7 @@ public class ModelState{
                     //creation
                     Class<?> clas=Class.forName(sTemp);
                     Constructor<?> ctor=clas.getConstructor();
-                    ShemeElement elem=(ShemeElement)ctor.newInstance(new Object[] {});
+                    SchemeElement elem=(SchemeElement)ctor.newInstance(new Object[] {});
 
                     //Layouts
                     fis.read(temp.array(), 0, 8);  //x
@@ -259,11 +256,11 @@ public class ModelState{
                     fis.read(temp.array(), 0, 8);  //rotation
                     elem.setRotation(temp.getDouble(0));
 
-                    for(ShemeElement.Parameter p:elem.getParameters()){
+                    for(SchemeElement.Parameter p:elem.getParameters()){
                         fis.read(temp.array(), 0, 8); //pram val
                         p.setValue(temp.getDouble(0));
                     }
-                    for(ShemeElement.InitParam p:elem.getInitials()){
+                    for(SchemeElement.InitParam p:elem.getInitials()){
                         fis.read(temp.array(), 0, 8); //init val
                         p.setValue(temp.getDouble(0));
                         fis.read(temp.array(), 0, 4); //priority
@@ -284,7 +281,7 @@ public class ModelState{
 
             //Wires
             List<ElemPin> ECList=new ArrayList();
-            for(ShemeElement e:this.ElementList){
+            for(SchemeElement e:this.ElementList){
                 ECList.addAll(e.getElemContactList());
             }
             //num of wires
@@ -324,7 +321,7 @@ public class ModelState{
                     fis.read(temp.array(), 0, 8);  //rotation
                     elem.setRotation(temp.getDouble(0));
 
-                    for(ShemeElement.Parameter p:elem.getParameters()){
+                    for(SchemeElement.Parameter p:elem.getParameters()){
                         fis.read(temp.array(), 0, 8); //pram val
                         p.setValue(temp.getDouble(0));
                     }
@@ -367,7 +364,7 @@ public class ModelState{
         return(this.BranchList);
     }
 
-    public List<ShemeElement> GetElems() {
+    public List<SchemeElement> GetElems() {
         return(this.ElementList);
     }
 

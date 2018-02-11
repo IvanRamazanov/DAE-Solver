@@ -24,13 +24,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author ramazanov_im
  */
-public class InductionMotor extends ShemeElement{
+public class InductionMotor extends SchemeElement {
     Parameter Rs,Ls,J,Rr,Lr,Lm,Zp,Fc,Rp;
 
     public InductionMotor(){
@@ -169,6 +169,13 @@ public class InductionMotor extends ShemeElement{
         this.initials.add(new InitParam("Angular velocity", 0));
         this.initials.add(new InitParam("Rotor angle", 0));
         setName("Asynchronous motor");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an asynchronous AC motor with single squirrel cage." +
+                "Input: mechanical torque in N*m.\n" +
+                "Output: angular velocity in rad/sec.";
     }
 }
 

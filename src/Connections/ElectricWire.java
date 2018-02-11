@@ -336,7 +336,7 @@ public class ElectricWire{
                 }
                 break;
             case 2:
-                System.out.println("Hi, you there!");
+                System.out.println("Hi, you there!"); // TODO This case is present, when fully unplugged wire connects.
 
                 break;
             default:

@@ -67,5 +67,10 @@ public class Ramp extends MathElement{
         parameters.add(ton);
         setName("Ramp");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a linear output, that triggers at given time moment.";
+    }
 }
 

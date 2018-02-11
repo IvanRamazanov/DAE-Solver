@@ -25,7 +25,8 @@ package Elements;
 
 import ElementBase.ElemPin;
 import ElementBase.MathElement;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
  *
  * @author Ivan
  */
-public class CircuitBreaker extends ShemeElement{
+public class CircuitBreaker extends SchemeElement {
     Logic itsLogic;
     List<Parameter> params=this.parameters;
 
@@ -67,7 +68,8 @@ public class CircuitBreaker extends ShemeElement{
 
     @Override
     public void delete() {
-        throw new UnsupportedOperationException("delete Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        itsLogic.delete();
+        super.delete();
     }
 
     @Override
@@ -81,6 +83,11 @@ public class CircuitBreaker extends ShemeElement{
         setName("Circuit breaker");
     }
 
+    @Override
+    protected String getDescription(){
+        return "This block represents a circuit breaker.\n" +
+                "When current, that flows throw this block, reaches threshold value, this block would break electric circuit.";
+    }
 
     public class Logic extends MathElement{
         boolean flag=false;
@@ -95,7 +102,7 @@ public class CircuitBreaker extends ShemeElement{
         @Override
         protected List<Double> getValue(int outIndex) {
             if(!flag){
-                double val=inputs.get(0).getValue().get(0);
+                double val=getInputs().get(0).getValue().get(0);
                 List<Double> out=new ArrayList();
                 if(Math.abs(val)>params.get(0).getDoubleValue())  {
                     flag=true;
@@ -123,6 +130,10 @@ public class CircuitBreaker extends ShemeElement{
 
         }
 
+        @Override
+        protected String getDescription(){
+            return "";
+        }
     }
 }
 

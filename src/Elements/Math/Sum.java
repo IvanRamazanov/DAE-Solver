@@ -49,12 +49,12 @@ public class Sum extends MathElement{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        int rank=inputs.get(0).getValue().size();
-        List<Double> sum=new ArrayList(inputs.get(0).getValue().size());
+        int rank=getInputs().get(0).getValue().size();
+        List<Double> sum=new ArrayList(getInputs().get(0).getValue().size());
         for(int i=0;i<rank;i++){
             double val=0;
-            for(int j=0;j<inputs.size();j++)
-                val+=inputs.get(j).getValue().get(i);
+            for(int j=0;j<getInputs().size();j++)
+                val+=getInputs().get(j).getValue().get(i);
             sum.add(val);
         }
         return sum;
@@ -69,6 +69,11 @@ public class Sum extends MathElement{
         StrParam(String name,String initVal){
 
         }
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block calculates sum of Inputs.";
     }
 }
 
