@@ -24,13 +24,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class Diode extends ShemeElement{
+public class Diode extends SchemeElement {
     Parameter Vf;
 
     public Diode(){
@@ -55,6 +55,12 @@ public class Diode extends ShemeElement{
         Vf=new Parameter("Forward voltage", 0.5);
         this.parameters.add(Vf);
         setName("Diode");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a diode.\n" +
+                "A model of diode is piecewise linear.";
     }
 }
 

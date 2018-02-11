@@ -8,17 +8,14 @@ package MathPackODE;
 import ElementBase.DynamMathElem;
 import ElementBase.MathInPin;
 import ElementBase.OutputElement;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 import MathPack.DAE;
 import MathPack.StringGraph;
 import MathPack.WorkSpace;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
 import raschetkz.ModelState;
@@ -85,7 +82,7 @@ abstract public class Solver {
             j++;
         }
 
-        for(ShemeElement elem:state.GetElems()){
+        for(SchemeElement elem:state.GetElems()){
             elem.init();
         }
         for(DynamMathElem del:mathDynamics){

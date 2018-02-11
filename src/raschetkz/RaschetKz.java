@@ -22,10 +22,12 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import javafx.scene.input.MouseEvent;
-import ElementBase.ShemeElement;
-import MathPack.WorkSpace;
+import ElementBase.SchemeElement;
 import java.io.File;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
@@ -55,7 +57,7 @@ public class RaschetKz extends Application{
     Button stopBtn;
 
     public SimpleStringProperty solverType;
-    public static List<ShemeElement> ElementList;
+    public static List<SchemeElement> ElementList;
     public static List<MathElement> MathElemList;
     public static List<ElectricWire> BranchList;
 
@@ -72,8 +74,8 @@ public class RaschetKz extends Application{
 
     @Override
     public void start(Stage primaryStage) {
-//        for(int i=0;i<arguments.length;i++)
-//            layoutString(arguments[i]);
+        for(int i=0;i<arguments.length;i++)
+            layoutString(arguments[i]);
 
         state=new ModelState();
         dt=state.getDt();
@@ -87,12 +89,22 @@ public class RaschetKz extends Application{
         ElementList=state.GetElems();
         MathElemList=state.GetMathElems();
         mathContsList=state.getMathConnList();
-        if(arguments.length==2)
-            if(arguments[0].equals("-o")){
-                File f=new File(arguments[1]);
-                state.Load(arguments[1]);
-                currentFile.setText(f.getName());
-            }
+        switch(arguments.length) {
+            case 2:
+                if (arguments[0].equals("-o")) {
+                    File f = new File(arguments[1]);
+                    state.Load(arguments[1]);
+                    currentFile.setText(f.getName());
+                }
+                break;
+            case 1:
+                String arg=arguments[0];
+                Path uri= Paths.get(arg);
+                if(Files.exists(uri)){
+                    state.Load(arg);
+                    currentFile.setText(uri.getFileName().toString());
+                }
+        }
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add("raschetkz/mod.css");
@@ -112,6 +124,7 @@ public class RaschetKz extends Application{
         arguments=args;
 
 //        arguments=new String[]{"-o","C:\\Users\\Ivan\\Desktop\\test.rim"};
+//        arguments=new String[]{"-o"};
 
         launch(args);
     }
@@ -194,12 +207,12 @@ public class RaschetKz extends Application{
         });
         scrllPane.setOnDragDropped(de->{
 
-            ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(ShemeElement.CUSTOM_FORMAT);
+            ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(SchemeElement.CUSTOM_FORMAT);
             Element obj=content.deserialize();
             obj.getView().setLayoutX(de.getX());
             obj.getView().setLayoutY(de.getY());
-            if(obj instanceof ShemeElement)
-                ElementList.add((ShemeElement)obj);
+            if(obj instanceof SchemeElement)
+                ElementList.add((SchemeElement)obj);
             else if(obj instanceof MathElement)
                 MathElemList.add((MathElement)obj);
             else

@@ -6,6 +6,7 @@
         <option name="appClass" value="raschetkz.RaschetKz" />
         <option name="description" value="" />
         <option name="htmlPlaceholderId" value="" />
+        <option name="nativeBundle" value="exe" />
         <option name="title" value="" />
         <option name="vendor" value="Ivan Ramazanov" />
         <option name="version" value="1.0" />

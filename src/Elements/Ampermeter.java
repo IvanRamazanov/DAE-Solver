@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class Ampermeter extends ShemeElement {
+public class Ampermeter extends SchemeElement {
     public Ampermeter(){
         super();
         addElemCont(new ElemPin(this, 12, 4));
@@ -32,6 +32,12 @@ public class Ampermeter extends ShemeElement {
     @Override
     protected void setParams() {
         setName("Ampermeter");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an ampermeter.\n" +
+                "Output: current in amperes";
     }
 }
 

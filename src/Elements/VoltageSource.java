@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class VoltageSource extends ShemeElement {
+public class VoltageSource extends SchemeElement {
     public VoltageSource(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
@@ -29,9 +29,9 @@ public class VoltageSource extends ShemeElement {
 //    }
 
 //    @Override
-//    public List<ShemeElement> expandElement(List<Wire> nodes, boolean byGOST) {
+//    public List<SchemeElement> expandElement(List<Wire> nodes, boolean byGOST) {
 //        // add sub elems to "elements" and subbr to "nodes"
-//        List<ShemeElement> output=new ArrayList();
+//        List<SchemeElement> output=new ArrayList();
 //        output.add(this);
 //        return output;
 //    }
@@ -52,6 +52,11 @@ public class VoltageSource extends ShemeElement {
     protected void setParams(){
         this.parameters.add(new Parameter("Voltage", 15.0));
         setName("DC voltage source");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a constant voltage source.";
     }
 }
 

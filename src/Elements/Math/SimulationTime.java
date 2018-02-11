@@ -54,5 +54,11 @@ public class SimulationTime extends MathElement{
     protected void setParams(){
         setName("Simulation time");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a time clock.\n" +
+                "Output value equals simulation time.";
+    }
 }
 

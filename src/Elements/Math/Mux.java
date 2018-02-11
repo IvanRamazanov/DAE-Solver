@@ -49,8 +49,8 @@ public class Mux extends MathElement{
     @Override
     protected List<Double> getValue(int outIndex) {
         List<Double> out=new ArrayList();
-        out.addAll(inputs.get(0).getValue());
-        out.addAll(inputs.get(1).getValue());
+        out.addAll(getInputs().get(0).getValue());
+        out.addAll(getInputs().get(1).getValue());
         return out;
     }
 
@@ -59,6 +59,11 @@ public class Mux extends MathElement{
         inpValue=new Parameter("Number of inputs", 2);
         parameters.add(inpValue);
         setName("Mux");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a vector(or scalar) concatenation.";
     }
 }
 

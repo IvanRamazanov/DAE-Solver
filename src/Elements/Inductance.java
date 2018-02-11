@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class Inductance extends ShemeElement{
+public class Inductance extends SchemeElement {
 
     public Inductance(){
         super();
@@ -39,6 +39,11 @@ public class Inductance extends ShemeElement{
 
         this.initials.add(new InitParam("Current", 0));
         setName("Inductance");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an inductivity.";
     }
 }
 

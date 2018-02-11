@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class Capasitor extends ShemeElement {
+public class Capasitor extends SchemeElement {
     public Capasitor(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
@@ -38,6 +38,11 @@ public class Capasitor extends ShemeElement {
         this.parameters.add(new Parameter("Capasitance", 0.01));
         this.initials.add(new InitParam("Voltage", 0));
         setName("Capacitor");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an capacitance.";
     }
 }
 

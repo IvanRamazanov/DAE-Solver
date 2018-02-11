@@ -27,15 +27,15 @@ import raschetkz.RaschetKz;
  * @author Ivan
  */
 public class ElemPin extends Circle{
-    ShemeElement owner;
+    SchemeElement owner;
     WireMarker wireCont;
     SimpleDoubleProperty centerX,centerY;
 
-    public ElemPin(ShemeElement owner){
+    public ElemPin(SchemeElement owner){
         this.owner=owner;
     }
 
-    public ElemPin(ShemeElement owner,int x,int y){
+    public ElemPin(SchemeElement owner, int x, int y){
         this.owner=owner;
         this.setCenterX(x);
         this.setCenterY(y);
@@ -235,7 +235,7 @@ public class ElemPin extends Circle{
         this.setOpacity(1.0);
     }
 
-    public ShemeElement getOwner(){
+    public SchemeElement getOwner(){
         return(owner);
     }
 

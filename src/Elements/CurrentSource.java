@@ -25,13 +25,13 @@ package Elements;
 
 import ElementBase.ElemPin;
 import ElementBase.Element;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class CurrentSource extends ShemeElement{
+public class CurrentSource extends SchemeElement {
     public CurrentSource(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
@@ -56,6 +56,11 @@ public class CurrentSource extends ShemeElement{
     protected void setParams(){
         this.parameters.add(new Element.Parameter("Amplitude", 15.0));
         setName("DC current source");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a current source.";
     }
 }
 

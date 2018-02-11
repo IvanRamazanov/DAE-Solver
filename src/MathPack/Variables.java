@@ -7,7 +7,9 @@ package MathPack;
 
 import Connections.ElectricWire;
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
+import Elements.ElectricalReference;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +20,12 @@ import java.util.List;
 class Variables{
     private List<ElemPin> pointers;
     private List<Double> values;
-    private List<ShemeElement> elems;
-    //List<ShemeElement> dElems;
+    private List<SchemeElement> elems;
+    //List<SchemeElement> dElems;
     private List<ElectricWire> brchs;
 //        boolean isDynamic=false;
 
-    Variables(List<ShemeElement> elementList, List<ElectricWire> branchList){
+    Variables(List<SchemeElement> elementList, List<ElectricWire> branchList){
         elems=elementList;
         brchs=branchList;
         pointers=new ArrayList();
@@ -144,8 +146,8 @@ class Variables{
         }
         //refference
         int flag=0;
-        for(ShemeElement e:this.elems){
-            if(e instanceof Elements.ElectricalRefference){
+        for(SchemeElement e:this.elems){
+            if(e instanceof ElectricalReference){
                 flag++;
             }
         }
@@ -162,7 +164,7 @@ class Variables{
                 output.add(new ArrayList());
                 for(ElemPin m:pointers){
                     output.get(row).add(Double.valueOf(0.0));
-                    if(m.getOwner() instanceof Elements.ElectricalRefference){
+                    if(m.getOwner() instanceof ElectricalReference){
                         output.get(row).add(1.0);
                     }else{
                         output.get(row).add(0.0);

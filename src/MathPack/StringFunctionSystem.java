@@ -7,7 +7,7 @@ package MathPack;
 
 import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 import ElementBase.Element.InitParam;
 import static MathPack.MatrixEqu.rank;
 import java.io.BufferedWriter;
@@ -36,7 +36,7 @@ public class StringFunctionSystem {
     private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
     private static boolean LOG_FLAG=false;
 
-    public StringFunctionSystem(ShemeElement element){
+    public StringFunctionSystem(SchemeElement element){
         initials=new ArrayList();
         xPryor=new ArrayList();
         outputFuncs=new ArrayList();

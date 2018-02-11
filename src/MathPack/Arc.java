@@ -6,7 +6,8 @@
 package MathPack;
 
 import Connections.ElectricWire;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  * @author Ivan
  */
 public class Arc{
-    private List<ShemeElement> elements;
+    private List<SchemeElement> elements;
     private ElectricWire positive,negative;
     private int muliplex=0;
     private double i;
@@ -52,8 +53,8 @@ public class Arc{
         this.positive = positive;
     }
 
-//    public void evalArc(Elements.ShemeElement.ElemContact startContact, boolean isCircleCircuit){
-//        Elements.ShemeElement.ElemContact nextContact=startContact.getOwner().;
+//    public void evalArc(Elements.SchemeElement.ElemContact startContact, boolean isCircleCircuit){
+//        Elements.SchemeElement.ElemContact nextContact=startContact.getOwner().;
 //        if(isCircleCircuit){
 //            next
 //            while
@@ -80,11 +81,11 @@ public class Arc{
     /**
      * @return the elements
      */
-    public List<ShemeElement> getElements() {
+    public List<SchemeElement> getElements() {
         return elements;
     }
 
-    public void addElement(ShemeElement shE) {
+    public void addElement(SchemeElement shE) {
         this.elements.add(shE);
     }
 

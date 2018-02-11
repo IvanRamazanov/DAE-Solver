@@ -6,13 +6,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class Resistor extends ShemeElement {
+public class Resistor extends SchemeElement {
 
     public Resistor(){
         super();
@@ -37,6 +37,11 @@ public class Resistor extends ShemeElement {
     protected void setParams(){
         this.parameters.add(new Parameter("Resistance", 10.0));
         setName("Resistance");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a resistance.";
     }
 }
 

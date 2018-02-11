@@ -7,14 +7,14 @@ package Elements;
 
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 
 /**
  *
  * @author Ivan
  */
-public class ControlledVoltage extends ShemeElement{
+public class ControlledVoltage extends SchemeElement {
     public ControlledVoltage(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
@@ -36,6 +36,12 @@ public class ControlledVoltage extends ShemeElement{
     @Override
     protected void setParams(){
         setName("Depended voltage\nsource");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a controlled voltage source.\n" +
+                "An output value in volts is equal to input port value.";
     }
 }
 

@@ -6,20 +6,20 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author Ivan
  */
-public class ElectricalRefference extends ShemeElement{
+public class ElectricalReference extends SchemeElement {
 
-    public ElectricalRefference(){
+    public ElectricalReference(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
     }
 
-    public ElectricalRefference(boolean Catalog){
+    public ElectricalReference(boolean Catalog){
         super(Catalog);
     }
 
@@ -32,6 +32,11 @@ public class ElectricalRefference extends ShemeElement{
     @Override
     protected void setParams(){
         setName("Electical refference");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an electrical reference.";
     }
 }
 

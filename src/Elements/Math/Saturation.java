@@ -12,17 +12,17 @@ import java.util.List;
  *
  * @author Ivan
  */
-public class Sarturation extends MathElement {
+public class Saturation extends MathElement {
 
     private Parameter levelUp,levelDown;
 
-    public Sarturation(){
+    public Saturation(){
         super();
         addMathContact('i');
         addMathContact('o');
     }
 
-    public Sarturation(boolean flag){
+    public Saturation(boolean flag){
         super(flag);
     }
 
@@ -47,7 +47,12 @@ public class Sarturation extends MathElement {
         levelDown=new Parameter("Lower limit", -1);
         parameters.add(levelUp);
         parameters.add(levelDown);
-        setName("Sarturation");
+        setName("Saturation");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a saturation.";
     }
 }
 

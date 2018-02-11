@@ -24,13 +24,13 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 
 /**
  *
  * @author ramazanov_im
  */
-public class ThreePhMeasure extends ShemeElement{
+public class ThreePhMeasure extends SchemeElement {  // TODO what is this?
     public ThreePhMeasure(){
         super();
         addElemCont(new ElemPin(this, 4, 4));
@@ -55,6 +55,11 @@ public class ThreePhMeasure extends ShemeElement{
     @Override
     protected void setParams(){
         setName("Трехфазный измеритель");
+    }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents something.";
     }
 }
 

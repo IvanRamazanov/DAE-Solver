@@ -7,11 +7,13 @@ package MathPack;
 
 import Connections.ElectricWire;
 import Connections.WireMarker;
-import ElementBase.ShemeElement;
+import ElementBase.SchemeElement;
 import ElementBase.ElemPin;
 import ElementBase.MathInPin;
 import java.util.ArrayList;
 import java.util.List;
+
+import Elements.ElectricalReference;
 import javafx.geometry.Point2D;
 
 /**
@@ -816,11 +818,11 @@ public class MatrixEqu {
         return transpose_s(out);
     }
 
-    public static int[][] getPotentialsMap(List<ElectricWire> Wires, List<ShemeElement> Elems) throws Exception{
+    public static int[][] getPotentialsMap(List<ElectricWire> Wires, List<SchemeElement> Elems) throws Exception{
         if(Wires.isEmpty()&&Elems.isEmpty()) return null;
         List<ElemPin> conts=new ArrayList();
         int rowLength=0;
-        for(ShemeElement elem:Elems){
+        for(SchemeElement elem:Elems){
             conts.addAll(elem.getElemContactList());
             rowLength+=elem.getElemContactList().size();
         }
@@ -830,8 +832,8 @@ public class MatrixEqu {
             columnLength+=rank-1;
         }
         boolean flag=true;
-        for(ShemeElement elem:Elems){
-            if(elem instanceof Elements.ElectricalRefference){
+        for(SchemeElement elem:Elems){
+            if(elem instanceof ElectricalReference){
                 flag=false;
                 break;
 //                columnLength++;//????
@@ -853,8 +855,8 @@ public class MatrixEqu {
         if(flag)
             out[row][0]=1;
 //        else{
-//            for(ShemeElement shE:Elems){
-//                if(shE instanceof Elements.ElectricalRefference){
+//            for(SchemeElement shE:Elems){
+//                if(shE instanceof Elements.ElectricalReference){
 //                    out[row][conts.indexOf(shE.getElemContactList().get(0))]=1;
 //                    row++;
 //                }
@@ -863,13 +865,13 @@ public class MatrixEqu {
         return(out);
     }
 
-    public static int[][] getCurrentsMap(List<ElectricWire> Wires, List<ShemeElement> Elems){
+    public static int[][] getCurrentsMap(List<ElectricWire> Wires, List<SchemeElement> Elems){
         if(Wires.isEmpty()&&Elems.isEmpty()) return null;
         List<ElemPin> conts=new ArrayList();
         int rowLength=0,columnLength=0;
 
         //Рассчет размерности
-        for(ShemeElement elem:Elems){
+        for(SchemeElement elem:Elems){
 //            columnLength+=1;
             conts.addAll(elem.getElemContactList());
             rowLength+=elem.getElemContactList().size();
@@ -878,8 +880,8 @@ public class MatrixEqu {
 
         //Есть ли "земли"
         boolean flag=false;
-        for(ShemeElement elem:Elems){
-            if(elem instanceof Elements.ElectricalRefference){
+        for(SchemeElement elem:Elems){
+            if(elem instanceof ElectricalReference){
                 flag=true;
             }
         }
@@ -900,10 +902,10 @@ public class MatrixEqu {
             row++;
         }
         //Сумма токов в элементах (???????? не факт, например ДПТНВ)
-        for(ShemeElement shE:Elems){
+        for(SchemeElement shE:Elems){
 //            int len=shE.getElemContactList().size();
             int ind=conts.indexOf(shE.getElemContactList().get(0));
-            if(shE instanceof Elements.ElectricalRefference){
+            if(shE instanceof ElectricalReference){
                 out[columnLength-1][ind]=1;
             }else{
 //                for(int i=0;i<len;i++){

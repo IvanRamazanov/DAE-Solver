@@ -43,4 +43,10 @@ public class Gain extends MathElement{
         parameters.add(gainValue);
         setName("Gain");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents an amplifier.\n" +
+                "Output = Gain * Input.";
+    }
 }

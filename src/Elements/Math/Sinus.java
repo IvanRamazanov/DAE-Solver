@@ -50,5 +50,10 @@ public class Sinus extends MathElement{
         parameters.add(phase);
         setName("Sinus wave");
     }
+
+    @Override
+    protected String getDescription(){
+        return "This block represents a sinus wave source.";
+    }
 }
 
