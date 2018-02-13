@@ -184,7 +184,7 @@ abstract public class Solver {
                     //                    System.arraycopy(s, 0, s0, 0, s0.length);
                     //                }
                     cnt++;
-                    if(cnt>10){
+                    if(cnt>500){
                         for(double[] row:J){
                             System.out.println(Arrays.toString(row));
                         }

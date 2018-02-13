@@ -53,12 +53,18 @@ public class NPNtrans extends SchemeElement {
         double q=1.602176*Math.pow(10,-19),k=1.3806503*Math.pow(10,-23);
         String qk=Double.toString(q/k);
 
+        String expBE="if(gr((p.3-p.2)*"+qk+"/"+vt+",40),exp(40)*((p.3-p.2)*"+qk+"/"+vt+"-39),if(gr(-39,(p.3-p.2)*"+qk+"/"+vt+"),exp(-39)*((p.3-p.2)*"+qk+"/"+vt+"+40),exp((p.3-p.2)*"+qk+"/"+vt+")))",
+        expBC="if(gr((p.3-p.1)*"+qk+"/"+vt+",40),exp(40)*((p.3-p.1)*"+qk+"/"+vt+"-39),if(gr(-39,(p.3-p.1)*"+qk+"/"+vt+"),exp(-39)*((p.3-p.1)*"+qk+"/"+vt+"+40),exp((p.3-p.1)*"+qk+"/"+vt+")))";
+
+
         String[] str={
-                "i.1="+is+"*((exp((p.3-p.2)*"+qk+"/"+vt+")-exp((p.3-p.1)*"+qk+"/"+vt+"))*(1-(p.3-p.1)/200)-(exp((p.3-p.1)*"+qk+"/"+vt+")-1)/"+Br+")", //C
-                //"i.2=1*"+is+"*(exp((p.3-p.2)/"+vt+")-exp((p.3-p.1)/"+vt+")+"+Bf+"*(exp((p.3-p.2)/"+vt+")-1))",   //E
-                "i.3="+is+"*((exp((p.2-p.3)*"+qk+"/"+vt+")-1)/"+Bf+"+(exp((p.3-p.1)*"+qk+"/"+vt+")-1)/"+Br+")", //B
+//                "i.1="+is+"*(("+exp1+"-exp((p.3-p.1)*"+qk+"/"+vt+"))*(1-(p.3-p.1)/200)-(exp((p.3-p.1)*"+qk+"/"+vt+")-1)/"+Br+")", //C
+//                //"i.2=1*"+is+"*(exp((p.3-p.2)/"+vt+")-exp((p.3-p.1)/"+vt+")+"+Bf+"*(exp((p.3-p.2)/"+vt+")-1))",   //E
+//                "i.3="+is+"*((exp((p.2-p.3)*"+qk+"/"+vt+")-1)/"+Bf+"+(exp((p.3-p.1)*"+qk+"/"+vt+")-1)/"+Br+")", //B
+                "i.1="+is+"*(("+expBE+"-"+expBC+")*(1-(p.3-p.1)/200)-("+expBC+"-1)/"+Br+")", //C
+                "i.3="+is+"*(("+expBE+"-1)/"+Bf+"+("+expBC+"-1)/"+Br+")", //B
                 "i.1+i.2+i.3=0"
-        };
+                        };
         return str;
     }
 

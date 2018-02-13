@@ -1468,9 +1468,9 @@ class GreatThan implements SimpleFunc{
             }
         }
         if(numOfConsts==inps.size()){
-            output=new Const(Evaluate(gains, ((Const)inps.get(0)).getValue()));
+            output = new Const(Evaluate(gains, ((Const)inps.get(0)).getValue(),((Const)inps.get(1)).getValue()));
         }else{
-            output=input;
+            output = input;
         }
 
         return output;
@@ -1534,6 +1534,12 @@ class If implements SimpleFunc{
         }else{
             output=input;
         }
+
+        if(inps.get(0) instanceof Const)
+            if(((Const)inps.get(0)).getValue()==0)
+                return inps.get(2);
+            else
+                return inps.get(1);
 
         return output;
     }
