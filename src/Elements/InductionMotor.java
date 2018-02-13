@@ -31,7 +31,7 @@ import ElementBase.SchemeElement;
  * @author ramazanov_im
  */
 public class InductionMotor extends SchemeElement {
-    Parameter Rs,Ls,J,Rr,Lr,Lm,Zp,Fc,Rp;
+    Parameter Rs,Ls,J,Rr,Lr,Lm,Zp,Fc;
 
     public InductionMotor(){
         super();
@@ -54,8 +54,7 @@ public class InductionMotor extends SchemeElement {
                 ls=Ls.getDoubleValue()+lm,
                 lr=Lr.getDoubleValue()+lm,
                 jm=J.getDoubleValue(),
-                zp=Zp.getDoubleValue(),
-                rp=Rp.getDoubleValue();
+                zp=Zp.getDoubleValue();
         double M12=2.0/3.0*lm,M3=4.0*ls*lr-9.0*M12*M12;
         String  Kuac=Double.toString(8.0*lr/3.0/M3),
                 Kubc=Double.toString(4.0*lr/3.0/M3),

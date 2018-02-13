@@ -6,6 +6,7 @@
 package raschetkz;
 
 import Connections.MathWire;
+import MathPack.MatrixEqu;
 import MathPack.Rechatel;
 import Connections.ElectricWire;
 import ElementBase.ElemSerialization;
@@ -25,6 +26,7 @@ import javafx.stage.Stage;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 import javafx.scene.input.MouseEvent;
 import ElementBase.SchemeElement;

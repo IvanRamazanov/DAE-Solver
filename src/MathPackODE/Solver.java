@@ -10,10 +10,12 @@ import ElementBase.MathInPin;
 import ElementBase.OutputElement;
 import ElementBase.SchemeElement;
 import MathPack.DAE;
+import MathPack.MatrixEqu;
 import MathPack.StringGraph;
 import MathPack.WorkSpace;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javafx.beans.property.SimpleDoubleProperty;
@@ -28,7 +30,7 @@ abstract public class Solver {
     protected List<StringGraph> newtonFunc;
     protected List<OutputElement> mathOuts;
     protected List<DynamMathElem> mathDynamics;
-    protected List<List<StringGraph>> Jacob,invJacob;
+    protected List<List<StringGraph>> symbJacobian,invJacob;
     protected List<StringGraph> algSystem;
     protected WorkSpace vars;
     protected DAE dae;
@@ -38,7 +40,8 @@ abstract public class Solver {
     protected int jacobEstType,diffRank;
     protected double[]
             //s,
-            x0;
+            x0,vals;
+    private double[][] J;
     private int[] ind;
     public static double dt, time;
     public static SimpleDoubleProperty progress=new SimpleDoubleProperty();
@@ -54,7 +57,7 @@ abstract public class Solver {
         dae=daeSys;
         vars=daeSys.getVars();
         inps=daeSys.getInps();
-        Jacob=daeSys.getJacob();
+        symbJacobian=daeSys.getJacob();
         invJacob=daeSys.getInvJacob();
         newtonFunc=daeSys.getNewtonFunc();
         algSystem=daeSys.getAlgSystem();
@@ -65,6 +68,10 @@ abstract public class Solver {
         dt=state.getDt().doubleValue();
         //s=new double[algSystem.size()];
         x0=new double[algSystem.size()];
+
+        vals=new double[algSystem.size()];
+        J=new double[algSystem.size()][algSystem.size()];
+
         ind=new int[algSystem.size()];
         //varNames=new ArrayList();
         vector=vars.getVarList();
@@ -112,16 +119,15 @@ abstract public class Solver {
         double maxDiffer;
         int cnt=0;
 
-        if(Jacob!=null)
-            if(!Jacob.isEmpty()){
+        if(symbJacobian!=null)
+            if(!symbJacobian.isEmpty()){
                 boolean faultflag=false;
 
                 while(true){
                     if(cancelFlag.isCancelled())
                         break;
                     //eval F(x)=0
-                    List<Double> vals;
-                    vals=MathPack.MatrixEqu.evalSymbRow(algSystem,vars,inps);
+                    MathPack.MatrixEqu.putValuesFromSymbRow(vals,algSystem,vars,inps);
                     double norm=MathPack.MatrixEqu.norm(vals);
                     if(norm<0.000001)
                         break;
@@ -130,33 +136,35 @@ abstract public class Solver {
 
                     switch(jacobEstType){
                         case 0: //full symbolic
-                            vals=MathPack.MatrixEqu.evalSymbRow(newtonFunc,vars,inps);
+                            MathPack.MatrixEqu.putValuesFromSymbRow(vals,newtonFunc,vars,inps);
                             break;
                         case 1: //inverse symbolic
                             List<List<Double>> invJ=MathPack.MatrixEqu.evalSymbMatr(invJacob, vars, inps);
                             vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
                             break;
                         case 2: //only jacob symb
-                            invJ=MathPack.MatrixEqu.invMatr(MathPack.MatrixEqu.evalSymbMatr(Jacob,vars, inps));
-                            vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
+//                            invJ=MathPack.MatrixEqu.invMatr(MathPack.MatrixEqu.evalSymbMatr(Jacob,vars, inps));
+//                            vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
+                            MathPack.MatrixEqu.putValuesFromSymbMatr(J,symbJacobian,vars, inps);
+                            vals = MatrixEqu.solveLU(J,vals); // first 'vals' contains F(x)
                             break;
                         default:
                             vals=null;
                     }
                     for(int i=0;i<x0.length;i++){
-                        double val=vals.get(i);
                         //if(Math.abs(val)>maxDiffer) maxDiffer=Math.abs(val);
-                        if(Double.isNaN(val)){
-                            val=vars.get(i);
+                        if(Double.isNaN(vals[i])){
+                            vals[i]=vars.get(i);
                             System.err.println(vars.getName(i)+" is not a number!");
-                        }else if(Double.isInfinite(val)){
-                            val=vars.get(i);
+                        }else if(Double.isInfinite(vals[i])){
+                            vals[i]=vars.get(i);
                             System.err.println(vars.getName(i)+" is not finite!");
 
                         }
 
-                        vector.set(ind[i], x0[i]-val);
-                        x0[i]=vector.get(ind[i]);
+                        double y=x0[i]-vals[i];
+                        vector.set(ind[i], y);
+                        x0[i]=y;
                     }
 //                    for(int i=0;i<x0.length;i++){
 //                        vars.setValue(i, s[i]);
@@ -176,19 +184,28 @@ abstract public class Solver {
                     //                    System.arraycopy(s, 0, s0, 0, s0.length);
                     //                }
                     cnt++;
-                    if(cnt>100){
+                    if(cnt>10){
+                        for(double[] row:J){
+                            System.out.println(Arrays.toString(row));
+                        }
+                        System.out.println("x:");
+                        System.out.println(Arrays.toString(vals));
+                        System.out.println("F(x):");
+                        MathPack.MatrixEqu.putValuesFromSymbRow(vals,algSystem,vars,inps);
+                        System.out.println(Arrays.toString(vals));
+
                         cnt=0;
                         if(faultflag) throw new Error("Dead loop!");
                         faultflag=true;
                         int ii=0;
                         for(String var:vars.getVarNameList()){
 
-                            //if(var.startsWith("d.X.")){
-                            vars.setValue(var,0);
-                            x0[ii]=0;
-                            //s[ii]=0;
-                            ii++;
-                            //}
+                            if(!var.startsWith("X.")){
+                                vars.setValue(var,0);
+                                x0[ii]=0;
+                                //s[ii]=0;
+                                ii++;
+                            }
                         }
                     }
                 }

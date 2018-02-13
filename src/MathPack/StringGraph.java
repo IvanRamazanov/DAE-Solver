@@ -1228,8 +1228,10 @@ class FuncUzel implements Uzel{
             }else{
                 String funcnam=func.getFuncName(this.getGain().get(i));
                 if(!((funcnam.equals("+")||funcnam.equals("*"))&&i==0))
-                    output+=funcnam;
+                    output+=funcnam+"(";
                 output+=this.getInputs().get(i).toString();
+                if(!((funcnam.equals("+")||funcnam.equals("*"))&&i==0))
+                    output+=")";
             }
 
         }

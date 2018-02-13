@@ -73,7 +73,7 @@ public class PNPtrans extends SchemeElement {
         parameters.add(br);
         Vt=new Element.Parameter("Thermal voltage",25.0+273.15);
         parameters.add(Vt);
-        setName("Bipolar transistor\nNPN");
+        setName("Bipolar transistor\nPNP");
     }
 
     @Override

@@ -11,6 +11,7 @@ import ElementBase.SchemeElement;
 import ElementBase.Element.InitParam;
 import static MathPack.MatrixEqu.rank;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class StringFunctionSystem {
     private int varCntTemp,inpCntTmp,outCntTmp;
 
     private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
-    private static boolean LOG_FLAG=false;
+    private static boolean LOG_FLAG=true;
 
     public StringFunctionSystem(SchemeElement element){
         initials=new ArrayList();
@@ -195,7 +196,7 @@ public class StringFunctionSystem {
             }
 
 
-            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
+            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logFile)))) {
                 bw.write("Initial data");
                 bw.newLine();
                 bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());

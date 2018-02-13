@@ -10,7 +10,10 @@ import Connections.WireMarker;
 import ElementBase.SchemeElement;
 import ElementBase.ElemPin;
 import ElementBase.MathInPin;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import Elements.ElectricalReference;
@@ -88,6 +91,15 @@ public class MatrixEqu {
      * @return
      */
     public static double norm(List<Double> inp){
+        double out=0;
+        for(double x:inp){
+            out+=x*x;
+        }
+        out=Math.sqrt(out);
+        return out;
+    }
+
+    public static double norm(double[] inp){
         double out=0;
         for(double x:inp){
             out+=x*x;
@@ -262,6 +274,20 @@ public class MatrixEqu {
         return out;
     }
 
+
+    public static double[] mulMatxToRow(List<List<Double>> A, double[] B){
+        double[] out=new double[B.length];
+        for(int i=0;i<B.length;i++){
+            List<Double> row=A.get(i);
+            double sum=0;
+            for(int j=0;j<row.size();j++){
+                sum+=row.get(j)*B[j];
+            }
+            out[i]=sum;
+        }
+        return out;
+    }
+
     public static List<StringGraph> mulMatxToRow_s(List<List<StringGraph>> A, List<StringGraph> B){
         List<StringGraph> out=new ArrayList();
         for(int i=0;i<A.size();i++){
@@ -407,6 +433,76 @@ public class MatrixEqu {
                 break;
         }
         return result;
+    }
+
+    public static double[] solveLU(double[][] A,double[] b){
+        if(A.length!=A[0].length) throw new Error("Matrix must be square!");
+        int n=A.length,i=0,index;
+        double[][] L=new double[n][n],U=new double[n][n];
+
+        //init
+        for(double[] row:A) {
+            U[i]=Arrays.copyOf(row,n);
+            i++;
+        }
+
+        // main cycle for rows
+        for(i=0;i<n;i++){
+            // permutation
+            double max=Math.abs(U[i][i]);
+            index=i;
+            for(int j=i+1;j<n;j++){
+                double val=Math.abs(U[j][i]);
+                if(val>max){
+                    max=val;
+                    index=j;
+                }
+            }
+            if(index!=i){
+                // swap
+                for(int j=i;j<n;j++){
+                    double tmp=U[i][j];
+                    U[i][j]=U[index][j];
+                    U[index][j]=tmp;
+                }
+                double tmp=b[i];
+                b[i]=b[index];
+                b[index]=tmp;
+            }
+
+
+            // general cycle
+            L[i][i]=1.0;
+            for(int j=i+1;j<n;j++){
+                double k=U[j][i]/U[i][i];
+
+                // change L
+                L[j][i]=k;
+
+                // subtract rows
+                for(int m=0;m<n;m++){
+                    U[j][m]=U[j][m]-U[i][m]*k;
+                }
+            }
+        }
+
+        // solve LY=b
+        double[] Y=new double[n];
+        for(i=0;i<n;i++){
+            Y[i]=b[i];
+            for(int j=i+1;j<n;j++){
+                b[j]=b[j]-Y[i]*L[j][i];
+            }
+        }
+
+        // solve UX=Y
+        for(i=n-1;i>=0;i--){
+            Y[i]=Y[i]/U[i][i];
+            for(int j=i-1;j>=0;j--){
+                Y[j]=Y[j]-Y[i]*U[j][i];
+            }
+        }
+        return Y;
     }
 
     /**
@@ -1011,6 +1107,24 @@ public class MatrixEqu {
         return out;
     }
 
+    /**
+     * Evaluates and puts inp's values into out.
+     * @param out
+     * @param inp
+     * @param vars
+     * @param extInput
+     */
+    public static void putValuesFromSymbMatr(double[][] out,List<List<StringGraph>> inp, WorkSpace vars,List<MathInPin> extInput){
+        for(int i=0;i<inp.size();i++){
+            List<StringGraph> row=inp.get(i);
+            int j=0;
+            for(StringGraph sg:row){
+                out[i][j]=sg.evaluate(vars, extInput);
+                j++;
+            }
+        }
+    }
+
     public static List<Double> evalSymbRow(List<StringGraph> inp, WorkSpace vars,List<MathInPin> extInput){
         List<Double> out=new ArrayList(inp.size());
         for(int i=0;i<inp.size();i++){
@@ -1018,6 +1132,13 @@ public class MatrixEqu {
             out.add(row.evaluate(vars, extInput));
         }
         return out;
+    }
+
+    public static void putValuesFromSymbRow(double[] out, List<StringGraph> inp, WorkSpace vars,List<MathInPin> extInput){
+        for(int i=0;i<inp.size();i++){
+            StringGraph row=inp.get(i);
+            out[i]=row.evaluate(vars, extInput);
+        }
     }
 
     public static int rank(List<List<Integer>> inp){

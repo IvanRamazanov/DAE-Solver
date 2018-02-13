@@ -85,6 +85,12 @@ public class MathFunction {
 
     }
 
+    static boolean isSimple(MathFunction inp){
+        if(inp.function instanceof  Summa||inp.function instanceof  Multiplex){
+            return true;
+        }else return false;
+    }
+
     public void inverse(int index){
         function=function.inverse(index);
     }
@@ -140,7 +146,7 @@ public class MathFunction {
 
 interface SimpleFunc{
 
-    double Evaluate(List<Integer> gains,double... input);
+    double Evaluate(List<Integer> gains,double[] input);
 
     /**
      * Return inverse function rely on operand index
@@ -1755,7 +1761,8 @@ class Cos implements SimpleFunc{
     @Override
     public Uzel differ(FuncUzel root, String varName) {
         Uzel out=new FuncUzel("sin",root.getInputs(),root.getGain());
-        out=new FuncUzel("*",out,new Const(-1.0));
+        Uzel b=root.getInputs().get(0).differ(varName);
+        out=new FuncUzel("*",out,new Const(-1.0),b);
         return out;
     }
 
