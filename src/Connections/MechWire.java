@@ -18,6 +18,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+import raschetkz.RaschetKz;
 
 /**
  *
@@ -33,9 +34,9 @@ public class MechWire extends Wire{
     public static final EventHandler MeC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
         public void handle(MouseEvent me) {
-            if(ElectricWire.activeWireConnect!=null)
-                if(!ElectricWire.activeWireConnect.getIsPlugged().get()){
-                    ElectricWire.activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
+            if(MechWire.activeWireConnect!=null)
+                if(!MechWire.activeWireConnect.getIsPlugged().get()){
+                    MechWire.activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
                 }
             me.consume();
         }
@@ -43,7 +44,7 @@ public class MechWire extends Wire{
     public static final EventHandler MeC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent me){
-            ElectricWire.activeWireConnect=null;
+            MechWire.activeWireConnect=null;
             ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
             ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
             me.consume();
@@ -598,7 +599,7 @@ public class MechWire extends Wire{
     }
 
     public void delete(){
-        raschetkz.RaschetKz.BranchList.remove(this);
+        RaschetKz.MechWireList.remove(this);
         if(!wireContList.isEmpty()){
             activeWireConnect=wireContList.get(0);// for prevent dead loop
             int i=wireContList.size()-1;

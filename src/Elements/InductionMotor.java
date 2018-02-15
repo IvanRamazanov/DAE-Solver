@@ -88,7 +88,7 @@ public class InductionMotor extends SchemeElement {
         Kia=Double.toString(6.0*Math.sqrt(3.0)*M12*M12*zp/M3)+"*X.5";
         str[3]="d.X.4=("+Kuac+")*(p.1-p.3)-"+Kubc+"*(p.2-p.3)+("+KiA+")*X.1+("+KiB+")*X.2+"+Kia+"*X.3+("+Kib+")*X.4";
         String M=Double.toString(2.0/3.0*M12*zp)+"*((X.2*X.3-X.1*X.4)*"+Double.toString(Math.sqrt(3.0))+"*cos(X.6)-(2*X.1*X.3+2*X.2*X.4+X.1*X.4+X.2*X.3)*sin(X.6))";
-        str[4]="d.X.5=("+M+"-I.1-X.5*"+Fc.getStringValue()+")/"+jm; //I.1 !!!!!!!
+        str[4]="d.X.5=("+M+"-I.1-X.5*"+Fc.toString()+")/"+jm; //I.1 !!!!!!!
         str[5]="d.X.6="+zp+"*X.5";
         str[6]="i.1+i.2+i.3=0";
         str[7]="O.1=X.5";

@@ -30,9 +30,9 @@ public class ThreePhaseVoltageSource extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String A=this.parameters.get(0).getStringValue();
-        String fq=this.parameters.get(1).getStringValue();
-        String phi=this.parameters.get(2).getStringValue();
+        String A=this.parameters.get(0).toString();
+        String fq=this.parameters.get(1).toString();
+        String phi=this.parameters.get(2).toString();
         String[] str={  "p.1="+A+"*"+"sin("+(2*PI)+"*"+fq+"*time+"+phi+")+p.4",
                 "p.2="+A+"*"+"sin("+(2*PI)+"*"+fq+"*time+"+phi+"-"+(2*PI/3)+")+p.4",
                 "p.3="+A+"*"+"sin("+(2*PI)+"*"+fq+"*time+"+phi+"+"+(2*PI/3)+")+p.4","i.1+i.2+i.3+i.4=0"};

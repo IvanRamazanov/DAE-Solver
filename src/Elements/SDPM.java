@@ -60,13 +60,13 @@ public class SDPM extends SchemeElement {
                 "X.2=i.2"
         };
         for(int i=0;i<out.length;i++){
-            out[i]=out[i].replace("rs", Rs.getStringValue());
-            out[i]=out[i].replace("ls", Ls.getStringValue());
-            out[i]=out[i].replace("zp", Zp.getStringValue());
+            out[i]=out[i].replace("rs", Rs.toString());
+            out[i]=out[i].replace("ls", Ls.toString());
+            out[i]=out[i].replace("zp", Zp.toString());
             out[i]=out[i].replace("pi", Double.toString(Math.PI));
-            out[i]=out[i].replace("ksim", KsiM.getStringValue());
-            out[i]=out[i].replace("J", J.getStringValue());
-            out[i]=out[i].replace("fc", Fc.getStringValue());
+            out[i]=out[i].replace("ksim", KsiM.toString());
+            out[i]=out[i].replace("J", J.toString());
+            out[i]=out[i].replace("fc", Fc.toString());
         }
         return out;
     }

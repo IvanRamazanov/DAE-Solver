@@ -45,10 +45,10 @@ public class NPNtrans extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String is=Is.getStringValue(),
+        String is=Is.toString(),
                 Bf=Double.toString(bf.getDoubleValue()),
                 Br=Double.toString(br.getDoubleValue()),
-                vt=Vt.getStringValue();
+                vt=Vt.toString();
 
         double q=1.602176*Math.pow(10,-19),k=1.3806503*Math.pow(10,-23);
         String qk=Double.toString(q/k);

@@ -62,8 +62,7 @@ public class CircuitBreaker extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String[] out={"p.1-p.2=i.1*if(I.1,10000,0.001)","O.1=i.1","i.1+i.2=0"};
-        return out;
+        return new String[]{"p.1-p.2=i.1*if(I.1,10000,0.001)","O.1=i.1","i.1+i.2=0"};
     }
 
     @Override

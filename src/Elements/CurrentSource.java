@@ -44,7 +44,7 @@ public class CurrentSource extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String A=this.parameters.get(0).getStringValue();
+        String A=this.parameters.get(0).toString();
         String[] str={
                 "i.2="+A,
                 "i.1+i.2=0"

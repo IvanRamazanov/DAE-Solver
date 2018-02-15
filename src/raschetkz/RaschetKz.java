@@ -89,9 +89,10 @@ public class RaschetKz extends Application{
         solverType=state.getSolver();
         parentStage=primaryStage;
         drawBoard=state.getDrawBoard();
-        BranchList=state.GetWires();
-        ElementList=state.GetElems();
-        MathElemList=state.GetMathElems();
+        BranchList=state.getElectroWires();
+        ElementList=state.getElems();
+        MathElemList=state.getMathElems();
+        MechWireList=state.getMechWires();
         mathContsList=state.getMathConnList();
         switch(arguments.length) {
             case 2:
@@ -265,8 +266,10 @@ public class RaschetKz extends Application{
                     MathElemList.get(i).delete();
                 for(int i=mathContsList.size()-1;i>=0;i--)
                     mathContsList.get(i).delete();
+                for(int i=MechWireList.size()-1;i>=0;i--)
+                    MechWireList.get(i).delete();
                 //drawBoard.getChildren().clear();
-                state.fileName=null;
+                state.setFileName(null);
                 currentFile.setText("Untitled.rim");
             }
         });

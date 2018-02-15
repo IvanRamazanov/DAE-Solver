@@ -8,6 +8,8 @@ package ElementBase;
 import Elements.Math.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import Elements.Rotational.*;
 import javafx.scene.control.Button;
 import Elements.*;
 import javafx.scene.layout.TilePane;
@@ -29,6 +31,7 @@ public class ListOfElements {
         list.add(new Categorie("Electrical machines"));
         list.add(new Categorie("Measurments"));
         list.add(new Categorie("Maths"));
+        list.add(new Categorie("Mechanics"));
     }
     public List<Categorie> getCategories() {
         return(list);
@@ -39,53 +42,61 @@ public class ListOfElements {
     }
 
     private void addToCategorie(String type,Categorie cat){
-        if("Basics".equals(type)){
-            cat.elements.add(new Resistor(true));
-            cat.elements.add(new Inductance(true));
-            cat.elements.add(new Capasitor(true));
-            cat.elements.add(new ElectricalReference(true));
-        }
-        if("Electric sources".equals(type)){
-            cat.elements.add(new VoltageSource(true));
-            cat.elements.add(new VariableVoltage(true));
-            cat.elements.add(new ThreePhaseVoltageSource(true));
-            cat.elements.add(new ControlledVoltage(true));
-            cat.elements.add(new CurrentSource(true));
-        }
-        if("Special elements".equals(type)){
-            cat.elements.add(new ShortCircuit(true));
-            cat.elements.add(new IdealKey(true));
-            cat.elements.add(new CircuitBreaker(true));
-        }
-        if("Electrical machines".equals(type)){
-            cat.elements.add(new DPTPM(true));
-            cat.elements.add(new DPTnV(true));
-            cat.elements.add(new InductionMotor(true));
-            cat.elements.add(new SDPM(true));
-        }
-        if("Measurments".equals(type)){
-            cat.elements.add(new Voltmeter(true));
-            cat.elements.add(new Ampermeter(true));
-        }
-        if("Maths".equals(type)){
-            cat.elements.add(new Scope(true));
-            cat.elements.add(new Gain(true));
-            cat.elements.add(new Sinus(true));
-            cat.elements.add(new Ramp(true));
-            cat.elements.add(new Saturation(true));
-            cat.elements.add(new Integrator(true));
-            cat.elements.add(new Constant(true));
-            cat.elements.add(new Step(true));
-            cat.elements.add(new Sum(true));
-            cat.elements.add(new XYGraph(true));
-            cat.elements.add(new Mux(true));
-            cat.elements.add(new KZsensor(true));
-            cat.elements.add(new SimulationTime(true));
-        }
-        if("Semiconductors".equals(type)){
-            cat.elements.add(new Diode(true));
-            cat.elements.add(new NPNtrans(true));
-            cat.elements.add(new PNPtrans(true));
+        switch (type){
+            case "Basics":
+                cat.elements.add(new Resistor(true));
+                cat.elements.add(new Inductance(true));
+                cat.elements.add(new Capasitor(true));
+                cat.elements.add(new ElectricalReference(true));
+                break;
+            case "Electric sources":
+                cat.elements.add(new VoltageSource(true));
+                cat.elements.add(new VariableVoltage(true));
+                cat.elements.add(new ThreePhaseVoltageSource(true));
+                cat.elements.add(new ControlledVoltage(true));
+                cat.elements.add(new CurrentSource(true));
+                break;
+            case "Special elements":
+                cat.elements.add(new ShortCircuit(true));
+                cat.elements.add(new IdealKey(true));
+                cat.elements.add(new CircuitBreaker(true));
+                break;
+            case "Electrical machines":
+                cat.elements.add(new DPTPM(true));
+                cat.elements.add(new DPTnV(true));
+                cat.elements.add(new InductionMotor(true));
+                cat.elements.add(new SDPM(true));
+                break;
+            case "Measurments":
+                cat.elements.add(new Voltmeter(true));
+                cat.elements.add(new Ampermeter(true));
+                break;
+            case "Maths":
+                cat.elements.add(new Scope(true));
+                cat.elements.add(new Gain(true));
+                cat.elements.add(new Sinus(true));
+                cat.elements.add(new Ramp(true));
+                cat.elements.add(new Saturation(true));
+                cat.elements.add(new Integrator(true));
+                cat.elements.add(new Constant(true));
+                cat.elements.add(new Step(true));
+                cat.elements.add(new Sum(true));
+                cat.elements.add(new XYGraph(true));
+                cat.elements.add(new Mux(true));
+                cat.elements.add(new KZsensor(true));
+                cat.elements.add(new SimulationTime(true));
+                break;
+            case "Semiconductors":
+                cat.elements.add(new Diode(true));
+                cat.elements.add(new NPNtrans(true));
+                cat.elements.add(new PNPtrans(true));
+                break;
+            case "Mechanics":
+                cat.elements.add(new TorqueSource(true));
+                cat.elements.add(new Inertia(true));
+                cat.elements.add(new SpeedSensor(true));
+                cat.elements.add(new RotationalFriction(true));
+                break;
         }
     }
 

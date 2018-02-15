@@ -89,7 +89,7 @@ abstract public class Solver {
             j++;
         }
 
-        for(SchemeElement elem:state.GetElems()){
+        for(SchemeElement elem:state.getElems()){
             elem.init();
         }
         for(DynamMathElem del:mathDynamics){

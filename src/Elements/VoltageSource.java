@@ -38,8 +38,7 @@ public class VoltageSource extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String A=this.parameters.get(0).getStringValue(),
-                Rp=this.parameters.get(0).getStringValue();
+        String A=this.parameters.get(0).toString();
 
         String[] str={
                 "p.1-p.2="+A,

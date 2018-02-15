@@ -31,7 +31,7 @@ public class StringFunctionSystem {
     List<MathOutPin> outputs;
     List<Integer> xPryor;
     List<Double> initials=new ArrayList();
-    private static int variableCount=0,stateVarCnt=0,inputCnt=0,outputCnt=0;
+    private static int electricVariableCount =0,mechVariableCount=0,stateVarCnt=0,inputCnt=0,outputCnt=0;
     private int varCntTemp,inpCntTmp,outCntTmp;
 
     private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
@@ -77,7 +77,8 @@ public class StringFunctionSystem {
                 rightSides.add(new StringGraph(str.substring(k+1, str.length())));
             }
         }
-        variableCount+=element.getElemContactList().size();    // НЕ ФАКТ, ДЛЯ МЕХАНИКИ
+        electricVariableCount +=element.getElemContactList().size();    // НЕ ФАКТ, ДЛЯ МЕХАНИКИ
+        mechVariableCount += element.getMechContactList().size();
         inputCnt+=inpCntTmp;
         outputCnt+=outCntTmp;
         stateVarCnt+=varCntTemp;
@@ -107,18 +108,24 @@ public class StringFunctionSystem {
         }
     }
 
-    public static DAE getNumODE(List<StringFunctionSystem> list,int[][] potM,int[][] currM){
+    public static DAE getNumODE(List<StringFunctionSystem> list,int[][] potM,int[][] currM,int[][] speedM,int[][] torqM){
         List<List<Integer>> pots=new ArrayList();
         List<List<Integer>> currs=new ArrayList();
+        List<List<Integer>> speeds=new ArrayList();
+        List<List<Integer>> torqs=new ArrayList();
+
         List<StringGraph> potRight=new ArrayList();
         List<StringGraph> curRight=new ArrayList();
+        List<StringGraph> speRight=new ArrayList();
+        List<StringGraph> torRight=new ArrayList();
+
 //        List<List<Integer>> testCurMap=new ArrayList();
 //        List<List<Integer>> testPotMap=new ArrayList();
 //        List<StringGraph> testCurRight=new ArrayList();
 //        List<StringGraph> testPotRight=new ArrayList();
         DAE output=new DAE();
 
-        if(!((potM==null)&&(currM==null))){
+//        if(!((potM==null)&&(currM==null))){
             //init matrx
             int i=0;
             for(int[] row:potM){
@@ -144,6 +151,30 @@ public class StringFunctionSystem {
                 //            testCurRight.add(new StringGraph(0));
                 i++;
             }
+        i=0;
+        for(int[] row:speedM){
+            speeds.add(new ArrayList());
+            //            testCurMap.add(new ArrayList());
+            for(int j:row){
+                speeds.get(i).add(j);
+                //                testCurMap.get(i).add(j);
+            }
+            speRight.add(new StringGraph(0));
+            //            testCurRight.add(new StringGraph(0));
+            i++;
+        }
+        i=0;
+        for(int[] row:torqM){
+            torqs.add(new ArrayList());
+            //            testCurMap.add(new ArrayList());
+            for(int j:row){
+                torqs.get(i).add(j);
+                //                testCurMap.get(i).add(j);
+            }
+            torRight.add(new StringGraph(0));
+            //            testCurRight.add(new StringGraph(0));
+            i++;
+        }
             //---end of init---
 
             //gather funcs
@@ -154,6 +185,7 @@ public class StringFunctionSystem {
             for(i=0;i<system.leftSides.size();i++){
                 LeftPart lp=system.leftSides.get(i);
                 StringGraph rp=system.rightSides.get(i);
+                boolean flag=true;
                 if(lp.containInstance("i.")){
                     if(rp.isInvariant()){
                         List<Integer> row=new ArrayList();
@@ -171,27 +203,67 @@ public class StringFunctionSystem {
                     }else{
                         rp.sub(new StringGraph(lp));
                     }
-                }else{
-                    if(lp.containInstance("p.")){
-                        if(rp.isInvariant()){
-                            List<Integer> row=new ArrayList();
-                            for(int j=0;j<pots.get(0).size();j++){
-                                row.add(0);
-                            }
-                            for(int j=0;j<lp.getNumOfVars();j++){
-                                row.set(lp.getIndex(j),lp.getValue(j));
-                            }
-                            pots.add(row);
-                            potRight.add(system.rightSides.get(i));
-                            system.rightSides.remove(i);
-                            system.leftSides.remove(i);
-                            i--;
-                        }else{
-                            rp.sub(new StringGraph(lp));
+                    flag=false;
+                }
+                if(lp.containInstance("p.")){
+                    if(rp.isInvariant()){
+                        List<Integer> row=new ArrayList();
+                        for(int j=0;j<pots.get(0).size();j++){
+                            row.add(0);
                         }
+                        for(int j=0;j<lp.getNumOfVars();j++){
+                            row.set(lp.getIndex(j),lp.getValue(j));
+                        }
+                        pots.add(row);
+                        potRight.add(system.rightSides.get(i));
+                        system.rightSides.remove(i);
+                        system.leftSides.remove(i);
+                        i--;
                     }else{
                         rp.sub(new StringGraph(lp));
                     }
+                    flag=false;
+                }
+                if(lp.containInstance("w.")){
+                    if(rp.isInvariant()){
+                        List<Integer> row=new ArrayList();
+                        for(int j=0;j<speeds.get(0).size();j++){
+                            row.add(0);
+                        }
+                        for(int j=0;j<lp.getNumOfVars();j++){
+                            row.set(lp.getIndex(j),lp.getValue(j));
+                        }
+                        speeds.add(row);
+                        speRight.add(system.rightSides.get(i));
+                        system.rightSides.remove(i);
+                        system.leftSides.remove(i);
+                        i--;
+                    }else{
+                        rp.sub(new StringGraph(lp));
+                    }
+                    flag=false;
+                }
+                if(lp.containInstance("T.")){
+                    if(rp.isInvariant()){
+                        List<Integer> row=new ArrayList();
+                        for(int j=0;j<torqs.get(0).size();j++){
+                            row.add(0);
+                        }
+                        for(int j=0;j<lp.getNumOfVars();j++){
+                            row.set(lp.getIndex(j),lp.getValue(j));
+                        }
+                        torqs.add(row);
+                        torRight.add(system.rightSides.get(i));
+                        system.rightSides.remove(i);
+                        system.leftSides.remove(i);
+                        i--;
+                    }else{
+                        rp.sub(new StringGraph(lp));
+                    }
+                    flag=false;
+                }
+                if(flag){
+                    rp.sub(new StringGraph(lp));
                 }
             }
 
@@ -199,17 +271,48 @@ public class StringFunctionSystem {
             if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logFile)))) {
                 bw.write("Initial data");
                 bw.newLine();
-                bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());
+                int cols;
+                if(pots.isEmpty())
+                    cols=0;
+                else
+                    cols=pots.get(0).size();
+                bw.write("Потенциалы: "+pots.size()+" out of "+cols);
                 bw.newLine();
                 for(int x=0;x<pots.size();x++){
                     bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
                     bw.newLine();
                 }
                 bw.newLine();
-                bw.write("Токи: "+currs.size()+" out of "+currs.get(0).size());
+                if(currs.isEmpty())
+                    cols=0;
+                else
+                    cols=currs.get(0).size();
+                bw.write("Токи: "+currs.size()+" out of "+cols);
                 bw.newLine();
                 for(int x=0;x<currs.size();x++){
                     bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(speeds.isEmpty())
+                    cols=0;
+                else
+                    cols=speeds.get(0).size();
+                bw.write("Скорости: "+speeds.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<speeds.size();x++){
+                    bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(torqs.isEmpty())
+                    cols=0;
+                else
+                    cols=torqs.get(0).size();
+                bw.write("Моменты: "+torqs.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<torqs.size();x++){
+                    bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
                     bw.newLine();
                 }
                 bw.newLine();
@@ -243,24 +346,72 @@ public class StringFunctionSystem {
 //                }
 //            }
 
-            setVarsByKirhgof(pots,potRight,currs,curRight,system);
-            List<StringGraph> Pmc= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
-            List<StringGraph> Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
+            setVarsByKirhgof(pots,potRight,currs,curRight,speeds,speRight,torqs,torRight,system);
+        List<StringGraph> Pmc;
+        List<StringGraph> Pmp;
+        List<StringGraph> Pmt;
+        List<StringGraph> Pms;
+
+            if(currs.isEmpty()) {
+                Pmc = new ArrayList<>();
+                Pmp = new ArrayList<>();
+            } else {
+                Pmc = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
+                Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
+            }
+            if(torqs.isEmpty()){
+                Pmt=new ArrayList<>();
+                Pms=new ArrayList<>();
+            } else {
+                Pmt = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(torqs)), torRight);
+                Pms= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(speeds)), speRight);
+            }
 
             if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.write("New data");
                 bw.newLine();
-                bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());
+                int cols;
+                if(pots.isEmpty())
+                    cols=0;
+                else
+                    cols=pots.get(0).size();
+                bw.write("Потенциалы: "+pots.size()+" out of "+cols);
                 bw.newLine();
                 for(int x=0;x<pots.size();x++){
                     bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
                     bw.newLine();
                 }
                 bw.newLine();
-                bw.write("Токи: "+currs.size()+" out of "+currs.get(0).size());
+                if(currs.isEmpty())
+                    cols=0;
+                else
+                    cols=currs.get(0).size();
+                bw.write("Токи: "+currs.size()+" out of "+cols);
                 bw.newLine();
                 for(int x=0;x<currs.size();x++){
                     bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(speeds.isEmpty())
+                    cols=0;
+                else
+                    cols=speeds.get(0).size();
+                bw.write("Скорости: "+speeds.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<speeds.size();x++){
+                    bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(torqs.isEmpty())
+                    cols=0;
+                else
+                    cols=torqs.get(0).size();
+                bw.write("Моменты: "+torqs.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<torqs.size();x++){
+                    bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
                     bw.newLine();
                 }
                 bw.newLine();
@@ -289,6 +440,20 @@ public class StringFunctionSystem {
                     bw.write("i."+(x+1)+" = "+Pmc.get(x).toString());
                     bw.newLine();
                 }
+                bw.newLine();
+                bw.write("Pms:");
+                bw.newLine();
+                for(int x=0;x<Pms.size();x++){
+                    bw.write("w."+(x+1)+" = "+Pms.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                bw.write("Pmt:");
+                bw.newLine();
+                for(int x=0;x<Pmt.size();x++){
+                    bw.write("T."+(x+1)+" = "+Pmt.get(x).toString());
+                    bw.newLine();
+                }
             } catch (IOException e) {
                 System.err.println(e.getMessage());
             }
@@ -315,9 +480,13 @@ public class StringFunctionSystem {
                 if(lp!=null){
                     StringGraph sg=new StringGraph(lp);
                     // var replace
-                    for(int j=0;j<Pmp.size();j++){
-                        sg.replaceVariable("p."+(j+1), Pmp.get(j));
-                        sg.replaceVariable("i."+(j+1), Pmc.get(j));
+                    for(int j=0;j<Pmp.size();j++) {
+                        sg.replaceVariable("p." + (j + 1), Pmp.get(j));
+                        sg.replaceVariable("i." + (j + 1), Pmc.get(j));
+                    }
+                    for(int j=0;j<Pms.size();j++){
+                        sg.replaceVariable("w."+(j+1), Pms.get(j));
+                        sg.replaceVariable("T."+(j+1), Pmt.get(j));
                     }
 
                     String message="\r\n\r\nVariable dependence: X."+(i+1)+"="+sg.toString();
@@ -355,21 +524,32 @@ public class StringFunctionSystem {
 //            branhCurs=MatrixEqu.mulDMatxToSRow(Pmc,branhCurs);
 
             //vars replacement
-            for(int j=0;j<Pmp.size();j++){
-                for(int k=0;k<system.rightSides.size();k++){
-                    system.rightSides.get(k).replaceVariable("p."+(j+1), Pmp.get(j));
-                    system.rightSides.get(k).replaceVariable("i."+(j+1), Pmc.get(j));
+
+                for(int k=0;k<system.rightSides.size();k++) {
+                    for (int j = 0; j < Pmp.size(); j++) {
+                        system.rightSides.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
+                        system.rightSides.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
+                    }
+                    for (int j=0;j<Pms.size();j++) {
+                        system.rightSides.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
+                        system.rightSides.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
+                    }
                 }
 //                for(int k=0;k<rightWithDiff.size();k++){
 //                    rightWithDiff.get(k).replaceVariable("p."+(j+1), Pmp.get(j));
 //                    rightWithDiff.get(k).replaceVariable("i."+(j+1), Pmc.get(j));
 //                }
                 for(int k=0;k<system.outputFuncs.size();k++){
-                    String str=system.outputFuncs.get(k).toString();
-                    system.outputFuncs.get(k).replaceVariable("p."+(j+1), Pmp.get(j));
-                    system.outputFuncs.get(k).replaceVariable("i."+(j+1), Pmc.get(j));
+                    for(int j=0;j< Pmp.size();j++) {
+                        system.outputFuncs.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
+                        system.outputFuncs.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
+                    }
+                    for(int j=0;j<Pms.size();j++) {
+                        system.outputFuncs.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
+                        system.outputFuncs.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
+                    }
                 }
-            }
+
 
             //renumerate X.i and d.X.i
             i=0; //sum of deleted elems
@@ -628,9 +808,10 @@ public class StringFunctionSystem {
                 Set rightSideVars=right.getVariableSet();
                 for(Object obj:rightSideVars){
                     String name=(String)obj;
-                    if(name.startsWith("Cur.")||name.startsWith("Pot.")||name.startsWith("d.X.")){
+                    //if(name.startsWith("Cur.")||name.startsWith("Pot.")||name.startsWith("d.X.")){
+                    if(!name.startsWith("X.")){
                         //                    addToWorkSpace(name,worksp,answers,output);
-                        output.addVariable(name, 0.0);
+                        output.addVariable(name, 0.0);  //TODO maybe not 0.0
                     }
                 }
             }
@@ -639,7 +820,8 @@ public class StringFunctionSystem {
                 Set rightSideVars=right.getVariableSet();
                 for(Object obj:rightSideVars){
                     String name=(String)obj;
-                    if(name.startsWith("Cur.")||name.startsWith("Pot.")||name.startsWith("d.X."))
+                    //if(name.startsWith("Cur.")||name.startsWith("Pot.")||name.startsWith("d.X."))
+                    if(!name.startsWith("X."))
                     {
                         output.addVariable(name, 0.0);
                         //                    addToWorkSpace(name,worksp,answers,output);
@@ -648,7 +830,7 @@ public class StringFunctionSystem {
             }
 
 
-        }
+//        }  // if(null null)
         return output;
     }
 
@@ -1150,7 +1332,7 @@ public class StringFunctionSystem {
 //                switch(left.getRank()){
 //                    case 0:
 //                        if(right.containInstance("i.")){
-//                            for(int j=1;j<=variableCount;j++){
+//                            for(int j=1;j<=electricVariableCount;j++){
 //                                if(right.contains("i."+j)){
 //                                    vars.add("i."+j);
 //                                    right.getVariable("i."+j);
@@ -1164,7 +1346,7 @@ public class StringFunctionSystem {
 //                                }
 //                            }
 //                        }else if(right.containInstance("p.")){
-//                            for(int j=1;j<=variableCount;j++){
+//                            for(int j=1;j<=electricVariableCount;j++){
 //                                if(right.contains("p."+j)){
 //                                    vars.add("p."+j);
 //                                    right.getVariable("p."+j);
@@ -1200,7 +1382,7 @@ public class StringFunctionSystem {
 //                for(i=0;i<vars.size();i++){
 //                    StringGraph right=answers.get(i);
 //                    if("0".equals(vars.get(i))){
-//                        for(int j=1;j<=variableCount;j++){
+//                        for(int j=1;j<=electricVariableCount;j++){
 //                            if(right.contains("p."+j)){
 //                                vars.set(i, "p."+j);
 //                                right.getVariable("p."+j);
@@ -1530,7 +1712,8 @@ public class StringFunctionSystem {
     }
 
     public static void initVarCount(){
-        variableCount=0;
+        electricVariableCount = 0;
+        mechVariableCount = 0;
         stateVarCnt=0;
         inputCnt=0;
         outputCnt=0;
@@ -1546,28 +1729,55 @@ public class StringFunctionSystem {
 
     static private void setVarsByKirhgof(List<List<Integer>> pots,List<StringGraph> potRight,
                                          List<List<Integer>> currs,List<StringGraph> curRight,
+                                         List<List<Integer>> speeds,List<StringGraph> speRight,
+                                         List<List<Integer>> torqs,List<StringGraph> torRight,
                                          StringFunctionSystem sys){
-        int nRowP=pots.size(),nCols=pots.get(0).size(),
-                nRowC=currs.size(),nOfX=sys.rightWithDiff.size();
+        int nRowP=pots.size(),nCols,
+                nRowC=currs.size(),
+                nRowS=speeds.size(),nColsMech,
+                nRowT=torqs.size(),
+                nOfX=sys.rightWithDiff.size();
 
+        if(nRowP==0)
+            nCols=0;
+        else
+            nCols=pots.get(0).size();
+        if(nRowS==0)
+            nColsMech=0;
+        else
+            nColsMech=speeds.get(0).size();
         //pots part
         if(!sys.xPryor.isEmpty()){
-            List<Integer> xLines;
-            boolean potFailure=false,potExistace=false,curFailure=false,curExistace=false;
+            List<Integer> xLines,xMechLines;
+            boolean potFailure=false,potExistence=false,
+                    curFailure=false,curExistence=false,
+                    speFailure=false,speExistence=false,
+                    torFailure=false,torExistence=false;
             //init
             for(int i=0;i<nOfX;i++){
                 if(sys.rightWithDiff.get(i)!=null)
                     if(sys.rightWithDiff.get(i).containInstance("p.")){
-                        potFailure=potExistace=true;
+                        potFailure=potExistence=true;
                     }else if(sys.rightWithDiff.get(i).containInstance("i.")){
-                        curFailure=curExistace=true;
-                    }else throw new Error("Hmmm, X.i=xzxz");
+                        curFailure=curExistence=true;
+                    }else if(sys.rightWithDiff.get(i).containInstance("w.")){
+                        speFailure=speExistence=true;
+                    }else if(sys.rightWithDiff.get(i).containInstance("T.")){
+                        torFailure=torExistence=true;
+                    }else
+                        throw new Error("Hmmm, X.i=xzxz");
             }
-            if(nRowP==nCols&&potExistace){ // check X.i=f(t)
-                throw new Error("Something connected in parralel with voltage source!");
+            if(nRowP==nCols&&potExistence){ // check X.i=f(t)  // TODO not sure about this
+                throw new Error("Something connected in parallel with voltage source!");
             }
-            if(nRowC==nCols&&curExistace){
+            if(nRowC==nCols&&curExistence){
                 throw new Error("Something connected in series with current source!");
+            }
+            if(nRowS==nColsMech&&speExistence){ // check X.i=f(t)
+                throw new Error("Something connected in parallel with speed source!");
+            }
+            if(nRowT==nColsMech&&torExistence){
+                throw new Error("Something connected in series with torque source!");
             }
             //?
             for(int prior=1;prior>-1;prior--){ // cycle by priorities
@@ -1579,7 +1789,11 @@ public class StringFunctionSystem {
                             for(int j=0;j<nCols;j++){
                                 xLines.add(0);
                             }
-                            if(lp.containInstance("p.")&&potExistace){
+                            xMechLines=new ArrayList(nColsMech);
+                            for(int j=0;j<nColsMech;j++){
+                                xMechLines.add(0);
+                            }
+                            if(lp.containInstance("p.")&&potExistence){
                                 for(int j=0;j<lp.getNumOfVars();j++){
                                     xLines.set(lp.getIndex(j),lp.getValue(j));
                                 }
@@ -1589,13 +1803,13 @@ public class StringFunctionSystem {
                                     sys.rightWithDiff.set(i, null);
                                     potFailure=false;
                                     if(pots.size()==nCols)
-                                        potExistace=false;
+                                        potExistence=false;
                                 }else{ //depended var
                                     System.err.println("X."+(i+1)+" depends on something(pot)!");
                                     pots.remove(xLines);
                                 }
 
-                            }else if(lp.containInstance("i.")&&curExistace){
+                            }else if(lp.containInstance("i.")&&curExistence){
                                 for(int j=0;j<lp.getNumOfVars();j++){
                                     xLines.set(lp.getIndex(j),lp.getValue(j));
                                 }
@@ -1605,10 +1819,40 @@ public class StringFunctionSystem {
                                     sys.rightWithDiff.set(i, null);
                                     curFailure=false;
                                     if(currs.size()==nCols)
-                                        curExistace=false;
+                                        curExistence=false;
                                 }else{ //depended var
                                     System.err.println("X."+(i+1)+" depends on something(cur)!");
                                     currs.remove(xLines);
+                                }
+                            }else if(lp.containInstance("w.")&&speExistence){
+                                for(int j=0;j<lp.getNumOfVars();j++){
+                                    xMechLines.set(lp.getIndex(j),lp.getValue(j));
+                                }
+                                speeds.add(xMechLines);
+                                if(rank(speeds)==speeds.size()){ //all good
+                                    speRight.add(new StringGraph("X."+(i+1))); //is right index???????
+                                    sys.rightWithDiff.set(i, null);
+                                    speFailure=false;
+                                    if(speeds.size()==nColsMech)
+                                        speExistence=false;
+                                }else{ //depended var
+                                    System.err.println("X."+(i+1)+" depends on something(speed)!");
+                                    speeds.remove(xMechLines);
+                                }
+                            }else if(lp.containInstance("T.")&&torExistence){
+                                for(int j=0;j<lp.getNumOfVars();j++){
+                                    xMechLines.set(lp.getIndex(j),lp.getValue(j));
+                                }
+                                torqs.add(xMechLines);
+                                if(rank(torqs)==torqs.size()){ //all good
+                                    torRight.add(new StringGraph("X."+(i+1))); //is right index???????
+                                    sys.rightWithDiff.set(i, null);
+                                    torFailure=false;
+                                    if(torqs.size()==nColsMech)
+                                        torExistence=false;
+                                }else{ //depended var
+                                    System.err.println("X."+(i+1)+" depends on something(torq)!");
+                                    torqs.remove(xMechLines);
                                 }
                             }
                         }
@@ -1616,23 +1860,56 @@ public class StringFunctionSystem {
             }
             if(curFailure) throw new Error("Strange, all curs depends");
             if(potFailure) throw new Error("Strange, all pots depends");
+            if(speFailure) throw new Error("Strange, all speeds depends");
+            if(torFailure) throw new Error("Strange, all torques depends");
         }
 
         // test layout
         if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.write("After Xes data");
             bw.newLine();
-            bw.write("Потенциалы: "+pots.size()+" out of "+pots.get(0).size());
+            int cols;
+            if(pots.isEmpty())
+                cols=0;
+            else
+                cols=pots.get(0).size();
+            bw.write("Потенциалы: "+pots.size()+" out of "+cols);
             bw.newLine();
             for(int x=0;x<pots.size();x++){
                 bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
                 bw.newLine();
             }
             bw.newLine();
-            bw.write("Токи: "+currs.size()+" out of "+currs.get(0).size());
+            if(currs.isEmpty())
+                cols=0;
+            else
+                cols=currs.get(0).size();
+            bw.write("Токи: "+currs.size()+" out of "+cols);
             bw.newLine();
             for(int x=0;x<currs.size();x++){
                 bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(speeds.isEmpty())
+                cols=0;
+            else
+                cols=speeds.get(0).size();
+            bw.write("Speeds: "+speeds.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<speeds.size();x++){
+                bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(torqs.isEmpty())
+                cols=0;
+            else
+                cols=torqs.get(0).size();
+            bw.write("Torques: "+torqs.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<torqs.size();x++){
+                bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
                 bw.newLine();
             }
         } catch (IOException e) {
@@ -1640,14 +1917,21 @@ public class StringFunctionSystem {
         }
 
         //casual
-        setVarsByKirhgof(pots,potRight,currs,curRight);
+        setVarsByKirhgof(pots,potRight,currs,curRight,speeds,speRight,torqs,torRight);
     }
 
     static private void setVarsByKirhgof(List<List<Integer>> pots,List<StringGraph> potRight,
-                                         List<List<Integer>> currs,List<StringGraph> curRight){
+                                         List<List<Integer>> currs,List<StringGraph> curRight,
+                                         List<List<Integer>> speeds,List<StringGraph> speRight,
+                                         List<List<Integer>> torqs,List<StringGraph> torRight){
         List<List<Integer>> C=new ArrayList();
-        boolean badCurs=true,badPots=true;
-        int numOfCurs=currs.size(),numOfVars=currs.get(0).size();
+        boolean badCurs=true,badPots=true,
+                badTorqs=true,badSpeeds=true;
+        int numOfCurs=currs.size(),numOfVars;
+        if(numOfCurs==0)
+            numOfVars=0;
+        else
+            numOfVars=currs.get(0).size();
         //curs
         if(numOfVars!=numOfCurs){
             MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfCurs);
@@ -1702,6 +1986,66 @@ public class StringFunctionSystem {
             }
             if(badPots)   throw new Error("AAAAAA, bad pots in Kirghoff");
         }
+        //speeds
+        C=new ArrayList();
+        int numOfSpeeds=speeds.size();
+        if(numOfSpeeds==0)
+            numOfVars=0;
+        else
+            numOfVars=speeds.get(0).size();
+        if(numOfVars!=numOfSpeeds){
+            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfSpeeds);
+            for(List<Integer> exesRows:C){      //try all combinations
+                for(Integer i:exesRows){
+                    List<Integer> row=new ArrayList();
+                    for(int j=0;j<numOfVars;j++){
+                        row.add(0);
+                    }
+                    row.set(i,1);
+                    speeds.add(row);
+                }
+                if(MatrixEqu.det_i(speeds)==0){
+                    for(int i=0;i<exesRows.size();i++){
+                        speeds.remove(speeds.size()-1);
+                    }
+                }else{
+                    for(int i=0;i<exesRows.size();i++){
+                        speRight.add(new StringGraph("Spe."+(i+1)));
+                    }
+                    badSpeeds=false;
+                    break;
+                }
+            }
+            if(badSpeeds)   throw new Error("AAAAAA, bad speeds in Kirghoff");
+        }
+        //torqs
+        C=new ArrayList();
+        int numOfTorqs=torqs.size();
+        if(numOfVars!=numOfTorqs){
+            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfTorqs);
+            for(List<Integer> exesRows:C){      //try all combinations
+                for(Integer i:exesRows){
+                    List<Integer> row=new ArrayList();
+                    for(int j=0;j<numOfVars;j++){
+                        row.add(0);
+                    }
+                    row.set(i,1);
+                    torqs.add(row);
+                }
+                if(MatrixEqu.det_i(torqs)==0){
+                    for(int i=0;i<exesRows.size();i++){
+                        torqs.remove(torqs.size()-1);
+                    }
+                }else{
+                    for(int i=0;i<exesRows.size();i++){
+                        torRight.add(new StringGraph("Tor."+(i+1)));
+                    }
+                    badTorqs=false;
+                    break;
+                }
+            }
+            if(badTorqs)   throw new Error("AAAAAA, bad torques in Kirghoff");
+        }
     }
 
     public List<MathInPin> getInputs(){
@@ -1745,7 +2089,7 @@ public class StringFunctionSystem {
                         for(;i<length;i++){
                             c=input.charAt(i);
                             if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
-                                ind=Integer.parseInt(temp)+variableCount;
+                                ind=Integer.parseInt(temp)+ electricVariableCount;
                                 input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 temp="";
                                 break;
@@ -1754,7 +2098,7 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp)+variableCount;
+                            ind=Integer.parseInt(temp)+ electricVariableCount;
                             input=input.substring(0, startIndx)+Integer.toString(ind);
                         }
                     }
@@ -1766,7 +2110,7 @@ public class StringFunctionSystem {
                         for(;i<length;i++){
                             c=input.charAt(i);
                             if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
-                                ind=Integer.parseInt(temp)+variableCount;
+                                ind=Integer.parseInt(temp)+ electricVariableCount;
                                 input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 temp="";
                                 break;
@@ -1775,7 +2119,49 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp)+variableCount;
+                            ind=Integer.parseInt(temp)+ electricVariableCount;
+                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                        }
+                    }
+                    break;
+                case 'w':
+                    if(input.charAt(++i)=='.'){
+                        startIndx=++i;
+                        String temp="";
+                        for(;i<length;i++){
+                            c=input.charAt(i);
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
+                                ind=Integer.parseInt(temp)+ mechVariableCount;
+                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                temp="";
+                                break;
+                            }else{
+                                temp+=c;
+                            }
+                        }
+                        if(!temp.isEmpty()){
+                            ind=Integer.parseInt(temp)+ mechVariableCount;
+                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                        }
+                    }
+                    break;
+                case 'T':
+                    if(input.charAt(++i)=='.'){
+                        startIndx=++i;
+                        String temp="";
+                        for(;i<length;i++){
+                            c=input.charAt(i);
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
+                                ind=Integer.parseInt(temp)+ mechVariableCount;
+                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                temp="";
+                                break;
+                            }else{
+                                temp+=c;
+                            }
+                        }
+                        if(!temp.isEmpty()){
+                            ind=Integer.parseInt(temp)+ mechVariableCount;
                             input=input.substring(0, startIndx)+Integer.toString(ind);
                         }
                     }

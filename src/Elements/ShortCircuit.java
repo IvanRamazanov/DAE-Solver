@@ -26,7 +26,7 @@ public class ShortCircuit extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String tt=this.t.getStringValue(),rron=ron.getStringValue();
+        String tt=this.t.toString(),rron=ron.toString();
         return new String[]{"p.1=i.1*if(gr(time," + tt + "),"+rron+",10000000)+p.2",
                 "i.1+i.2=0"};
     }
