@@ -6,7 +6,10 @@
 package MathPack;
 
 import Connections.ElectricWire;
+import Connections.MechMarker;
+import Connections.MechWire;
 import Connections.WireMarker;
+import ElementBase.ElemMechPin;
 import ElementBase.SchemeElement;
 import ElementBase.ElemPin;
 import ElementBase.MathInPin;
@@ -915,7 +918,7 @@ public class MatrixEqu {
     }
 
     public static int[][] getPotentialsMap(List<ElectricWire> Wires, List<SchemeElement> Elems) throws Exception{
-        if(Wires.isEmpty()&&Elems.isEmpty()) return null;
+        if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
         List<ElemPin> conts=new ArrayList();
         int rowLength=0;
         for(SchemeElement elem:Elems){
@@ -961,8 +964,55 @@ public class MatrixEqu {
         return(out);
     }
 
+    public static int[][] getSpeedMap(List<MechWire> Wires, List<SchemeElement> Elems) throws Exception{
+        if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
+        List<ElemMechPin> conts=new ArrayList();
+        int rowLength=0;
+        for(SchemeElement elem:Elems){
+            conts.addAll(elem.getMechContactList());
+            rowLength+=elem.getMechContactList().size();
+        }
+        int columnLength=0;
+        for(MechWire wire:Wires){
+            int rank=wire.getRank();
+            columnLength+=rank-1;
+        }
+        boolean flag=true;
+        for(SchemeElement elem:Elems){
+            if(elem instanceof ElectricalReference){ // TODO replace with rotation reference!
+                flag=false;
+                break;
+//                columnLength++;//????
+            }
+        }
+        if(flag)
+            columnLength++;         //for zero poten?
+        int[][] out=new int[columnLength][rowLength];
+        int row=0;
+        for(MechWire wire:Wires){
+            ElemMechPin mainPapa=wire.getWireContacts().get(0).getElemContact();
+            for(int j=1;j<wire.getWireContacts().size();j++){
+                ElemMechPin papa=wire.getWireContacts().get(j).getElemContact();
+                out[row][conts.indexOf(mainPapa)]=1;
+                out[row][conts.indexOf(papa)]=-1;
+                row++;
+            }
+        }
+        if(flag)
+            out[row][0]=1;
+//        else{
+//            for(SchemeElement shE:Elems){
+//                if(shE instanceof Elements.ElectricalReference){
+//                    out[row][conts.indexOf(shE.getElemContactList().get(0))]=1;
+//                    row++;
+//                }
+//            }
+//        }
+        return(out);
+    }
+
     public static int[][] getCurrentsMap(List<ElectricWire> Wires, List<SchemeElement> Elems){
-        if(Wires.isEmpty()&&Elems.isEmpty()) return null;
+        if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
         List<ElemPin> conts=new ArrayList();
         int rowLength=0,columnLength=0;
 
@@ -1002,6 +1052,58 @@ public class MatrixEqu {
 //            int len=shE.getElemContactList().size();
             int ind=conts.indexOf(shE.getElemContactList().get(0));
             if(shE instanceof ElectricalReference){
+                out[columnLength-1][ind]=1;
+            }else{
+//                for(int i=0;i<len;i++){
+//                    out[row][ind+i]=1;
+//                }
+//                row++;
+            }
+        }
+        return(out);
+    }
+
+    public static int[][] getTorqueMap(List<MechWire> Wires, List<SchemeElement> Elems){
+        if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
+        List<ElemMechPin> conts=new ArrayList();
+        int rowLength=0,columnLength=0;
+
+        //Рассчет размерности
+        for(SchemeElement elem:Elems){
+//            columnLength+=1;
+            conts.addAll(elem.getMechContactList());
+            rowLength+=elem.getMechContactList().size();
+        }
+        columnLength+=Wires.size()-1;
+
+        //Есть ли "земли"
+        boolean flag=false;
+        for(SchemeElement elem:Elems){
+            if(elem instanceof ElectricalReference){  // TODO replace with rotation reference!
+                flag=true;
+            }
+        }
+        if(flag)
+            columnLength++; //strogo govorya xz
+
+
+
+        int[][] out=new int[columnLength][rowLength];
+        int row=0;
+
+        //Сумма узловых токов
+        for(MechWire wire:Wires.subList(0, Wires.size()-1)){
+            for(MechMarker wc:wire.getWireContacts()){
+                ElemMechPin papa=wc.getElemContact();
+                out[row][conts.indexOf(papa)]=1;
+            }
+            row++;
+        }
+        //Сумма токов в элементах (???????? не факт, например ДПТНВ)
+        for(SchemeElement shE:Elems){
+//            int len=shE.getElemContactList().size();
+            int ind=conts.indexOf(shE.getMechContactList().get(0));
+            if(shE instanceof ElectricalReference){  // TODO rep. with rotational ref.
                 out[columnLength-1][ind]=1;
             }else{
 //                for(int i=0;i<len;i++){

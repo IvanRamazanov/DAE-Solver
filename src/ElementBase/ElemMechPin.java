@@ -125,7 +125,7 @@ public class ElemMechPin extends Pin{
             if(me.getButton()== MouseButton.PRIMARY){
                 if(wireCont==null){
 //                    this.setOpacity(0);
-                    RaschetKz.MechWireList.add(new MechWire((ElemMechPin)me.getSource(),
+                    RaschetKz.MechWireList.add(new MechWire(this,
                             me.getSceneX(),me.getSceneY()));
                     MechWire.activeWireConnect.startFullDrag();
                     getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MechWire.MeC_MOUSE_DRAG);

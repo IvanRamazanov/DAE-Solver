@@ -34,14 +34,14 @@ public class DPTnV extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String rya=Rya.getStringValue(),
-                lya=Lya.getStringValue(),
-                J=J0.getStringValue(),
-                cm=Cm.getStringValue(),
-                cw=Cw.getStringValue(),
-                f=F.getStringValue(),
-                rf=Rf.getStringValue(),
-                lf=Lf.getStringValue();
+        String rya=Rya.toString(),
+                lya=Lya.toString(),
+                J=J0.toString(),
+                cm=Cm.toString(),
+                cw=Cw.toString(),
+                f=F.toString(),
+                rf=Rf.toString(),
+                lf=Lf.toString();
         return new String[]{"d.X.1=(p.1-p.2-" + cw + "*X.2*X.3*" + lf + "-X.1*" + rya + ")/" + lya,
                 "d.X.2=(X.1*X.3*" + lf + "*" + cm + "-I.1)/" + J,
                 "d.X.3=(p.3-p.4-" + rf + "*X.3)/" + lf,

@@ -17,7 +17,8 @@ import raschetkz.RaschetKz;
 public abstract class SchemeElement extends Element{
 //    protected boolean Dymamic=false;
 
-    protected List<ElemPin> contacts=new ArrayList();
+    protected List<ElemPin> electricContacts =new ArrayList();
+    protected List<ElemMechPin> mechContacts=new ArrayList();
 
     private double contStep=15,maxX,mathContOffset;
 
@@ -33,8 +34,8 @@ public abstract class SchemeElement extends Element{
     public SchemeElement(boolean catalog){
         super(catalog);
 //        if(!catalog){
-//            contacts.add(new ElemPin(this));    //for extend by gost
-//            contacts.add(new ElemPin(this));
+//            electricContacts.add(new ElemPin(this));    //for extend by gost
+//            electricContacts.add(new ElemPin(this));
 //        }
 
     }
@@ -49,22 +50,29 @@ public abstract class SchemeElement extends Element{
 //    }
 
     public List<ElemPin> getElemContactList(){
-        return(contacts);
+        return(electricContacts);
+    }
+
+    public List<ElemMechPin> getMechContactList(){
+        return mechContacts;
     }
 
     final protected void addElemCont(ElemPin input){
-        this.contacts.add(input);
+        this.electricContacts.add(input);
         this.viewPane.getChildren().add(input.getView());
     }
 
-
+    final protected void addMechCont(ElemMechPin input){
+        this.mechContacts.add(input);
+        this.viewPane.getChildren().add(input.getView());
+    }
 
     /**
      * Удаляет элемент
      */
     @Override
     public void delete(){
-        this.contacts.forEach(elemCont->{
+        this.electricContacts.forEach(elemCont->{
             elemCont.clear();
             if(elemCont.wireCont!=null){
                 elemCont.wireCont.unPlug();
@@ -185,10 +193,10 @@ public abstract class SchemeElement extends Element{
 
     /**
      *
-     * @param ch 'i' or 'o'
+     * @param type 'i' or 'o'
      */
-    final protected void addMathContact(char ch){
-        if(ch=='i'){
+    final protected void addMathContact(char type){
+        if(type=='i'){
             if(mathInputs==null) mathInputs=new ArrayList();
             int num=mathInputs.size();
             MathInPin ic=new MathInPin(0,num*contStep+mathContOffset);

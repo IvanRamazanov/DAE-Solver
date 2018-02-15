@@ -30,12 +30,12 @@ public class DPTPM extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String rya=Rya.getStringValue(),
-                lya=Lya.getStringValue(),
-                J=J0.getStringValue(),
-                cm=Cm.getStringValue(),
-                cw=Cw.getStringValue(),
-                f=F.getStringValue();
+        String rya=Rya.toString(),
+                lya=Lya.toString(),
+                J=J0.toString(),
+                cm=Cm.toString(),
+                cw=Cw.toString(),
+                f=F.toString();
         return new String[]{"d.X.1=(p.1-p.2-" + cw + "*X.2*" + f + "-i.1*" + rya + ")/" + lya,
                 "X.1=i.1",
                 "d.X.2=(i.1*" + f + "*" + cm + "-I.1)/" + J,

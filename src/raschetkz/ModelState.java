@@ -8,6 +8,7 @@ package raschetkz;
 import Connections.MathWire;
 
 import Connections.ElectricWire;
+import Connections.MechWire;
 import ElementBase.*;
 import ElementBase.SchemeElement;
 import java.io.ByteArrayOutputStream;
@@ -29,24 +30,26 @@ import javafx.scene.layout.Pane;
  * @author Иван
  */
 public class ModelState{
-    List<SchemeElement> ElementList;
-    List<MathElement> MathElemList;
+    private List<SchemeElement> ElementList;
+    private List<MathElement> MathElemList;
     private List<MathWire> mathConnList;
-    List<ElectricWire> BranchList;
-    Pane draws;
+    private List<ElectricWire> BranchList;
+    private List<MechWire> mechWires;
+    private Pane draws;
     //        int numOfElems;
     //double dt,tend;
     private SimpleStringProperty solver;
     private SimpleDoubleProperty dt;
     private SimpleDoubleProperty tend;
     private int jacobianEstimationType;
-    String fileName;
+    private String fileName;
 
     ModelState(){
         ElementList=new ArrayList();
         MathElemList=new ArrayList();
         BranchList=new ArrayList();
         mathConnList=new ArrayList();
+        mechWires=new ArrayList<>();
         draws=new Pane();
         dt=new SimpleDoubleProperty();
         tend=new SimpleDoubleProperty();
@@ -106,7 +109,7 @@ public class ModelState{
             temp.putDouble(0, shE.getView().getLayoutY());
             baos.write(temp.array(), 0, 8);
             //rotation
-            temp.putDouble(0, shE.getView().getRotate());
+            temp.putDouble(0, shE.getRotation());
             baos.write(temp.array(), 0, 8);
             //params
             for(SchemeElement.Parameter p:shE.getParameters()){
@@ -134,6 +137,11 @@ public class ModelState{
         List<ElemPin> ECList=new ArrayList();
         for(SchemeElement e:this.ElementList){
             ECList.addAll(e.getElemContactList());
+        }
+
+        List<ElemMechPin> mechPinList=new ArrayList();
+        for(SchemeElement e:this.ElementList){
+            mechPinList.addAll(e.getMechContactList());
         }
 
         //num of wires
@@ -182,9 +190,18 @@ public class ModelState{
             w.Save(baos, mPins);
         }
 
+        // Mechanical wires
+        //num of wires
+        temp.putInt(0, mechWires.size());
+        baos.write(temp.array(), 0, 4);
+
+        for(MechWire w:mechWires){
+            w.Save(baos, mechPinList);
+        }
+
         //write to file
 
-        try (FileOutputStream fos = new FileOutputStream(fileName)) {
+        try (FileOutputStream fos = new FileOutputStream(getFileName())) {
             baos.writeTo(fos);
         }
         catch(IOException io){
@@ -193,14 +210,14 @@ public class ModelState{
     }
 
     public void Save(String filePath){
-        this.fileName=filePath;
+        this.setFileName(filePath);
         Save();
     }
 
     public void Load(String filePath){
         try{
             FileInputStream fis = new FileInputStream(filePath);
-            this.fileName=filePath;
+            this.setFileName(filePath);
             this.BranchList.clear();
             this.ElementList.clear();
             this.MathElemList.clear();
@@ -284,6 +301,11 @@ public class ModelState{
             for(SchemeElement e:this.ElementList){
                 ECList.addAll(e.getElemContactList());
             }
+            List<ElemMechPin> mechPinList=new ArrayList();
+            for(SchemeElement e:this.ElementList){
+                mechPinList.addAll(e.getMechContactList());
+            }
+
             //num of wires
             fis.read(temp.array(),0,4);
             numOfElems=temp.getInt(0);
@@ -340,15 +362,23 @@ public class ModelState{
             for(int i=0;i<numOfElems;i++){
                 mathConnList.add(new MathWire(fis,mPins));
             }
+//            for(int i=0;i<numOfElems;i++){
+//                //index of source (out)
+//                fis.read(temp.array(),0,4);
+//                int outIndx=temp.getInt(0);
+//                //index of destin (inp)
+//                fis.read(temp.array(),0,4);
+//                int inpIndx=temp.getInt(0);
+//                //creation !?
+////                    this.mathConnList.add(new MathWire(outConts.get(outIndx),inpConts.get(inpIndx)));
+//            }
+
+            //num of wires
+            fis.read(temp.array(),0,4);
+            numOfElems=temp.getInt(0);
+            //wire cycle
             for(int i=0;i<numOfElems;i++){
-                //index of source (out)
-                fis.read(temp.array(),0,4);
-                int outIndx=temp.getInt(0);
-                //index of destin (inp)
-                fis.read(temp.array(),0,4);
-                int inpIndx=temp.getInt(0);
-                //creation !?
-//                    this.mathConnList.add(new MathWire(outConts.get(outIndx),inpConts.get(inpIndx)));
+                mechWires.add(new MechWire(fis,mechPinList));
             }
 
             fis.close();
@@ -360,15 +390,19 @@ public class ModelState{
         }
     }
 
-    public List<ElectricWire> GetWires() {
+    public List<ElectricWire> getElectroWires() {
         return(this.BranchList);
     }
 
-    public List<SchemeElement> GetElems() {
+    public List<MechWire> getMechWires(){
+        return mechWires;
+    }
+
+    public List<SchemeElement> getElems() {
         return(this.ElementList);
     }
 
-    public List<MathElement> GetMathElems() {
+    public List<MathElement> getMathElems() {
         return(this.MathElemList);
     }
 
@@ -385,7 +419,7 @@ public class ModelState{
 //        }
 
     String getName() {
-        return(this.fileName);
+        return(this.getFileName());
     }
 
     /**
@@ -430,5 +464,12 @@ public class ModelState{
         this.jacobianEstimationType = jacobianEstimationType;
     }
 
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 }
 

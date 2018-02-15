@@ -25,8 +25,8 @@ public class Capasitor extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String C=this.parameters.get(0).getStringValue(),
-                Rp=this.parameters.get(1).getStringValue();
+        String C=this.parameters.get(0).toString(),
+                Rp=this.parameters.get(1).toString();
         String[] str={"i.1=d.X.1*"+C,"X.1=p.1-p.2",
                 "i.1+i.2=0"
         };

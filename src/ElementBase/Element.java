@@ -455,7 +455,8 @@ public abstract class Element {
             text.requestFocus();
         }
 
-        public String getStringValue(){
+        @Override
+        public String toString(){
             return text.getText();
         }
 

@@ -45,7 +45,7 @@ public class Diode extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String[] str={"p.1=p.2+i.1*if(gr(p.1-p.2,"+Vf.getStringValue()+"),0.001,1000000)+"+Vf.getStringValue(),
+        String[] str={"p.1=p.2+i.1*if(gr(p.1-p.2,"+Vf.toString()+"),0.001,1000000)+"+Vf.toString(),
                 "i.1+i.2=0"};
         return str;
     }

@@ -7,11 +7,9 @@ package MathPackODE;
 
 import java.util.List;
 
-import ElementBase.SchemeElement;
+import Connections.MechWire;
+import ElementBase.*;
 import Connections.ElectricWire;
-import ElementBase.DynamMathElem;
-import ElementBase.MathElement;
-import ElementBase.OutputElement;
 import MathPack.DAE;
 import javafx.beans.property.SimpleBooleanProperty;
 import MathPack.MatrixEqu;
@@ -27,7 +25,10 @@ public class Compiler {
     List<SchemeElement> elemList=new ArrayList();
     List<DynamMathElem> dynMathElemList=new ArrayList();
     List<OutputElement> outputs=new ArrayList();
+
     List<ElectricWire> wireList=new ArrayList();
+    List<MechWire> mechWires=new ArrayList<>();
+
     SimpleBooleanProperty recompile;
     //StringFunctionSystem ODEfunc;
     DAE DAEsys;
@@ -92,18 +93,30 @@ public class Compiler {
 //    }
 
     public DAE evalNumState(ModelState state) throws Exception{
-        List<SchemeElement> eleList=state.GetElems();
-        List<ElectricWire> wires=state.GetWires();
-
         if(recompile.get()){
-            if(!elemList.isEmpty())
-                elemList.clear();
-            elemList.addAll(eleList);
-            if(!wireList.isEmpty())
-                wireList.clear();
-            wireList.addAll(wires);
+            elemList.clear();
+            elemList.addAll(state.getElems());
+            wireList.clear();
+            wireList.addAll(state.getElectroWires());
+            mechWires.clear();
+            mechWires.addAll(state.getMechWires());
 
-            if((wireList.isEmpty()||elemList.isEmpty())&&(state.GetMathElems().isEmpty()||state.getMathConnList().isEmpty())){
+            for(SchemeElement elem:elemList){
+                int i=0;
+                for(ElemPin pin:elem.getElemContactList()){
+                    if(pin.getWireContact()==null)
+                        throw new Error("All electrical contacts must be connected! (Pin #"+i+" in "+elem.getName());
+                    i++;
+                }
+                i=0;
+                for(ElemMechPin pin:elem.getMechContactList()){
+                    if(pin.getWireContact()==null){
+                        throw new Error("All mechanical contacts must be connected! (Pin #"+i+" in "+elem.getName());
+                    }
+                    i++;
+                }
+            }
+            if((wireList.isEmpty()||elemList.isEmpty())&&(state.getMathElems().isEmpty()||state.getMathConnList().isEmpty())){
                 throw new Error("Empty Sheme");
             }else{
                 //expand if needed
@@ -115,17 +128,20 @@ public class Compiler {
                 int[][] potM=MatrixEqu.getPotentialsMap(wireList, elemList);
                 int[][] currM=MatrixEqu.getCurrentsMap(wireList, elemList);
 
+                int[][] speedM=MatrixEqu.getSpeedMap(mechWires, elemList);
+                int[][] torqM=MatrixEqu.getTorqueMap(mechWires,elemList);
+
                 //somehow eval functions matrix
                 StringFunctionSystem.initVarCount();
                 List<StringFunctionSystem> elemFuncs=new ArrayList();
                 for(SchemeElement elem:this.elemList){
                     elemFuncs.add(new StringFunctionSystem(elem));
                 }
-                DAEsys=StringFunctionSystem.getNumODE(elemFuncs, potM, currM);
+                DAEsys=StringFunctionSystem.getNumODE(elemFuncs, potM, currM,speedM,torqM);
                 DAEsys.initJacobian(state.getJacobianEstimationType());
 
                 //simulink
-                for(MathElement elem:state.GetMathElems()){
+                for(MathElement elem:state.getMathElems()){
                     if(elem instanceof OutputElement){
                         outputs.add((OutputElement)elem);
                     }else if(elem instanceof DynamMathElem){

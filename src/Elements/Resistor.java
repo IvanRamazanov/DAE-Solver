@@ -26,7 +26,7 @@ public class Resistor extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String R=this.parameters.get(0).getStringValue();
+        String R=this.parameters.get(0).toString();
         String[] str={
                 "i.2=(p.2-p.1)/"+R,
                 "i.1+i.2=0"};

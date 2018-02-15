@@ -25,7 +25,7 @@ public class Inductance extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String L=this.parameters.get(0).getStringValue();
+        String L=this.parameters.get(0).toString();
 
         String[] str={  "p.1-p.2=d.X.1*"+L,
                 "X.1=i.1",
