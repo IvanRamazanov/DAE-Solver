@@ -5,20 +5,10 @@
  */
 package ElementBase;
 
-import Connections.MathWire.MathMarker;
-import java.util.ArrayList;
+import Connections.MathMarker;
+
 import java.util.List;
-import javafx.event.ActionEvent;
-import javafx.geometry.Pos;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
+
 import raschetkz.RaschetKz;
 
 /**
@@ -93,7 +83,8 @@ public abstract class MathElement extends Element{
     public void delete(){
         //disconnect !!!!!
         this.getInputs().forEach(pin->{
-            pin.getItsConnection().unPlug();
+            if(pin.getItsConnection()!=null)
+                pin.getItsConnection().unPlug();
         });
         RaschetKz.MathElemList.remove(this);
         RaschetKz.drawBoard.getChildren().remove(this.getView());
@@ -108,12 +99,12 @@ public abstract class MathElement extends Element{
             int num=getInputs().size();
             MathInPin ic=new MathInPin(0,num*contStep+10);
             getInputs().add(ic);
-            viewPane.getChildren().add(ic.view);
+            viewPane.getChildren().add(ic.getView());
         }else{
             int num=getOutputs().size();
             MathOutPin oc=new MathOutPin(this,maxX,num*contStep+10);
             getOutputs().add(oc);
-            viewPane.getChildren().add(oc.view);
+            viewPane.getChildren().add(oc.getView());
         }
     }
 

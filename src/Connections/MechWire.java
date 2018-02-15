@@ -7,12 +7,12 @@ package Connections;
 
 import java.util.ArrayList;
 import java.util.List;
-import ElementBase.ElemPin;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import ElementBase.ElemMechPin;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -23,14 +23,14 @@ import javafx.scene.input.MouseEvent;
  *
  * @author Ivan
  */
-public class ElectricWire extends Wire{
-//    static final String COLOR="#b87333";
-    public static WireMarker activeWireConnect;
-    private List<WireMarker> wireContList =new ArrayList<>();
-    //private List<CrossToCrossLine> ContContList =new ArrayList<>();
-    //private List<List<Cross>> dotList=new ArrayList<>();
+public class MechWire extends Wire{
+    static final String COLOR="#b87300";
+    public static MechMarker activeWireConnect;
+    private List<MechMarker> wireContList =new ArrayList<>();
+    private List<CrossToCrossLine> ContContList =new ArrayList<>();
+    List<List<Cross>> dotList=new ArrayList<>();
 
-    public static final EventHandler WC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
+    public static final EventHandler MeC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
         public void handle(MouseEvent me) {
             if(ElectricWire.activeWireConnect!=null)
@@ -40,22 +40,21 @@ public class ElectricWire extends Wire{
             me.consume();
         }
     };
-    public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
+    public static final EventHandler MeC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent me){
             ElectricWire.activeWireConnect=null;
-            ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-            ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+            ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
+            ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
             me.consume();
         }
     };
 
-    public ElectricWire(){
-        COLOR="#b87333";
+    public MechWire(){
+
     }
 
-    public ElectricWire(FileInputStream fis, List<ElemPin> ECList) throws IOException{
-        this();
+    public MechWire(FileInputStream fis, List<ElemMechPin> ECList) throws IOException{
         ByteBuffer temp=ByteBuffer.allocate(8);
         //num of SubWires
         fis.read(temp.array(),0,4);
@@ -84,7 +83,7 @@ public class ElectricWire extends Wire{
             short redFlag=temp.getShort(0);
             // read point in dotList
 
-            WireMarker wm;
+            MechMarker wm;
             //easyDraw ?
             fis.read(temp.array(),0,4);
             boolean easyDraw = temp.getInt(0)==1;
@@ -100,9 +99,9 @@ public class ElectricWire extends Wire{
                     fis.read(temp.array(),0,8);
                     constraints.add(temp.getDouble(0));
                 }
-                wm=new WireMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
+                wm=new MechMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
             }else{
-                wm=new WireMarker(this);
+                wm=new MechMarker(this);
             }
             wm.setEndProp(ex, ey);
             wm.setStartPoint(ax, ay);
@@ -111,15 +110,15 @@ public class ElectricWire extends Wire{
                 int ii=temp.getInt(0);
                 fis.read(temp.array(),0,4);
                 int jj=temp.getInt(0);
-                for(int k=ii-(getDotList().size()-1);k>0;k--)
-                    getDotList().add(new ArrayList());
-                for(int k=jj-(getDotList().get(ii).size()-1);k>0;k--)
-                    getDotList().get(ii).add(null);
-                getDotList().get(ii).set(jj,wm.getItsLine().getStartMarker());
+                for(int k=ii-(dotList.size()-1);k>0;k--)
+                    dotList.add(new ArrayList());
+                for(int k=jj-(dotList.get(ii).size()-1);k>0;k--)
+                    dotList.get(ii).add(null);
+                dotList.get(ii).set(jj,wm.getItsLine().getStartMarker());
             }
             //set up wireCont
             if(indx!=-1){
-                ElemPin ECofWC=ECList.get(indx);
+                ElemMechPin ECofWC=ECList.get(indx);
                 wm.bindElemContact(ECofWC);
                 ECofWC.setWirePointer(wm);
                 if(redFlag==1){ //?????????? must be no EC
@@ -131,7 +130,7 @@ public class ElectricWire extends Wire{
                         fis.read(temp.array(),0,4);   //index of EC
                         indx=temp.getInt(0);
 
-                        ElemPin ECofWM1=ECList.get(indx);
+                        ElemMechPin ECofWM1=ECList.get(indx);
 //                        ECofWM1.bindWCstartProp(wm);
                         wm.bindStartTo(ECofWM1.getBindX(), ECofWM1.getBindY());
 
@@ -155,9 +154,9 @@ public class ElectricWire extends Wire{
                                 fis.read(temp.array(),0,8);
                                 constraints.add(temp.getDouble(0));
                             }
-                            wm=new WireMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
+                            wm=new MechMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
                         }else{
-                            wm=new WireMarker(this);
+                            wm=new MechMarker(this);
                         }
                         wm.hide();
                         wm.bindElemContact(ECofWM1);
@@ -211,16 +210,16 @@ public class ElectricWire extends Wire{
             fis.read(temp.array(),0,4);
             int enj=temp.getInt(0);
             // add Crosses in dotList
-            for(int k=sti-(getDotList().size()-1);k>0;k--)
-                getDotList().add(new ArrayList());
-            for(int k=stj-(getDotList().get(sti).size()-1);k>0;k--)
-                getDotList().get(sti).add(null);
-            getDotList().get(sti).set(stj,line.getStartMarker());
-            for(int k=eni-(getDotList().size()-1);k>0;k--)
-                getDotList().add(new ArrayList());
-            for(int k=enj-(getDotList().get(eni).size()-1);k>0;k--)
-                getDotList().get(eni).add(null);
-            getDotList().get(eni).set(enj, line.getEndCrossMarker());
+            for(int k=sti-(dotList.size()-1);k>0;k--)
+                dotList.add(new ArrayList());
+            for(int k=stj-(dotList.get(sti).size()-1);k>0;k--)
+                dotList.get(sti).add(null);
+            dotList.get(sti).set(stj,line.getStartMarker());
+            for(int k=eni-(dotList.size()-1);k>0;k--)
+                dotList.add(new ArrayList());
+            for(int k=enj-(dotList.get(eni).size()-1);k>0;k--)
+                dotList.get(eni).add(null);
+            dotList.get(eni).set(enj, line.getEndCrossMarker());
         }
         bindCrosses();
     }
@@ -231,9 +230,8 @@ public class ElectricWire extends Wire{
      * @param meSceneX
      * @param meSceneY
      */
-    public ElectricWire(ElemPin EleCont,double meSceneX,double meSceneY){
-        this();
-        WireMarker wc=new WireMarker(this,EleCont);
+    public MechWire(ElemMechPin EleCont,double meSceneX,double meSceneY){
+        MechMarker wc=new MechMarker(this,EleCont);
         wc.setEndProp(meSceneX,meSceneY);
         activeWireConnect=wc;
     }
@@ -242,13 +240,13 @@ public class ElectricWire extends Wire{
      * Биндит линию к контакту элемента
      * @param elemCont контакт элемента
      */
-    public void setEnd(ElemPin elemCont){
+    public void setEnd(ElemMechPin elemCont){
         switch(wireContList.size()){
             case 1:
-                ElemPin oldEc=activeWireConnect.getElemContact();   // начальный O--->
+                ElemMechPin oldEc=activeWireConnect.getElemContact();   // начальный O--->
                 activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
 
-                WireMarker wcNew=new WireMarker(this); // ? bind?      // <---O новый
+                MechMarker wcNew=new MechMarker(this); // ? bind?      // <---O новый
                 wcNew.bindElemContact(oldEc);
 
                 //            elemCont.bindWCstartProp(wcNew);                           // OX--->O  цепляем
@@ -257,7 +255,7 @@ public class ElectricWire extends Wire{
                 break;
             case 2:
                 if(!wireContList.get(0).isPlugged()&&!wireContList.get(1).isPlugged()) {   // free floating wire case
-                    WireMarker loser;
+                    MechMarker loser;
                     if(wireContList.get(0).equals(activeWireConnect))
                         loser=wireContList.get(1);
                     else
@@ -286,9 +284,9 @@ public class ElectricWire extends Wire{
         return(this.wireContList.size());
     }
 
-    void consumeWire(WireMarker eventSource,MouseDragEvent mde){
+    void consumeWire(MechMarker eventSource,MouseDragEvent mde){
         double x=mde.getX(),y=mde.getY();
-        ElectricWire consumedWire=activeWireConnect.getWire();
+        MechWire consumedWire=activeWireConnect.getWire();
 
 
         switch(consumedWire.getRank()){
@@ -309,13 +307,13 @@ public class ElectricWire extends Wire{
                     case 1+1:
 
 
-                        WireMarker wm = new WireMarker(this, x, y);
+                        MechMarker wm = new MechMarker(this, x, y);
                         // adjustment
                         List<Cross> row = new ArrayList();
                         row.add(activeWireConnect.getItsLine().getStartMarker());
                         row.add(eventSource.getItsLine().getStartMarker());
                         row.add(wm.getItsLine().getStartMarker());
-                        this.getDotList().add(row);
+                        this.dotList.add(row);
                         bindCrosses();
 
                         // move before rebind
@@ -328,7 +326,7 @@ public class ElectricWire extends Wire{
                         row.add(activeWireConnect.getItsLine().getStartMarker());
                         row.add(this.getWireContacts().get(0).getItsLine().getStartMarker());
                         row.add(this.getWireContacts().get(1).getItsLine().getStartMarker());
-                        this.getDotList().add(row);
+                        this.dotList.add(row);
                         bindCrosses();
                         this.showAll();
                         break;
@@ -346,9 +344,9 @@ public class ElectricWire extends Wire{
                         sy=activeWireConnect.getStartY().get();
                 int rank=this.getRank();
                 // merge lists
-                Point2D p=MathPack.MatrixEqu.findFirst(consumedWire.getDotList(),activeWireConnect.getItsLine().getStartMarker());
-                p=p.add(getDotList().size(),0);
-                getDotList().addAll(consumedWire.getDotList());
+                Point2D p=MathPack.MatrixEqu.findFirst(consumedWire.dotList,activeWireConnect.getItsLine().getStartMarker());
+                p=p.add(dotList.size(),0);
+                dotList.addAll(consumedWire.dotList);
                 consumedWire.getWireContacts().remove(activeWireConnect);
                 this.getWireContacts().addAll(getWireContacts());
                 consumedWire.getWireContacts().clear();
@@ -358,7 +356,7 @@ public class ElectricWire extends Wire{
 
                 // replace with crosToCros
                 CrossToCrossLine replacementLine = this.addContToCont(sx,sy,x,y);
-                getDotList().get((int) p.getX()).set((int)p.getY(),replacementLine.getStartMarker());
+                dotList.get((int) p.getX()).set((int)p.getY(),replacementLine.getStartMarker());
                 activeWireConnect.delete();
 
                 switch(rank){
@@ -369,7 +367,7 @@ public class ElectricWire extends Wire{
                         row.add(replacementLine.getEndCrossMarker());
                         row.add(this.getWireContacts().get(0).getItsLine().getStartMarker());
                         row.add(this.getWireContacts().get(1).getItsLine().getStartMarker());
-                        this.getDotList().add(row);
+                        this.dotList.add(row);
                         this.bindCrosses();
                         showAll();
                         break;
@@ -398,12 +396,12 @@ public class ElectricWire extends Wire{
 
     }
 
-    public List<WireMarker> getWireContacts(){
+    public List<MechMarker> getWireContacts(){
         return(wireContList);
     };
 
-    WireMarker addContact(){
-        WireMarker wc=new WireMarker(this);
+    MechMarker addContact(){
+        MechMarker wc=new MechMarker(this);
         return wc;
     }
 
@@ -413,7 +411,7 @@ public class ElectricWire extends Wire{
         });
     }
 
-    public void Save(ByteArrayOutputStream baos,List<ElemPin> ECList){
+    public void Save(ByteArrayOutputStream baos,List<ElemMechPin> ECList){
         ByteBuffer temp=ByteBuffer.allocate(8);
         double startPx,startPy,endPx,endPy;
         //num of subwires
@@ -425,10 +423,10 @@ public class ElectricWire extends Wire{
         baos.write(temp.array(), 0, 4);
 
         // describe each WireMarker
-        for(WireMarker wc:getWireContacts()){
+        for(MechMarker wc:getWireContacts()){
             int indx;
             short redFlag;
-            ElemPin ec=wc.getElemContact();
+            ElemMechPin ec=wc.getElemContact();
             indx=ECList.indexOf(ec);
             startPx=wc.getStartX().doubleValue();
             startPy=wc.getStartY().doubleValue();
@@ -480,7 +478,7 @@ public class ElectricWire extends Wire{
                 }
             }
             // indexes of Crosses (May be corruptions due to dotList)
-            Point2D p=MathPack.MatrixEqu.findFirst(getDotList(), wc.getItsLine().getStartMarker());
+            Point2D p=MathPack.MatrixEqu.findFirst(dotList, wc.getItsLine().getStartMarker());
             if(p!=null){
                 int tmp=(int)p.getX();
                 temp.putInt(0,tmp);
@@ -493,8 +491,8 @@ public class ElectricWire extends Wire{
         }
         //Cross to Cross
         for(CrossToCrossLine lin:getContContList()){
-            Point2D st=MathPack.MatrixEqu.findFirst(getDotList(), lin.getStartMarker());
-            Point2D en=MathPack.MatrixEqu.findFirst(getDotList(), lin.getEndCrossMarker());
+            Point2D st=MathPack.MatrixEqu.findFirst(dotList, lin.getStartMarker());
+            Point2D en=MathPack.MatrixEqu.findFirst(dotList, lin.getEndCrossMarker());
             temp.putDouble(0, lin.getStartX().doubleValue());   //start x
             baos.write(temp.array(), 0, 8);
             temp.putDouble(0, lin.getStartY().doubleValue());   //start y
@@ -571,8 +569,8 @@ public class ElectricWire extends Wire{
      * @param elemCont elem cont
      * @return
      */
-    WireMarker addContact(ElemPin elemCont){//boolean endbind???
-        WireMarker wc=new WireMarker(this,elemCont);
+    MechMarker addContact(ElemMechPin elemCont){//boolean endbind???
+        MechMarker wc=new MechMarker(this,elemCont);
         this.wireContList.add(wc);
         return wc;
     }
@@ -581,23 +579,23 @@ public class ElectricWire extends Wire{
      * Разбиндивает все узлы
      */
     public void unBindAll(){
-        for(WireMarker wc:this.wireContList){
+        for(MechMarker wc:this.wireContList){
             wc.unBindStartPoint();
         }
     }
 
-//    /**
-//     * Binds all crosses in dotList to first Cross in each line
-//     */
-//    void bindCrosses(){
-//        for(List<Cross> line:getDotList()){
-//            Cross major=line.get(0);
-//            major.setVisible(true);
-//            for(int i=1;i<line.size();i++){
-//                line.get(i).bindToCross(major);
-//            }
-//        }
-//    }
+    /**
+     * Binds all crosses in dotList to first Cross in each line
+     */
+    void bindCrosses(){
+        for(List<Cross> line:dotList){
+            Cross major=line.get(0);
+            major.setVisible(true);
+            for(int i=1;i<line.size();i++){
+                line.get(i).bindToCross(major);
+            }
+        }
+    }
 
     public void delete(){
         raschetkz.RaschetKz.BranchList.remove(this);
@@ -610,11 +608,11 @@ public class ElectricWire extends Wire{
             }
             activeWireConnect=null;
         }
-        for(int i=getContContList().size()-1;i>=0;i--){
-            if(!getContContList().isEmpty())
-                getContContList().get(i).delete();
+        for(int i=ContContList.size()-1;i>=0;i--){
+            if(!ContContList.isEmpty())
+                ContContList.get(i).delete();
         }
-        getDotList().clear();
+        dotList.clear();
     }
 
 //    /**
@@ -628,3 +626,4 @@ public class ElectricWire extends Wire{
 
 
 }
+

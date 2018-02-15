@@ -34,6 +34,7 @@ public abstract class LineMarker{
     protected EventHandler lineDraggedDetect;
     protected Shape view;
 
+    private Wire itsWire;
 
 
 
@@ -100,6 +101,8 @@ public abstract class LineMarker{
 //        itsLines.getEndX().unbind();
 //        itsLines.getEndY().unbind();
     }
+
+    abstract public void unPlug();
 
     /**
      * Отрисовка линии
@@ -329,4 +332,11 @@ public abstract class LineMarker{
         return bindY;
     }
 
+    public Wire getWire() {
+        return itsWire;
+    }
+
+    public void setWire(Wire w) {
+        itsWire=w;
+    }
 }

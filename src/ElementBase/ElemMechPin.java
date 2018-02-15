@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package ElementBase;
 
-import Connections.ElectricWire;
-import Connections.WireMarker;
+import Connections.MechMarker;
+import Connections.MechWire;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -18,29 +13,24 @@ import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import raschetkz.RaschetKz;
 
-
-/**
- *
- * @author Ivan
- */
-public class ElemPin extends Pin{
+public class ElemMechPin extends Pin{
     SchemeElement owner;
-    WireMarker wireCont;
+    MechMarker wireCont;
     SimpleDoubleProperty centerX,centerY;
 
-    public ElemPin(SchemeElement owner){
+    public ElemMechPin(SchemeElement owner){
         this.owner=owner;
     }
 
-    public ElemPin(SchemeElement owner, int x, int y){
-        setView(new Circle());
+    public ElemMechPin(SchemeElement owner, int x, int y){
+        setView(new Rectangle(4,4));
         this.owner=owner;
-        ((Circle) getView()).setCenterX(x);
-        ((Circle) getView()).setCenterY(y);
-        ((Circle) getView()).setRadius(4);
+        getView().setLayoutX(x);
+        getView().setLayoutY(y);
+//        ((Circle)view).setRadius(4);
 
         //--Events--
         EventHandler enterMouse=(EventHandler<MouseEvent>) (MouseEvent me) ->{
@@ -52,39 +42,39 @@ public class ElemPin extends Pin{
             getView().setCursor(Cursor.DEFAULT);
         };
         EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            if(ElectricWire.activeWireConnect!=null&&this.wireCont==null){
+            if(MechWire.activeWireConnect!=null&&this.wireCont==null){
                 System.out.println("You are plugged");
-                ElectricWire.activeWireConnect.getWire().setEnd(this);
+                MechWire.activeWireConnect.getWire().setEnd(this);
                 getView().toFront();
             }
 
         };
         EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
             System.out.println("Hello from drag exit (in ElemPin)! Source: "+me.getGestureSource());
-            if(ElectricWire.activeWireConnect!=null)
+            if(MechWire.activeWireConnect!=null)
                 //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
-                    switch(me.getButton()){
-                        case PRIMARY:
-                            if(me.isPrimaryButtonDown()){
+                switch(me.getButton()){
+                    case PRIMARY:
+                        if(me.isPrimaryButtonDown()){
 //                                    this.wireCont=null;
-                                ElectricWire.activeWireConnect.unPlug();
-                                getView().setOpacity(1);
-                            }
-                            break;
-                        case SECONDARY:
-                            if(me.isSecondaryButtonDown()){
+                            MechWire.activeWireConnect.unPlug();
+                            getView().setOpacity(1);
+                        }
+                        break;
+                    case SECONDARY:
+                        if(me.isSecondaryButtonDown()){
 //                                    this.wireCont=null;
-                                ElectricWire.activeWireConnect.unPlug();
-                                getView().setOpacity(1);
-                            }
-                            break;
-                    }
+                            MechWire.activeWireConnect.unPlug();
+                            getView().setOpacity(1);
+                        }
+                        break;
+                }
 //            this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
 //            this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
 
-            if(ElectricWire.activeWireConnect!=null&&getWireContact()!=null){
+            if(MechWire.activeWireConnect!=null&&getWireContact()!=null){
                 //if(Wire.activeWireConnect.getElemContact()!=this){
-                if(ElectricWire.activeWireConnect.getIsPlugged().getValue()){
+                if(MechWire.activeWireConnect.getIsPlugged().getValue()){
 
 
                 }
@@ -132,14 +122,14 @@ public class ElemPin extends Pin{
 
         };
         getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
-            if(me.getButton()==MouseButton.PRIMARY){
+            if(me.getButton()== MouseButton.PRIMARY){
                 if(wireCont==null){
 //                    this.setOpacity(0);
-                    RaschetKz.BranchList.add(new ElectricWire(this,
+                    RaschetKz.MechWireList.add(new MechWire((ElemMechPin)me.getSource(),
                             me.getSceneX(),me.getSceneY()));
-                    ElectricWire.activeWireConnect.startFullDrag();
-                    getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
-                    getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
+                    MechWire.activeWireConnect.startFullDrag();
+                    getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MechWire.MeC_MOUSE_DRAG);
+                    getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, MechWire.MeC_MOUSE_RELEAS);
 
                 }else{
 //                    this.setOpacity(1);
@@ -149,8 +139,8 @@ public class ElemPin extends Pin{
 //                    this.wireCont=null;
 //                    ElectricWire.activeWireConnect=getWireContact();
                     getView().startFullDrag();
-                    getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
-                    getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
+                    getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MechWire.MeC_MOUSE_DRAG);
+                    getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, MechWire.MeC_MOUSE_RELEAS);
                 }
                 me.consume();
             }
@@ -167,10 +157,10 @@ public class ElemPin extends Pin{
         getView().setOnMouseExited(exitMouse);
         //------
 
-        this.centerX=new SimpleDoubleProperty(((Circle) getView()).getCenterX());
-        this.centerY=new SimpleDoubleProperty(((Circle) getView()).getCenterY());
+        this.centerX=new SimpleDoubleProperty(getView().getLayoutX());
+        this.centerY=new SimpleDoubleProperty(getView().getLayoutY());
         getView().localToSceneTransformProperty().addListener((aza, oldVal, newVal)->{
-            Point2D point=newVal.transform(((Circle) getView()).getCenterX(), ((Circle) getView()).getCenterY());
+            Point2D point=newVal.transform(getView().getLayoutX(), getView().getLayoutY());
             point=RaschetKz.drawBoard.sceneToLocal(point);
             this.centerX.set(point.getX());
             this.centerY.set(point.getY());
@@ -197,7 +187,7 @@ public class ElemPin extends Pin{
      * If false just bind CenterProp.
      * @param contactr wireCont
      */
-    public void setWirePointer(WireMarker contactr){
+    public void setWirePointer(MechMarker contactr){
         this.wireCont=contactr;
         getView().setOpacity(0);
         //this.wireCont.activate();
@@ -224,7 +214,7 @@ public class ElemPin extends Pin{
         return centerY;
     }
 
-    public WireMarker getWireContact(){
+    public MechMarker getWireContact(){
         return(wireCont);
     }
 
@@ -239,6 +229,4 @@ public class ElemPin extends Pin{
     public SchemeElement getOwner(){
         return(owner);
     }
-
 }
-

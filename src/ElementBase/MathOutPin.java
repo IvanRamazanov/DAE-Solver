@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import Connections.MathWire.MathMarker;
+import Connections.MathMarker;
 import java.util.List;
 
 /**
@@ -33,14 +33,14 @@ public class MathOutPin extends MathPin{
      */
     MathOutPin(double x,double y){
         this();
-        view.setLayoutX(x);
-        view.setLayoutY(y);
+        getView().setLayoutX(x);
+        getView().setLayoutY(y);
     }
 
     MathOutPin(MathElement own,double x,double y){
         this();
-        view.setLayoutX(x);
-        view.setLayoutY(y);
+        getView().setLayoutX(x);
+        getView().setLayoutY(y);
         owner=own;
     }
 
@@ -49,7 +49,7 @@ public class MathOutPin extends MathPin{
     }
 
     void delete(){
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
         owner=null;
     }
 

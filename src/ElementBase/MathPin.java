@@ -5,8 +5,9 @@
  */
 package ElementBase;
 
+import Connections.LineMarker;
+import Connections.MathMarker;
 import Connections.MathWire;
-import Connections.MathWire.MathMarker;
 //import static ElementBase.MathElement.mathCont;
 
 import javafx.beans.property.SimpleDoubleProperty;
@@ -26,53 +27,51 @@ import javafx.scene.shape.Polygon;
  *
  * @author Ivan
  */
-abstract public class MathPin {
-    protected Polygon view;
-    protected SimpleDoubleProperty arrowX;
-    protected SimpleDoubleProperty arrowY;
-    protected MathMarker itsConnection;
+abstract public class MathPin extends Pin{
+
+    //protected MathMarker itsConnection;
     protected final double arrowHeight=8,arrowWidth=6;
     //protected char type;
 
     public MathPin(){
-        view=new Polygon(0,0,0,arrowHeight,arrowWidth,arrowHeight/2);
-        view.setTranslateX(-2.0);
-        view.setTranslateY(-3.0);
+        setView(new Polygon(0,0,0,arrowHeight,arrowWidth,arrowHeight/2));
+        getView().setTranslateX(-2.0);
+        getView().setTranslateY(-3.0);
         //--Events--
         EventHandler enterMouse = new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent me){
-                view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-                view.setCursor(Cursor.HAND);
+                getView().setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
+                getView().setCursor(Cursor.HAND);
             }
 
         };
         EventHandler exitMouse =  new EventHandler<MouseEvent>(){
             @Override
             public void handle(MouseEvent me){
-                view.setEffect(null);
-                view.setCursor(Cursor.DEFAULT);
+                getView().setEffect(null);
+                getView().setCursor(Cursor.DEFAULT);
             }
         };
-        view.addEventHandler(MouseDragEvent.MOUSE_DRAG_ENTERED, e->{
+        getView().addEventHandler(MouseDragEvent.MOUSE_DRAG_ENTERED, e->{
             if(itsConnection==null){
                 if(Connections.MathWire.activeMathMarker.getWire().setEnd(this)){ // check if was connected
                     itsConnection=Connections.MathWire.activeMathMarker;
 //                view.setOpacity(0);
-                    view.toFront();
+                    getView().toFront();
                 }
 
             }
         });
-        view.addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
+        getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){
                 if(itsConnection==null){
-                    view.setOpacity(0);
+                    getView().setOpacity(0);
                     raschetkz.RaschetKz.mathContsList.add(new MathWire(this,
                             me.getSceneX(),me.getSceneY()));
                     MathWire.activeMathMarker.startFullDrag();
-                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
-                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
+                    getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
+                    getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
 
                 }else{
 //                    this.setOpacity(1);
@@ -80,8 +79,8 @@ abstract public class MathPin {
                     itsConnection.unPlug();
 //                    this.wireCont=null;
                     MathWire.activeMathMarker.startFullDrag();
-                    view.addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
-                    view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
+                    getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
+                    getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
                 }
                 me.consume();
             }
@@ -143,20 +142,20 @@ abstract public class MathPin {
             }
         };
         //------
-        view.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
+        getView().addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
             e.consume();
         });
-        view.addEventHandler(MouseDragEvent.MOUSE_DRAGGED, e->{
+        getView().addEventHandler(MouseDragEvent.MOUSE_DRAGGED, e->{
             e.consume();
         });
-        view.setOnMouseEntered(enterMouse);
-        view.setOnMouseExited(exitMouse);
+        getView().setOnMouseEntered(enterMouse);
+        getView().setOnMouseExited(exitMouse);
 
-        view.addEventHandler(MouseDragEvent.MOUSE_DRAG_EXITED, dragExitHndl);
+        getView().addEventHandler(MouseDragEvent.MOUSE_DRAG_EXITED, dragExitHndl);
 
         arrowX=new SimpleDoubleProperty();
         arrowY=new SimpleDoubleProperty();
-        view.localToSceneTransformProperty().addListener((aza,oldVal,newVal)->{
+        getView().localToSceneTransformProperty().addListener((aza, oldVal, newVal)->{
             Point2D point=newVal.transform(arrowHeight/2, 0);
             point=raschetkz.RaschetKz.drawBoard.sceneToLocal(point);
             arrowX.set(point.getX());
@@ -179,7 +178,7 @@ abstract public class MathPin {
 
     public void clearPin(){
         itsConnection=null;
-        view.setOpacity(1.0);
+        getView().setOpacity(1.0);
     }
 
     /**
@@ -192,7 +191,7 @@ abstract public class MathPin {
     /**
      * @return the itsConnection
      */
-    public MathMarker getItsConnection() {
+    public LineMarker getItsConnection() {
         return itsConnection;
     }
 
@@ -201,7 +200,7 @@ abstract public class MathPin {
      */
     public void setItsConnection(MathMarker itsConnection) {
         this.itsConnection = itsConnection;
-        view.setOpacity(0.0);
+        getView().setOpacity(0.0);
     }
 }
 
