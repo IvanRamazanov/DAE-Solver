@@ -5,39 +5,9 @@
  */
 package ElementBase;
 
-import MathPack.StringGraph;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.Dragboard;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.stage.Stage;
-import javafx.util.converter.DoubleStringConverter;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.TransferMode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
+
 import raschetkz.RaschetKz;
 
 /**
@@ -84,7 +54,7 @@ public abstract class SchemeElement extends Element{
 
     final protected void addElemCont(ElemPin input){
         this.contacts.add(input);
-        this.viewPane.getChildren().add(input);
+        this.viewPane.getChildren().add(input.getView());
     }
 
 
@@ -223,13 +193,13 @@ public abstract class SchemeElement extends Element{
             int num=mathInputs.size();
             MathInPin ic=new MathInPin(0,num*contStep+mathContOffset);
             mathInputs.add(ic);
-            viewPane.getChildren().add(ic.view);
+            viewPane.getChildren().add(ic.getView());
         }else{
             if(mathOutputs==null) mathOutputs=new ArrayList();
             int num=mathOutputs.size();
             MathOutPin oc=new MathOutPin(maxX,num*contStep+mathContOffset);
             mathOutputs.add(oc);
-            viewPane.getChildren().add(oc.view);
+            viewPane.getChildren().add(oc.getView());
         }
     }
 

@@ -23,6 +23,7 @@
  */
 package MathPack;
 
+import Connections.MathWire;
 import ElementBase.DynamMathElem;
 import ElementBase.MathOutPin;
 import ElementBase.MathInPin;
@@ -144,7 +145,7 @@ public class DAE {
             outs.add(out);
             if(oldOuts.get(i).getItsConnection()!=null){  // check if this out pin connect to smthg (ex. to Scope)
                 //oldOuts.get(i).getSource().setSource(out);
-                oldOuts.get(i).getItsConnection().getWire().setSourcePointer(out);
+                ((MathWire)oldOuts.get(i).getItsConnection().getWire()).setSourcePointer(out);
             }
         }
     }

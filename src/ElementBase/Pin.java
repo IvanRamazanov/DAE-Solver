@@ -32,7 +32,7 @@ import javafx.scene.shape.Shape;
  * @author Ivan
  */
 public class Pin {
-    protected Shape view;
+    private Shape view;
     protected SimpleDoubleProperty arrowX;
     protected SimpleDoubleProperty arrowY;
     protected LineMarker itsConnection;
@@ -55,7 +55,14 @@ public class Pin {
      */
     public void setWirePointer(LineMarker contactr){
         this.itsConnection=contactr;
-        this.view.setOpacity(0);
+        this.getView().setOpacity(0);
     }
 
+    public Shape getView() {
+        return view;
+    }
+
+    public void setView(Shape view) {
+        this.view = view;
+    }
 }

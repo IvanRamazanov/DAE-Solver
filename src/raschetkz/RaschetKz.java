@@ -6,6 +6,7 @@
 package raschetkz;
 
 import Connections.MathWire;
+import Connections.MechWire;
 import MathPack.MatrixEqu;
 import MathPack.Rechatel;
 import Connections.ElectricWire;
@@ -62,6 +63,7 @@ public class RaschetKz extends Application{
     public static List<SchemeElement> ElementList;
     public static List<MathElement> MathElemList;
     public static List<ElectricWire> BranchList;
+    public static List<MechWire> MechWireList;
 
     public static List<MathWire> mathContsList;//!!!!!!!!!!!!
 
@@ -76,8 +78,8 @@ public class RaschetKz extends Application{
 
     @Override
     public void start(Stage primaryStage) {
-        for(int i=0;i<arguments.length;i++)
-            layoutString(arguments[i]);
+//        for(int i=0;i<arguments.length;i++)
+//            layoutString(arguments[i]);
 
         state=new ModelState();
         dt=state.getDt();

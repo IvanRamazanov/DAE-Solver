@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import Connections.MathWire.MathMarker;
+import Connections.MathMarker;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +22,8 @@ public class MathInPin extends MathPin{
 
     MathInPin(double x,double y){
         this();
-        view.setLayoutX(x);
-        view.setLayoutY(y);
+        getView().setLayoutX(x);
+        getView().setLayoutY(y);
     }
 
     public List<Double> getValue(){
@@ -37,7 +37,7 @@ public class MathInPin extends MathPin{
     }
 
     void delete(){
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
         setItsConnection(null);
     }
 

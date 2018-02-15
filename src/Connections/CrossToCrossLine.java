@@ -18,13 +18,13 @@ import static Connections.ElectricWire.activeWireConnect;
 
 class CrossToCrossLine extends ConnectLine{
     private Cross endCrossMarker;
-    private ElectricWire owner;
+    private Wire owner;
     /**
      *
      * @param wc1
      * @param wc2 new one
      */
-    CrossToCrossLine(ElectricWire owner,Cross wc1,Cross wc2){
+    CrossToCrossLine(Wire owner,Cross wc1,Cross wc2){
         super();
 
         this.getLines().forEach(extLine->{
@@ -47,7 +47,7 @@ class CrossToCrossLine extends ConnectLine{
         endCrossMarker.centerYProperty().addListener(super.getPropListen());
 
         //find in dotList line with 'major' list
-        for(List<Cross> line:owner.dotList){
+        for(List<Cross> line:owner.getDotList()){
             Cross rem=wc1;
             int index=line.indexOf(rem);
             if(index!=-1){ // set it's start cross as major
@@ -58,7 +58,7 @@ class CrossToCrossLine extends ConnectLine{
                 nLine.add(endCrossMarker);
                 nLine.add(wc1);
                 nLine.add(wc2);
-                owner.dotList.add(nLine);
+                owner.getDotList().add(nLine);
                 owner.bindCrosses();
                 break;
             }
@@ -78,15 +78,15 @@ class CrossToCrossLine extends ConnectLine{
                 ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
                 wm.startFullDrag();
                 // dotList manipulation
-                int len=owner.dotList.size();
+                int len=owner.getDotList().size();
                 List<Cross> line=new ArrayList();
                 line.add(wm.getItsLine().getStartMarker());
                 line.add(this.getEndCrossMarker());
                 line.add(newOne.getStartMarker());
                 //replace old crTcr end to new end
-                Point2D p=MathPack.MatrixEqu.findFirst(owner.dotList, this.getEndCrossMarker());
-                owner.dotList.get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
-                owner.dotList.add(line);
+                Point2D p=MathPack.MatrixEqu.findFirst(owner.getDotList(), this.getEndCrossMarker());
+                owner.getDotList().get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
+                owner.getDotList().add(line);
 
                 owner.bindCrosses();
             }
@@ -100,7 +100,7 @@ class CrossToCrossLine extends ConnectLine{
      * @param ex
      * @param ey
      */
-    CrossToCrossLine(ElectricWire owner,double sx,double sy,double ex,double ey){
+    CrossToCrossLine(Wire owner,double sx,double sy,double ex,double ey){
         super();
 
         this.getLines().forEach(extLine->{
@@ -134,15 +134,15 @@ class CrossToCrossLine extends ConnectLine{
                 ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
                 wm.startFullDrag();
                 // dotList manipulation
-                int len=owner.dotList.size();
+                int len=owner.getDotList().size();
                 List<Cross> line=new ArrayList();
                 line.add(wm.getItsLine().getStartMarker());
                 line.add(this.getEndCrossMarker());
                 line.add(newOne.getStartMarker());
                 //replace old crTcr end to new end
-                Point2D p=MathPack.MatrixEqu.findFirst(owner.dotList, this.getEndCrossMarker());
-                owner.dotList.get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
-                owner.dotList.add(line);
+                Point2D p=MathPack.MatrixEqu.findFirst(owner.getDotList(), this.getEndCrossMarker());
+                owner.getDotList().get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
+                owner.getDotList().add(line);
 
                 owner.bindCrosses();
             }
@@ -158,7 +158,7 @@ class CrossToCrossLine extends ConnectLine{
 
     void deleteQuiet(){
         super.delete();
-        for(List<Cross> row:owner.dotList){
+        for(List<Cross> row:owner.getDotList()){
             row.remove(this.getStartMarker());
             row.remove(this.getEndCrossMarker());
         }

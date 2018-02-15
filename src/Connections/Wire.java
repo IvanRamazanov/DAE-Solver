@@ -49,11 +49,27 @@ import javafx.scene.transform.Transform;
  * @author Ivan
  */
 public abstract class Wire{
-//    String COLOR;
+    protected static String COLOR;
 //    public static WireMarker activeWireConnect;
 //    private List<WireMarker> wireContList =new ArrayList<>();
-//    private List<CrossToCrossLine> ContContList =new ArrayList<>();
-//    List<List<Cross>> dotList=new ArrayList<>();
+    private List<CrossToCrossLine> ContContList =new ArrayList<>();
+    private List<List<Cross>> dotList=new ArrayList<>();
+
+    public List<CrossToCrossLine> getContContList() {
+        return ContContList;
+    }
+
+    public void setContContList(List<CrossToCrossLine> contContList) {
+        ContContList = contContList;
+    }
+
+    public List<List<Cross>> getDotList() {
+        return dotList;
+    }
+
+    public void setDotList(List<List<Cross>> dotList) {
+        this.dotList = dotList;
+    }
 //
 //    public static final EventHandler WC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
 //        @Override
@@ -428,12 +444,13 @@ public abstract class Wire{
 //
 //    }
 //
-//    public void addContToCont(WireMarker wc1,WireMarker wc2){
-//        CrossToCrossLine contToContLine = new CrossToCrossLine(this,wc1,wc2);
-//        contToContLine.setColor(COLOR);
-//        contToContLine.activate();
-//        getContContList().add(contToContLine);
-//    }
+CrossToCrossLine addContToCont(double sx,double sy,double ex,double ey){
+    CrossToCrossLine contToContLine = new CrossToCrossLine(this,sx,sy,ex,ey);
+    contToContLine.setColor(COLOR);
+    contToContLine.activate();
+    getContContList().add(contToContLine);
+    return contToContLine;
+}
 //
 //    public CrossToCrossLine addContToCont(double sx,double sy,double ex,double ey){
 //        CrossToCrossLine contToContLine = new CrossToCrossLine(this,sx,sy,ex,ey);
@@ -463,20 +480,20 @@ public abstract class Wire{
 //        }
 //    }
 //
-//    /**
-//     * Binds all crosses in dotList to first Cross in each line
-//     */
-//    private void bindCrosses(){
-//        for(List<Cross> line:dotList){
-//            Cross major=line.get(0);
-//            major.setVisible(true);
-//            for(int i=1;i<line.size();i++){
-//                line.get(i).bindToCross(major);
-//            }
-//        }
-//    }
+    /**
+     * Binds all crosses in dotList to first Cross in each line
+     */
+    void bindCrosses(){
+        for(List<Cross> line:getDotList()){
+            Cross major=line.get(0);
+            major.setVisible(true);
+            for(int i=1;i<line.size();i++){
+                line.get(i).bindToCross(major);
+            }
+        }
+    }
 //
-//    public void delete(){
+    abstract public void delete();
 //        raschetkz.RaschetKz.BranchList.remove(this);
 //        if(!wireContList.isEmpty()){
 //            activeWireConnect=wireContList.get(0);// for prevent dead loop
