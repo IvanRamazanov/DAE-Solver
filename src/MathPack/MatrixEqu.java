@@ -9,10 +9,7 @@ import Connections.ElectricWire;
 import Connections.MechMarker;
 import Connections.MechWire;
 import Connections.WireMarker;
-import ElementBase.ElemMechPin;
-import ElementBase.SchemeElement;
-import ElementBase.ElemPin;
-import ElementBase.MathInPin;
+import ElementBase.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -20,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import Elements.ElectricalReference;
+import Elements.Rotational.RotationReference;
 import javafx.geometry.Point2D;
 
 /**
@@ -943,9 +941,9 @@ public class MatrixEqu {
         int[][] out=new int[columnLength][rowLength];
         int row=0;
         for(ElectricWire wire:Wires){
-            ElemPin mainPapa=wire.getWireContacts().get(0).getElemContact();
+            Pin mainPapa=wire.getWireContacts().get(0).getItsConnectedPin();
             for(int j=1;j<wire.getWireContacts().size();j++){
-                ElemPin papa=wire.getWireContacts().get(j).getElemContact();
+                Pin papa=wire.getWireContacts().get(j).getItsConnectedPin();
                 out[row][conts.indexOf(mainPapa)]=1;
                 out[row][conts.indexOf(papa)]=-1;
                 row++;
@@ -979,7 +977,7 @@ public class MatrixEqu {
         }
         boolean flag=true;
         for(SchemeElement elem:Elems){
-            if(elem instanceof ElectricalReference){ // TODO replace with rotation reference!
+            if(elem instanceof RotationReference){
                 flag=false;
                 break;
 //                columnLength++;//????
@@ -990,9 +988,9 @@ public class MatrixEqu {
         int[][] out=new int[columnLength][rowLength];
         int row=0;
         for(MechWire wire:Wires){
-            ElemMechPin mainPapa=wire.getWireContacts().get(0).getElemContact();
+            Pin mainPapa=wire.getWireContacts().get(0).getItsConnectedPin();
             for(int j=1;j<wire.getWireContacts().size();j++){
-                ElemMechPin papa=wire.getWireContacts().get(j).getElemContact();
+                Pin papa=wire.getWireContacts().get(j).getItsConnectedPin();
                 out[row][conts.indexOf(mainPapa)]=1;
                 out[row][conts.indexOf(papa)]=-1;
                 row++;
@@ -1042,7 +1040,7 @@ public class MatrixEqu {
         //Сумма узловых токов
         for(ElectricWire wire:Wires.subList(0, Wires.size()-1)){
             for(WireMarker wc:wire.getWireContacts()){
-                ElemPin papa=wc.getElemContact();
+                Pin papa=wc.getItsConnectedPin();
                 out[row][conts.indexOf(papa)]=1;
             }
             row++;
@@ -1050,14 +1048,16 @@ public class MatrixEqu {
         //Сумма токов в элементах (???????? не факт, например ДПТНВ)
         for(SchemeElement shE:Elems){
 //            int len=shE.getElemContactList().size();
-            int ind=conts.indexOf(shE.getElemContactList().get(0));
-            if(shE instanceof ElectricalReference){
-                out[columnLength-1][ind]=1;
-            }else{
+            if(!shE.getElemContactList().isEmpty()) {
+                int ind = conts.indexOf(shE.getElemContactList().get(0));
+                if (shE instanceof ElectricalReference) {
+                    out[columnLength - 1][ind] = 1;
+                } else {
 //                for(int i=0;i<len;i++){
 //                    out[row][ind+i]=1;
 //                }
 //                row++;
+                }
             }
         }
         return(out);
@@ -1079,7 +1079,7 @@ public class MatrixEqu {
         //Есть ли "земли"
         boolean flag=false;
         for(SchemeElement elem:Elems){
-            if(elem instanceof ElectricalReference){  // TODO replace with rotation reference!
+            if(elem instanceof RotationReference){
                 flag=true;
             }
         }
@@ -1094,7 +1094,7 @@ public class MatrixEqu {
         //Сумма узловых токов
         for(MechWire wire:Wires.subList(0, Wires.size()-1)){
             for(MechMarker wc:wire.getWireContacts()){
-                ElemMechPin papa=wc.getElemContact();
+                Pin papa=wc.getItsConnectedPin();
                 out[row][conts.indexOf(papa)]=1;
             }
             row++;
@@ -1102,14 +1102,16 @@ public class MatrixEqu {
         //Сумма токов в элементах (???????? не факт, например ДПТНВ)
         for(SchemeElement shE:Elems){
 //            int len=shE.getElemContactList().size();
-            int ind=conts.indexOf(shE.getMechContactList().get(0));
-            if(shE instanceof ElectricalReference){  // TODO rep. with rotational ref.
-                out[columnLength-1][ind]=1;
-            }else{
+            if(!shE.getMechContactList().isEmpty()) {
+                int ind = conts.indexOf(shE.getMechContactList().get(0));
+                if (shE instanceof RotationReference) {
+                    out[columnLength - 1][ind] = 1;
+                } else {
 //                for(int i=0;i<len;i++){
 //                    out[row][ind+i]=1;
 //                }
 //                row++;
+                }
             }
         }
         return(out);

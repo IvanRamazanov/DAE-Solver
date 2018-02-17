@@ -8,8 +8,8 @@ public class Inertia extends SchemeElement{
 
     public Inertia(){
         super();
-        addMechCont(new ElemMechPin(this,12,6));
-        addMechCont(new ElemMechPin(this,12,30));
+        addMechCont(new ElemMechPin(this,17,2));
+        addMechCont(new ElemMechPin(this,17,52));
     }
 
     public Inertia(boolean val){

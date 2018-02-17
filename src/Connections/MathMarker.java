@@ -25,7 +25,7 @@ public class MathMarker extends LineMarker{
     //List<MathMarker> subContacts;
     //private MathWire itsWire;
 
-    private MathPin connectedPin;
+    //private MathPin connectedPin;
     //private Polygon startView;
 
 
@@ -139,49 +139,45 @@ public class MathMarker extends LineMarker{
 
     }
 
-    MathMarker(MathWire owner){
+    MathMarker(Wire owner){
         this();
         setWire(owner);
         getWire().getWireContacts().add(this);
         pushToBack();
     }
 
-    MathMarker(MathWire owner,MathPin inp){
+    MathMarker(Wire owner,MathPin inp){
         this(owner);
-        bindEndTo(inp.getArrowX(), inp.getArrowY());
-        inp.setItsConnection(this);
+        bindEndTo(inp.getBindX(), inp.getBindY());
+        inp.setWirePointer(this);
         setConnectedPin(inp);
         pushToBack();
-        if(inp instanceof MathInPin){
-
-            connectedPin=(MathInPin)inp;
-        }else{
-
+        if(inp instanceof MathOutPin){
             getWire().setSource((MathOutPin)inp);
-//                inp.hide();
+            //connectedPin=(MathInPin)inp;
         }
     }
 
-    MathMarker(MathWire owner,MathOutPin start,MathInPin end){
+    MathMarker(Wire owner,MathOutPin start,MathInPin end){
         this(owner);
         getWire().setSourcePointer(start);
-        connectedPin=end;
+        setItsConnectedPin(end);
 //            source=start;
-        bindX.bind(end.getArrowX());
-        bindY.bind(end.getArrowY());
+        bindX.bind(end.getBindX());
+        bindY.bind(end.getBindY());
 
-        /*?????????*/itsLines.bindStart(start.getArrowX(), start.getArrowY());
+        /*?????????*/itsLines.bindStart(start.getBindX(), start.getBindY());
 
 
         plugged.set(true);
         //        destin.hide();
 //            source.hide();
         end.setMathConnLink(this);
-        start.setMathConnLink(this);
+        start.setWirePointer(this);
         //majorConnect=this;
     }
 
-    MathMarker(MathWire owner,double x,double y){
+    MathMarker(Wire owner,double x,double y){
         this(owner);
         itsLines.setStartXY(x, y);
         bindX.set(x);
@@ -192,7 +188,7 @@ public class MathMarker extends LineMarker{
 
     }
 
-    MathMarker(MathWire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
+    MathMarker(Wire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
@@ -217,14 +213,6 @@ public class MathMarker extends LineMarker{
         return (MathWire) super.getWire();
     }
 
-    public DoubleProperty getStartX(){
-        return this.itsLines.getStartX();
-    }
-
-    public DoubleProperty getStartY(){
-        return this.itsLines.getStartY();
-    }
-
     public void show(){
         this.itsLines.show();
     }
@@ -243,9 +231,10 @@ public class MathMarker extends LineMarker{
     void delete(){
         // check if this is sourceMarker!
         if(this.equals(getWire().getSourceMarker())){
-            if(connectedPin!=null){
-                connectedPin.clearPin();
-                connectedPin=null;
+            if(getItsConnectedPin()!=null){
+                getItsConnectedPin().setItsConnection(null);
+                getItsConnectedPin().getView().setOpacity(1.0);
+                setItsConnectedPin(null);
             }
             getWire().getWireContacts().remove(this);
             raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
@@ -258,65 +247,11 @@ public class MathMarker extends LineMarker{
             return;
         }
 
-        //reduce dotList
-        Point2D p=MathPack.MatrixEqu.findFirst(getWire().getDotList(), this.getItsLine().getStartMarker());
-        if(p!=null&&activeMathMarker==null){
-            switch(getWire().getDotList().size()){
-                case 1: //triple line Wire
-                    getWire().getDotList().get(0).remove((int)p.getY());
-                    LineMarker major=getWire().getDotList().get(0).get(0).getOwner().marker;
-                    LineMarker minor=getWire().getDotList().get(0).get(1).getOwner().marker;
-                    major.getItsLine().getStartX().bind(minor.getBindX());
-                    major.getItsLine().getStartY().bind(minor.getBindY());
-                    minor.getItsLine().getStartX().bind(major.getBindX());
-                    minor.getItsLine().getStartY().bind(major.getBindY());
-                    minor.hide();
-                    getWire().getDotList().remove(0);
-                    break;
-                default: // case of cont to cont
-                    List<Cross> line=getWire().getDotList().get((int)p.getX());
-                    int len=line.size(),ind=(int)p.getY();
-                    if(len==3){
-                        if(line.get((ind+1)%len).getOwner() instanceof CrossToCrossLine && line.get((ind+2)%len).getOwner() instanceof CrossToCrossLine){
+        dotReduction(activeMathMarker);
 
-                        }else{ // only one crToCrLine's cross
-                            CrossToCrossLine loser;
-                            ConnectLine master;
-                            Cross reducedOne;
-                            if(line.get((ind+1)%len).getOwner() instanceof CrossToCrossLine){
-                                loser=(CrossToCrossLine)line.get((ind+1)%len).getOwner();
-                                master=line.get((ind+2)%len).getOwner();
-                            }else{
-                                loser=(CrossToCrossLine)line.get((ind+2)%len).getOwner();
-                                master=line.get((ind+1)%len).getOwner();
-                            }
-                            if(loser.getStartMarker().equals(line.get(ind))){
-                                reducedOne=loser.getEndCrossMarker();
-                            }else{
-                                reducedOne=loser.getStartMarker();
-                            }
-                            Point2D nP=MathPack.MatrixEqu.findFirst(getWire().getDotList(),reducedOne);
-                            getWire().getDotList().get((int)nP.getX()).set((int)nP.getY(),master.getStartMarker());
-                            master.getStartMarker().unbind();
-                            master.setStartXY(reducedOne.getCenterX(), reducedOne.getCenterY());
-
-                            getWire().getDotList().remove((int)p.getX());
-                            //deleting
-                            loser.deleteQuiet();
-
-                        }
-                        getWire().bindCrosses();
-                    }else if(len>3){
-                        throw new Error("Size > 3 not supported yet...");
-                    }
-
-            }
-
-        }
-
-        if(connectedPin!=null){
-            connectedPin.clearPin();
-            connectedPin=null;
+        if(getItsConnectedPin()!=null){
+            getItsConnectedPin().clear();
+            setItsConnectedPin(null);
         }
         getWire().getWireContacts().remove(this);
         if(getWire().getWireContacts().size()<2)
@@ -335,9 +270,11 @@ public class MathMarker extends LineMarker{
         setIsPlugged(false);
         this.bindX.unbind();
         this.bindY.unbind();
+        getItsConnectedPin().setItsConnection(null);
+        getItsConnectedPin().getView().setOpacity(1.0);
 
-        if(connectedPin instanceof MathInPin){  //==? this.connectedPin.clearWireContact();
-            connectedPin.clearPin();
+        if(getItsConnectedPin() instanceof MathInPin){  //==? this.connectedPin.clearWireContact();
+
             unbindEndPoint();
             view.setVisible(true);
             view.toBack();
@@ -345,7 +282,6 @@ public class MathMarker extends LineMarker{
             getWire().setSource(null);
 //                if(connectedPin!=null)
 //                    itsWire.setSource(null);
-            connectedPin.clearPin();
 //                startView.layoutXProperty().unbind();
 //                startView.layoutYProperty().unbind();
 //                startView.setVisible(true);
@@ -353,7 +289,7 @@ public class MathMarker extends LineMarker{
         }
 
 
-        connectedPin=null;
+        setItsConnectedPin(null);
 
 //            caller.show();
     }
@@ -377,20 +313,13 @@ public class MathMarker extends LineMarker{
     }
 
     /**
-     * @return the destin
-     */
-    public MathPin getConnectedPin() {
-        return connectedPin;
-    }
-
-    /**
      * Links and binds end propetry of line
      * @param pin the destin to set
      */
     final public void setConnectedPin(MathPin pin) {
-        connectedPin = pin;
-        bindEndTo(pin.getArrowX(), pin.getArrowY());
-        pin.setItsConnection(this);
+        setItsConnectedPin(pin);
+        bindEndTo(pin.getBindX(), pin.getBindY());
+        pin.setWirePointer(this);
         setIsPlugged(true);
 
         if(pin instanceof MathInPin)

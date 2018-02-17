@@ -96,6 +96,8 @@ public class ListOfElements {
                 cat.elements.add(new Inertia(true));
                 cat.elements.add(new SpeedSensor(true));
                 cat.elements.add(new RotationalFriction(true));
+                cat.elements.add(new RotationReference(true));
+                cat.elements.add(new ControlledTorqueSource(true));
                 break;
         }
     }

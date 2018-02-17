@@ -6,8 +6,8 @@ import ElementBase.SchemeElement;
 public class SpeedSensor extends SchemeElement{
     public SpeedSensor(){
         super();
-        addMechCont(new ElemMechPin(this,12,6));
-        addMechCont(new ElemMechPin(this,12,30));
+        addMechCont(new ElemMechPin(this,17,2));
+        addMechCont(new ElemMechPin(this,17,52));
         addMathContact('o');
     }
 

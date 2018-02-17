@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import ElementBase.Pin;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -160,7 +161,7 @@ public class MathWire extends Wire{
                         indx=temp.getInt(0);
 
                         MathPin ECofWM1=ECList.get(indx);
-                        wm.bindStartTo(ECofWM1.getArrowX(), ECofWM1.getArrowY());
+                        wm.bindStartTo(ECofWM1.getBindX(), ECofWM1.getBindY());
 
                         fis.read(temp.array(),0,8);   //anchor's x
                         ax=temp.getDouble(0);
@@ -189,7 +190,7 @@ public class MathWire extends Wire{
                         wm.hide();
                         wm.setConnectedPin(ECofWM1);
                         ECofWM1.setItsConnection(wm);
-                        wm.bindStartTo(ECofWC.getArrowX(), ECofWC.getArrowY());
+                        wm.bindStartTo(ECofWC.getBindX(), ECofWC.getBindY());
                         break;
                     }
                 }
@@ -262,14 +263,14 @@ public class MathWire extends Wire{
         MathMarker wc=new MathMarker(this);
         if(mathPin instanceof MathOutPin){
             getSourceMarker().setConnectedPin(mathPin);  // link and bind end
-            getSourceMarker().bindStartTo(mathPin.getArrowX(), mathPin.getArrowY()); // zeroLength
-            wc.bindStartTo(mathPin.getArrowX(), mathPin.getArrowY()); // same point
+            getSourceMarker().bindStartTo(mathPin.getBindX(), mathPin.getBindY()); // zeroLength
+            wc.bindStartTo(mathPin.getBindX(), mathPin.getBindY()); // same point
             wc.setEndProp(meSceneX,meSceneY);
             activeMathMarker=wc; // for mouse_drag event
         }else{
             wc.setConnectedPin(mathPin); // link and bind end
-            wc.bindStartTo(mathPin.getArrowX(), mathPin.getArrowY());
-            getSourceMarker().bindStartTo(mathPin.getArrowX(), mathPin.getArrowY());
+            wc.bindStartTo(mathPin.getBindX(), mathPin.getBindY());
+            getSourceMarker().bindStartTo(mathPin.getBindX(), mathPin.getBindY());
             getSourceMarker().setEndProp(meSceneX,meSceneY);
             activeMathMarker= getSourceMarker();
         }
@@ -347,7 +348,7 @@ public class MathWire extends Wire{
         for(MathMarker wc:getWireContacts()){
             int indx;
             short redFlag;
-            MathPin ec=wc.getConnectedPin();
+            Pin ec=wc.getItsConnectedPin();
             indx=ECList.indexOf(ec);
             startPx=wc.getStartX().doubleValue();
             startPy=wc.getStartY().doubleValue();
@@ -513,7 +514,7 @@ public class MathWire extends Wire{
     public void setSourcePointer(MathOutPin source) {
         this.setSource(source);
         for(int i=1;i<mathMarkList.size();i++){
-            MathInPin pin=(MathInPin)mathMarkList.get(i).getConnectedPin();
+            MathInPin pin=(MathInPin)mathMarkList.get(i).getItsConnectedPin();
             if(pin!=null)
                 pin.setSource(source);
         }

@@ -37,8 +37,9 @@ public class StringGraph {
     }
 
     public StringGraph(LeftPart left){
-        variables=new HashSet();
-        root=new FuncUzel(left.toString());
+        this(left.toString());
+//        variables=new HashSet();
+//        root=new FuncUzel();
     }
 
     public StringGraph(String function){  // Х indexes disappear?
@@ -63,14 +64,14 @@ public class StringGraph {
             if(symbol==c) flag=true;
         }
         if(flag){
-            if(symbol=='-'){
-                if(symbolPos>0){
-                    char sym=str.charAt(symbolPos-1);
-                    for(char c:OPERATORS){
-                        if(sym==c||sym=='(') return false;
-                    }
-                }else return false;
-            }
+//            if(symbol=='-'){          TODO check this twice!
+//                if(symbolPos>0){
+//                    char sym=str.charAt(symbolPos-1);
+//                    for(char c:OPERATORS){
+//                        if(sym==c||sym=='(') return false;
+//                    }
+//                }else return false;
+//            }
             if(symbolPos==0) return flag;
             symbol=str.charAt(symbolPos-1);
             if(symbol=='e'||symbol=='E'){

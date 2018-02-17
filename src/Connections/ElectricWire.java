@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import ElementBase.Pin;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -245,7 +246,7 @@ public class ElectricWire extends Wire{
     public void setEnd(ElemPin elemCont){
         switch(wireContList.size()){
             case 1:
-                ElemPin oldEc=activeWireConnect.getElemContact();   // начальный O--->
+                Pin oldEc=activeWireConnect.getItsConnectedPin();   // начальный O--->
                 activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
 
                 WireMarker wcNew=new WireMarker(this); // ? bind?      // <---O новый
@@ -303,7 +304,7 @@ public class ElectricWire extends Wire{
                 //flip
                 activeWireConnect.getItsLine().getStartMarker().unbind();
                 activeWireConnect.setStartPoint(x,y);
-                activeWireConnect.bindElemContact(activeWireConnect.getElemContact());
+                activeWireConnect.bindElemContact(activeWireConnect.getItsConnectedPin());
 
                 switch(this.getRank()) {
                     case 1+1:
@@ -320,7 +321,7 @@ public class ElectricWire extends Wire{
 
                         // move before rebind
                         wm.setEndProp(eventSource.getBindX().doubleValue(), eventSource.getBindY().doubleValue());
-                        eventSource.bindElemContact(eventSource.getElemContact());
+                        eventSource.bindElemContact(eventSource.getItsConnectedPin());
                         break;
                     case 2+1:
                         // adjustment
@@ -428,7 +429,7 @@ public class ElectricWire extends Wire{
         for(WireMarker wc:getWireContacts()){
             int indx;
             short redFlag;
-            ElemPin ec=wc.getElemContact();
+            Pin ec=wc.getItsConnectedPin();
             indx=ECList.indexOf(ec);
             startPx=wc.getStartX().doubleValue();
             startPy=wc.getStartY().doubleValue();

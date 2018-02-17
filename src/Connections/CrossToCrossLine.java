@@ -14,7 +14,10 @@ import java.util.List;
 
 import static Connections.ElectricWire.WC_MOUSE_DRAG;
 import static Connections.ElectricWire.WC_MOUSE_RELEAS;
-import static Connections.ElectricWire.activeWireConnect;
+import static Connections.MathWire.MC_MOUSE_DRAG;
+import static Connections.MathWire.MC_MOUSE_RELEAS;
+import static Connections.MechWire.MeC_MOUSE_DRAG;
+import static Connections.MechWire.MeC_MOUSE_RELEAS;
 
 class CrossToCrossLine extends ConnectLine{
     private Cross endCrossMarker;
@@ -71,16 +74,31 @@ class CrossToCrossLine extends ConnectLine{
                         this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
                 this.getEndCrossMarker().unbind();
                 this.setEndXY(x, y);
-                //create new WireMarker
-                WireMarker wm=new WireMarker(owner,x,y);
-                activeWireConnect=wm;
-                ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                wm.startFullDrag();
-                // dotList manipulation
-                int len=owner.getDotList().size();
+
                 List<Cross> line=new ArrayList();
-                line.add(wm.getItsLine().getStartMarker());
+
+                //create new WireMarker
+                if(owner instanceof ElectricWire) {
+                    ElectricWire.activeWireConnect = new WireMarker(owner,x,y);
+                    line.add(ElectricWire.activeWireConnect.getItsLine().getStartMarker());
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+                    ElectricWire.activeWireConnect.startFullDrag();
+                }else if(owner instanceof MechWire){
+                    MechWire.activeWireConnect = new MechMarker(owner,x,y);
+                    line.add(MechWire.activeWireConnect.getItsLine().getStartMarker());
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
+                    MechWire.activeWireConnect.startFullDrag();
+                }else if(owner instanceof MathWire){
+                    MathWire.activeMathMarker = new MathMarker(owner,x,y);
+                    line.add(MathWire.activeMathMarker.getItsLine().getStartMarker());
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
+                    MathWire.activeMathMarker.startFullDrag();
+                }
+
+                // dotList manipulation
                 line.add(this.getEndCrossMarker());
                 line.add(newOne.getStartMarker());
                 //replace old crTcr end to new end
@@ -127,16 +145,31 @@ class CrossToCrossLine extends ConnectLine{
                         this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
                 this.getEndCrossMarker().unbind();
                 this.setEndXY(x, y);
+
                 //create new WireMarker
-                WireMarker wm=new WireMarker(owner,x,y);
-                activeWireConnect=wm;
-                ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                wm.startFullDrag();
-                // dotList manipulation
-                int len=owner.getDotList().size();
                 List<Cross> line=new ArrayList();
-                line.add(wm.getItsLine().getStartMarker());
+
+                if(owner instanceof ElectricWire) {
+                    ElectricWire.activeWireConnect = new WireMarker(owner,x,y);
+                    line.add(ElectricWire.activeWireConnect.getItsLine().getStartMarker());
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+                    ElectricWire.activeWireConnect.startFullDrag();
+                }else if(owner instanceof MechWire){
+                    MechWire.activeWireConnect = new MechMarker(owner,x,y);
+                    line.add(MechWire.activeWireConnect.getItsLine().getStartMarker());
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
+                    MechWire.activeWireConnect.startFullDrag();
+                }else if(owner instanceof MathWire){
+                    MathWire.activeMathMarker = new MathMarker(owner,x,y);
+                    line.add(MathWire.activeMathMarker.getItsLine().getStartMarker());
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
+                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
+                    MathWire.activeMathMarker.startFullDrag();
+                }
+
+                // dotList manipulation
                 line.add(this.getEndCrossMarker());
                 line.add(newOne.getStartMarker());
                 //replace old crTcr end to new end

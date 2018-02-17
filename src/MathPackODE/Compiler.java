@@ -104,20 +104,20 @@ public class Compiler {
             for(SchemeElement elem:elemList){
                 int i=0;
                 for(ElemPin pin:elem.getElemContactList()){
-                    if(pin.getWireContact()==null)
+                    if(pin.getItsConnection()==null)
                         throw new Error("All electrical contacts must be connected! (Pin #"+i+" in "+elem.getName());
                     i++;
                 }
                 i=0;
                 for(ElemMechPin pin:elem.getMechContactList()){
-                    if(pin.getWireContact()==null){
+                    if(pin.getItsConnection()==null){
                         throw new Error("All mechanical contacts must be connected! (Pin #"+i+" in "+elem.getName());
                     }
                     i++;
                 }
             }
-            if((wireList.isEmpty()||elemList.isEmpty())&&(state.getMathElems().isEmpty()||state.getMathConnList().isEmpty())){
-                throw new Error("Empty Sheme");
+            if((wireList.isEmpty()&&mechWires.isEmpty()||elemList.isEmpty())&&(state.getMathElems().isEmpty()||state.getMathConnList().isEmpty())){
+                throw new Error("Empty Scheme");
             }else{
                 //expand if needed
                 //-------------------

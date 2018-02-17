@@ -74,8 +74,8 @@ public abstract class SchemeElement extends Element{
     public void delete(){
         this.electricContacts.forEach(elemCont->{
             elemCont.clear();
-            if(elemCont.wireCont!=null){
-                elemCont.wireCont.unPlug();
+            if(elemCont.getItsConnection()!=null){
+                elemCont.getItsConnection().unPlug();
             }
         });
         RaschetKz.ElementList.remove(this);

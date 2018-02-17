@@ -5,10 +5,8 @@
  */
 package MathPack;
 
-import Connections.ElectricWire;
 import ElementBase.DynamMathElem;
 import ElementBase.OutputElement;
-import java.util.ArrayList;
 import java.util.List;
 import ElementBase.PhysSubsystem;
 import MathPackODE.Solver;
@@ -30,7 +28,7 @@ public class Rechatel extends Task<Integer>{
     //public static double time;
     private Solver solver;
 
-
+    public static final boolean IS_LOGGING=false;
 
     public Rechatel(ModelState state,boolean byGost){
         this.state=state;
@@ -45,49 +43,6 @@ public class Rechatel extends Task<Integer>{
         this.byGOST=byGost;
         compiler=new MathPackODE.Compiler();
     }
-
-//    @Override
-//    protected Integer call(){
-//        List<SchemeElement> elems=new ArrayList();
-//        List<Wire> branchs=new ArrayList();
-//        if(expandSheme(elems, branchs)){
-//            SchemeElement.time=0;
-//            Variables vector=new Variables(elems,branchs);
-//            vector.updateElems(true);
-//            if(vector.isDynamic){
-//                for(double t=dt;t<=tEnd;t=t+dt){
-//                    SchemeElement.time=t;
-//                    for(SchemeElement data:this.elemList){
-//                        data.EvalNextStep(dt);
-//                    }
-//                    vector.reSolve();
-//                    vector.updateElems(false);
-//                    this.updateProgress(t,tEnd);
-//                }
-//            }else{
-//                for(double t=dt;t<=tEnd;t=t+dt){
-//                    SchemeElement.time=t;
-//                    for(SchemeElement data:this.elemList){
-//                        data.EvalNextStep(dt);
-//                    }
-//                    vector.reSolve();
-//                    vector.updateElems(false);
-//                    this.updateProgress(t,tEnd);
-//                }
-//            }
-//            this.updateProgress(tEnd,tEnd);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException ex) {
-//                Logger.getLogger(Rechatel.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//            this.updateProgress(0,tEnd);
-//        }
-//        Integer i = null;
-//        return i;
-//    }
-
-
 
     @Override
     protected Integer call(){
@@ -110,7 +65,8 @@ public class Rechatel extends Task<Integer>{
             //}
             solver.solve(tEnd);
 
-            //sys.layout();
+            if(IS_LOGGING)
+                sys.layout();
             long end=System.currentTimeMillis();
             System.out.println("eval time: "+(end-start));
             this.updateProgress(tEnd, tEnd);

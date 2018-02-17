@@ -1,6 +1,7 @@
 package Connections;
 
 import ElementBase.ElemPin;
+import ElementBase.Pin;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -22,7 +23,7 @@ import static Connections.ElectricWire.*;
 public class WireMarker extends LineMarker{
 
     //private Wire itsWire;
-    private ElemPin itsElemCont;
+//    private ElemPin itsElemCont;
     //private ReadOnlyObjectProperty<Transform> eleContTransf;
 
 
@@ -148,7 +149,7 @@ public class WireMarker extends LineMarker{
 //            ec.bindWCstartProp(this);
         bindStartTo(ec.getBindX(),ec.getBindY());
         ec.setWirePointer(this);
-        this.itsElemCont=ec;
+        setItsConnectedPin(ec);
     }
 
     WireMarker(ElectricWire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
@@ -164,100 +165,12 @@ public class WireMarker extends LineMarker{
      */
     @Override
     void delete(){
-        //reduce dotList
-        Point2D p=MathPack.MatrixEqu.findFirst(getWire().getDotList(), this.getItsLine().getStartMarker());
-        if(p!=null&&activeWireConnect==null){
-            switch(getWire().getDotList().size()){
-                case 1: //triple line Wire
-                    getWire().getDotList().get(0).remove((int)p.getY());
-                    WireMarker major= (WireMarker) getWire().getDotList().get(0).get(0).getOwner().marker;
-                    WireMarker minor= (WireMarker) getWire().getDotList().get(0).get(1).getOwner().marker;
-                    getWire().getDotList().remove(0);
-                    if(!major.isPlugged()&&!minor.isPlugged()){
-                        // TODO implement this!
+        dotReduction(activeWireConnect);
 
-                    }else if(!major.isPlugged()){
-                        // only major should left
-                        ElemPin ep=minor.getElemContact();
-                        minor.delete();
-
-                        // set pointers
-                        ep.setWirePointer(major);
-                        major.itsElemCont=ep;
-
-                        major.bindStartTo(ep.getBindX(),ep.getBindY());
-                        major.hideStartMarker();
-                    }else if (!minor.isPlugged()){
-                        // only minor should left
-                        ElemPin ep=major.getElemContact();
-                        major.delete();
-
-                        //set pointers
-                        ep.setWirePointer(minor);
-                        minor.itsElemCont=ep;
-
-                        minor.bindStartTo(ep.getBindX(),ep.getBindY());
-                        minor.hideStartMarker();
-                    }else {
-                        // bind to each other
-                        major.getItsLine().getStartX().bind(minor.getBindX());
-                        major.getItsLine().getStartY().bind(minor.getBindY());
-                        minor.getItsLine().getStartX().bind(major.getBindX());
-                        minor.getItsLine().getStartY().bind(major.getBindY());
-
-                        if(minor.getItsLine().isEasyDraw()){
-                            minor.hide();
-                            major.hideStartMarker();
-                        }else{
-                            major.hide();
-                            minor.hideStartMarker();
-                        }
-                    }
-                    break;
-                default: // case of cont to cont
-                    List<Cross> line=getWire().getDotList().get((int)p.getX());
-                    int len=line.size(),ind=(int)p.getY();
-                    if(len==3){
-                        if(line.get((ind+1)%len).getOwner() instanceof CrossToCrossLine && line.get((ind+2)%len).getOwner() instanceof CrossToCrossLine){
-
-                        }else{ // only one crToCrLine's cross
-                            CrossToCrossLine loser;
-                            ConnectLine master;
-                            Cross reducedOne;
-                            if(line.get((ind+1)%len).getOwner() instanceof CrossToCrossLine){
-                                loser=(CrossToCrossLine)line.get((ind+1)%len).getOwner();
-                                master=line.get((ind+2)%len).getOwner();
-                            }else{
-                                loser=(CrossToCrossLine)line.get((ind+2)%len).getOwner();
-                                master=line.get((ind+1)%len).getOwner();
-                            }
-                            if(loser.getStartMarker().equals(line.get(ind))){
-                                reducedOne=loser.getEndCrossMarker();
-                            }else{
-                                reducedOne=loser.getStartMarker();
-                            }
-                            Point2D nP=MathPack.MatrixEqu.findFirst(getWire().getDotList(),reducedOne);
-                            getWire().getDotList().get((int)nP.getX()).set((int)nP.getY(),master.getStartMarker());
-                            master.getStartMarker().unbind();
-                            master.setStartXY(reducedOne.getCenterX(), reducedOne.getCenterY());
-
-                            getWire().getDotList().remove((int)p.getX());
-                            //deleting
-                            loser.deleteQuiet();
-
-                        }
-                        getWire().bindCrosses();
-                    }else if(len>3){
-                        throw new Error("Size > 3 not supported yet...");
-                    }
-
-            }
-
-        }
-
-        if(this.itsElemCont!=null){
-            this.itsElemCont.clearWireContact();
-            itsElemCont=null;
+        if(getItsConnectedPin()!=null){
+            getItsConnectedPin().setItsConnection(null);
+            getItsConnectedPin().getView().setOpacity(1.0);
+            setItsConnectedPin(null);
         }
         getWire().getWireContacts().remove(this);
         if(getWire().getWireContacts().size()<2){
@@ -278,29 +191,19 @@ public class WireMarker extends LineMarker{
         itsLines=null;
     }
 
-    public ElemPin getElemContact(){
-        return(this.itsElemCont);
-    }
+//    public ElemPin getElemContact(){
+//        return(this.itsElemCont);
+//    }
 
-    /**
-     *
-     * @param eleCont
-     */
-    public void bindElemContact(ElemPin eleCont){
-        this.itsElemCont=eleCont;
-//            eleCont.bindWCendProp(this);
-        bindEndTo(eleCont.getBindX(), eleCont.getBindY());
-        eleCont.setWirePointer(this);
-        this.setIsPlugged(true);
-    }
 
-    /**
-     * Simply set field
-     * @param pin
-     */
-    public void setElemContact(ElemPin pin){
-        this.itsElemCont=pin;
-    }
+
+//    /**
+//     * Simply set field
+//     * @param pin
+//     */
+//    public void setElemContact(ElemPin pin){
+//        this.itsElemCont=pin;
+//    }
 
     public void show(){
         this.itsLines.show();
@@ -320,8 +223,9 @@ public class WireMarker extends LineMarker{
     public void unPlug(){
         setIsPlugged(false);
         unbindEndPoint();
-        this.itsElemCont.clearWireContact();
-        this.itsElemCont=null;
+        getItsConnectedPin().setItsConnection(null);
+        getItsConnectedPin().getView().setOpacity(1.0);
+        setItsConnectedPin(null);
         switch(getWire().getRank()){
             case 1:
                 WireMarker wc=new WireMarker(getWire(),this.getStartX().get(),this.getStartY().get());
@@ -339,10 +243,10 @@ public class WireMarker extends LineMarker{
                     loser=getWire().getWireContacts().get(0);
                 }
                 activeWireConnect=this;
-                ElemPin temp=loser.itsElemCont;
+                Pin temp=loser.getItsConnectedPin();
                 loser.delete();
                 temp.setWirePointer(this);
-                this.itsElemCont=temp;
+                setItsConnectedPin(temp);
                 this.show();
                 break;
             default:

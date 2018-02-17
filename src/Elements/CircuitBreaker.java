@@ -67,7 +67,7 @@ public class CircuitBreaker extends SchemeElement {
 
     @Override
     public void delete() {
-        itsLogic.delete();
+        itsLogic=null;
         super.delete();
     }
 
