@@ -7,6 +7,7 @@ package MathPack;
 
 import Connections.ElectricWire;
 import ElementBase.ElemPin;
+import ElementBase.Pin;
 import ElementBase.SchemeElement;
 import Elements.ElectricalReference;
 
@@ -32,7 +33,7 @@ class Variables{
         values=new ArrayList();
         elems.forEach(element->{
             element.getElemContactList().forEach(contact->{
-                if(contact.getWireContact()!=null)
+                if(contact.getItsConnection()!=null)
                     this.addVar(contact);
             });
 //                element.init();
@@ -96,9 +97,9 @@ class Variables{
         //potencials
         for(int i=0;i<this.brchs.size();i++){
             ElectricWire currentBr=this.brchs.get(i);
-            ElemPin mainPapa=currentBr.getWireContacts().get(0).getElemContact();
+            Pin mainPapa=currentBr.getWireContacts().get(0).getItsConnectedPin();
             for(int j=1;j<currentBr.getWireContacts().size();j++){
-                ElemPin papa=currentBr.getWireContacts().get(j).getElemContact();
+                Pin papa=currentBr.getWireContacts().get(j).getItsConnectedPin();
                 output.add(new ArrayList());
                 for(int m=0;m<pointers.size()*2+1;m++){
                     output.get(row).add(Double.valueOf(0.0));
@@ -116,7 +117,7 @@ class Variables{
                 output.get(row).add(Double.valueOf(0.0));
             }
             for(int j=0;j<currentBr.getWireContacts().size();j++){
-                ElemPin papa=currentBr.getWireContacts().get(j).getElemContact();
+                Pin papa=currentBr.getWireContacts().get(j).getItsConnectedPin();
                 output.get(row).set(pointers.indexOf(papa)*2+1,1.0);
             }
             row++;

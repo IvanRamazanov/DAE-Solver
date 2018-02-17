@@ -5,7 +5,10 @@
  */
 package ElementBase;
 
+import Connections.LineMarker;
 import Connections.MathMarker;
+import Connections.MathWire;
+
 import java.util.List;
 
 /**
@@ -54,35 +57,11 @@ public class MathOutPin extends MathPin{
     }
 
     @Override
-    public void setItsConnection(MathMarker itsConnection) {
-        super.setItsConnection(itsConnection);
-        itsConnection.getWire().setSourcePointer(this);
+    public void setWirePointer(LineMarker itsConnection) {
+        super.setWirePointer(itsConnection);
+        ((MathWire)itsConnection.getWire()).setSourcePointer(this);
     }
 
-//    /**
-//     * @return the source
-//     */
-//    public MathInPin getSource() {
-//        return source;
-//    }
-
-    public void setMathConnLink(MathMarker mc){
-        setItsConnection(mc);
-//        setSource(mc.getWire().getSource());
-    }
-
-//    /**
-//     * @param source the source to set
-//     */
-//    public void setSource(MathInPin source) {
-//        this.source = source;
-//    }
-
-//    @Override
-//    public void clearPin(){
-////        source=null;
-//        owner=null;
-//    }
 }
 
 

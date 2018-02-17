@@ -5,16 +5,17 @@
  */
 package Connections;
 
+import ElementBase.Pin;
+import MathPack.MatrixEqu;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
-import javafx.scene.Node;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+
+import java.util.List;
 
 
 /**
@@ -22,23 +23,16 @@ import javafx.scene.shape.Shape;
  * @author Ivan
  */
 public abstract class LineMarker{
-    //    protected SimpleDoubleProperty endXProp;
-//    protected SimpleDoubleProperty endYProp;
-//    protected SimpleDoubleProperty startXProp;
-//    protected SimpleDoubleProperty startYProp;
+
     protected SimpleDoubleProperty bindX=new SimpleDoubleProperty(),
             bindY=new SimpleDoubleProperty();
     protected ConnectLine itsLines;
     protected SimpleBooleanProperty plugged;
-    //Cross anchor;
     protected EventHandler lineDraggedDetect;
     protected Shape view;
 
     private Wire itsWire;
-
-
-
-
+    private Pin itsConnectedPin;
 
     LineMarker(){
         itsLines=new ConnectLine(this);
@@ -98,8 +92,17 @@ public abstract class LineMarker{
     void unbindEndPoint(){
         bindX.unbind();
         bindY.unbind();
-//        itsLines.getEndX().unbind();
-//        itsLines.getEndY().unbind();
+    }
+
+    /**
+     *
+     * @param eleCont
+     */
+    public void bindElemContact(Pin eleCont){
+        setItsConnectedPin(eleCont);
+        bindEndTo(eleCont.getBindX(), eleCont.getBindY());
+        eleCont.setWirePointer(this);
+        this.setIsPlugged(true);
     }
 
     abstract public void unPlug();
@@ -112,20 +115,10 @@ public abstract class LineMarker{
     public void setEndProp(double x,double y){
         Point2D a=new Point2D(x, y);
         a=raschetkz.RaschetKz.drawBoard.sceneToLocal(a);
-//        if(itsLines.getEndX().isBound()){
-//            itsLines.getStartX().set(a.getX());
-//            itsLines.getStartY().set(a.getY());
-//        }else{
-//            itsLines.getEndX().set(a.getX());
-//            itsLines.getEndY().set(a.getY());
-//        }
         if(!bindX.isBound()){
             bindX.set(a.getX());
             bindY.set(a.getY());
         }
-//        }else{
-//            itsLines.setCrossMarkerXY(a.getX(),a.getY());
-//        }
     }
 
     public void setStartPoint(double x,double y){
@@ -161,20 +154,129 @@ public abstract class LineMarker{
         return itsLines;
     }
 
+    protected void dotReduction(LineMarker active){
+        //reduce dotList
+        Point2D p=MathPack.MatrixEqu.findFirst(getWire().getDotList(), this.getItsLine().getStartMarker());
+        if(p!=null&&active==null){
+            switch(getWire().getDotList().size()){
+                case 1: //triple line Wire
+                    getWire().getDotList().get(0).remove((int)p.getY());
+                    LineMarker major = getWire().getDotList().get(0).get(0).getOwner().marker;
+                    LineMarker minor = getWire().getDotList().get(0).get(1).getOwner().marker;
+                    getWire().getDotList().remove(0);
+                    if(!major.isPlugged()&&!minor.isPlugged()){
+                        // TODO implement this! Floating wire case
+
+                    }else if(!major.isPlugged()){
+                        // only major should left
+                        Pin ep=minor.getItsConnectedPin();
+                        minor.delete();
+
+                        // set pointers
+                        ep.setWirePointer(major);
+                        major.setItsConnectedPin(ep);
+
+                        major.bindStartTo(ep.getBindX(),ep.getBindY());
+                        major.hideStartMarker();
+                    }else if (!minor.isPlugged()){
+                        // only minor should left
+                        Pin ep=major.getItsConnectedPin();
+                        major.delete();
+
+                        //set pointers
+                        ep.setWirePointer(minor);
+                        minor.setItsConnectedPin(ep);
+
+                        minor.bindStartTo(ep.getBindX(),ep.getBindY());
+                        minor.hideStartMarker();
+                    }else {
+                        // bind to each other
+                        major.getItsLine().getStartX().bind(minor.getBindX());
+                        major.getItsLine().getStartY().bind(minor.getBindY());
+                        minor.getItsLine().getStartX().bind(major.getBindX());
+                        minor.getItsLine().getStartY().bind(major.getBindY());
+
+                        if(minor.getItsLine().isEasyDraw()){
+                            minor.hide();
+                            major.hideStartMarker();
+                        }else{
+                            major.hide();
+                            minor.hideStartMarker();
+                        }
+                    }
+                    break;
+                default: // case of cont to cont
+                    List<Cross> line=getWire().getDotList().get((int)p.getX());
+                    int dotBindLineLen=line.size(),ind=(int)p.getY();
+                    if(dotBindLineLen==3){
+                        if(line.get((ind+1)%dotBindLineLen).getOwner() instanceof CrossToCrossLine &&
+                                line.get((ind+2)%dotBindLineLen).getOwner() instanceof CrossToCrossLine){
+                            CrossToCrossLine loser,master=(CrossToCrossLine)line.get((ind+1)%dotBindLineLen).getOwner();
+                            if(master.isEasyDraw()){
+                                loser=master;
+                                master=(CrossToCrossLine)line.get((ind+2)%dotBindLineLen).getOwner();
+                            }else
+                                loser=(CrossToCrossLine)line.get((ind+2)%dotBindLineLen).getOwner();
+                            Cross rep,los;
+                            if(line.contains(loser.getStartMarker())) {
+                                los = loser.getEndCrossMarker();
+                            }else{
+                                los=loser.getStartMarker();
+                            }
+                            if(line.contains(master.getStartMarker())) {
+                                rep = master.getStartMarker();
+                                rep.unbind();
+                                master.setStartXY(los.getCenterX(),los.getCenterY());
+                            }else{
+                                rep=master.getEndCrossMarker();
+                                rep.unbind();
+                                master.setEndXY(los.getCenterX(),los.getCenterY());
+                            }
+                            Point2D nP= MatrixEqu.findFirst(getWire().getDotList(),los);
+                            getWire().getDotList().get((int)nP.getX()).set((int)nP.getY(),rep);
+                            loser.deleteQuiet();
+                            getWire().getDotList().remove((int)p.getX());
+                        }else{ // only one crToCrLine's cross
+                            CrossToCrossLine loser;
+                            ConnectLine master;
+                            Cross reducedOne;
+                            if(line.get((ind+1)%dotBindLineLen).getOwner() instanceof CrossToCrossLine){
+                                loser=(CrossToCrossLine)line.get((ind+1)%dotBindLineLen).getOwner();
+                                master=line.get((ind+2)%dotBindLineLen).getOwner();
+                            }else{
+                                loser=(CrossToCrossLine)line.get((ind+2)%dotBindLineLen).getOwner();
+                                master=line.get((ind+1)%dotBindLineLen).getOwner();
+                            }
+                            if(loser.getStartMarker().equals(line.get(ind))){
+                                reducedOne=loser.getEndCrossMarker();  //TODO I think this is always false!
+                            }else{
+                                reducedOne=loser.getStartMarker();
+                            }
+                            Point2D nP=MathPack.MatrixEqu.findFirst(getWire().getDotList(),reducedOne);
+                            getWire().getDotList().get((int)nP.getX()).set((int)nP.getY(),master.getStartMarker());
+                            master.getStartMarker().unbind();
+                            master.setStartXY(reducedOne.getCenterX(), reducedOne.getCenterY());
+
+                            getWire().getDotList().remove((int)p.getX());
+                            //deleting
+                            loser.deleteQuiet();
+
+                        }
+                        getWire().bindCrosses();
+                    }else if(dotBindLineLen>3){
+                        throw new Error("Size > 3 not supported yet...");
+                    }
+
+            }
+
+        }
+    }
+
     public void startFullDrag(){
         view.startFullDrag();
     }
 
     public static void adjustCrosses(LineMarker... inp){
-//        DoubleProperty xprop=inp[0].getItsLine().getStartX();
-//        DoubleProperty yprop=inp[0].getItsLine().getStartY();
-//        inp[0].itsLines.setCrossMarkerVisible(true);
-//        for(int i=1;i<inp.length;i++){
-//            inp[i].getItsLine().getStartX().unbind();
-//            inp[i].getItsLine().getStartY().unbind();
-//            inp[i].getItsLine().getStartX().bind(xprop);
-//            inp[i].getItsLine().getStartY().bind(yprop);
-//        }
         Cross sup=inp[0].itsLines.getStartMarker();
         inp[0].itsLines.setCrossMarkerVisible(true);
         for(int i=1;i<inp.length;i++){
@@ -182,141 +284,6 @@ public abstract class LineMarker{
             inp[i].itsLines.setCrossMarkerVisible(false);
         }
     }
-
-//    public class LineExt{
-//        //public WireContact superClass;
-//        private List<Line> lines;
-//        boolean flag=true;
-//        ChangeListener propListen;
-//
-//        LineExt(){
-//            this.propListen = new ChangeListener<Double>(){
-//                @Override
-//                public void changed(ObservableValue<? extends Double> observable, Double oldValue, Double newValue) {
-//                    Draw();
-//                }
-//            };
-//            lines=new ArrayList();
-//            for(int i=0;i<3;i++){
-//                this.lines.add(new Line(0,0,0,0));
-//            }
-//            this.lines.get(2).endXProperty().bind(endXProp);
-//            this.lines.get(2).endYProperty().bind(endYProp);
-//            this.lines.get(0).startXProperty().bind(startXProp);
-//            this.lines.get(0).startYProperty().bind(startYProp);
-//            this.flag=false;
-//            this.lines.forEach(line->{
-//                line.setStrokeWidth(2);
-//                line.setStyle("-fx-stroke: red; -fx-stroke-dash-array: 10 5");
-//                line.setCursor(Cursor.HAND);
-//
-//
-//                EventHandler linePressed=(EventHandler<MouseEvent>)(MouseEvent me)->{
-//                    if(me.getButton()==MouseButton.PRIMARY){
-//                        line.requestFocus();
-//                    }
-//                    me.consume();
-//                };
-//                line.focusedProperty().addListener((obs,oldVal,newVal)->{
-////                                            for(Line lin:lines){
-////                            lin.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-////                        }
-//                if(newVal)
-//                        line.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-//                    else
-//                        line.setEffect(null);
-//                });
-//                line.setOnMousePressed(linePressed);
-//                line.addEventHandler(MouseDragEvent.DRAG_DETECTED,lineDragDetect);
-//                line.setOnMouseReleased(e->{
-//                    e.consume();
-//                });
-//                line.setOnKeyReleased(k->{
-//                    if(k.getCode()==KeyCode.DELETE){
-//                        delete();
-//                    }
-//                });
-//            });
-//            RaschetKz.drawBoard.getChildren().addAll(lines);
-//        }
-//
-////            LineExt(Cross newCr,Cross oldCr){
-////                this();
-////                this.setAnchor(oldCr.getAnchor());
-////                //???????????????????????????????????
-////            }
-//
-//        LineExt(WireConnect owner,Point2D point){
-//            this();
-//            point=RaschetKz.drawBoard.sceneToLocal(point);
-//            //this.superClass=owner;
-//            anchor=new Cross(owner,point.getX(),point.getY());
-//            this.lines.get(0).startXProperty().bind(anchor.centerXProperty());
-//            this.lines.get(0).startYProperty().bind(anchor.centerYProperty());
-//            this.lines.get(2).endYProperty().addListener(propListen);
-//            this.lines.get(2).endXProperty().addListener(propListen);
-//            this.lines.get(0).startYProperty().addListener(propListen);
-//            this.lines.get(0).startXProperty().addListener(propListen);
-//            this.Draw();
-//        }
-//
-//        LineExt(WireConnect owner,double x,double y){
-//            this();
-//            //this.superClass=owner;
-//            anchor=new Cross(owner,x,y);
-//            this.lines.get(0).startXProperty().bind(anchor.centerXProperty());
-//            this.lines.get(0).startYProperty().bind(anchor.centerYProperty());
-//            this.lines.get(2).endYProperty().addListener(propListen);
-//            this.lines.get(2).endXProperty().addListener(propListen);
-//            this.lines.get(0).startYProperty().addListener(propListen);
-//            this.lines.get(0).startXProperty().addListener(propListen);
-//            this.Draw();
-//        }
-//
-////            public WireContact getOwner(){
-////                return(superClass);
-////            }
-//
-//        final void Draw(){
-//            lines.get(2).setStartY(endYProp.get());
-//            lines.get(2).setStartX((endXProp.get()+anchor.centerXProperty().get())/2);
-//            lines.get(1).setEndX(lines.get(2).getStartX());
-//            lines.get(1).setEndY(lines.get(2).getStartY());
-//            lines.get(1).setStartX(lines.get(1).getEndX());
-//            lines.get(1).setStartY(anchor.centerYProperty().get());
-//            lines.get(0).setEndX(lines.get(1).getStartX());
-//            lines.get(0).setEndY(lines.get(1).getStartY());
-//        }
-//
-////            void unAdjustCrosses(Cross... inp){
-////                DoubleProperty xprop=inp[0].centerXProperty();
-////                DoubleProperty yprop=inp[0].centerYProperty();
-////                for(int i=1;i<inp.length;i++){
-////                    inp[i].centerXProperty().unbindBidirectional(xprop);
-////                    inp[i].centerYProperty().unbindBidirectional(yprop);
-////                }
-////            }
-//
-//        void activate(){
-//            lines.forEach(line->{
-//                line.setStyle("-fx-stroke: black");
-//            });
-//            this.flag=true;
-//            //this.superClass.isActive=true;
-//        }
-//
-//        void diactivate(){
-//            lines.forEach(line->{
-//                line.setStyle("-fx-stroke: red; -fx-stroke-dash-array: 10 5");
-//            });
-//            this.flag=false;
-//            //this.superClass.isActive=false;
-//        }
-//
-//        List<Line> getLines(){
-//            return this.lines;
-//        }
-//    }
 
     /**
      * @return the centerX
@@ -338,5 +305,21 @@ public abstract class LineMarker{
 
     public void setWire(Wire w) {
         itsWire=w;
+    }
+
+    public Pin getItsConnectedPin() {
+        return itsConnectedPin;
+    }
+
+    public void setItsConnectedPin(Pin itsConnectedPin) {
+        this.itsConnectedPin = itsConnectedPin;
+    }
+
+    public DoubleProperty getStartX(){
+        return this.itsLines.getStartX();
+    }
+
+    public DoubleProperty getStartY(){
+        return this.itsLines.getStartY();
     }
 }

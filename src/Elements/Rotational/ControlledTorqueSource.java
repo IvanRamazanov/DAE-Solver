@@ -3,34 +3,33 @@ package Elements.Rotational;
 import ElementBase.ElemMechPin;
 import ElementBase.SchemeElement;
 
-public class TorqueSource extends SchemeElement {
-    Parameter A;
-    public TorqueSource(){
+public class ControlledTorqueSource extends SchemeElement{
+
+    public ControlledTorqueSource(){
         super();
+        addMathContact('i');
         addMechCont(new ElemMechPin(this,17,2));
         addMechCont(new ElemMechPin(this,17,52)); //Ref
     }
 
-    public TorqueSource(boolean val){
+    public ControlledTorqueSource(boolean val){
         super(val);
     }
 
     @Override
     public String[] getStringFunction() {
-        return new String[]{"T.1="+A.toString(),
-        "T.1+T.2=0"};
+        return new String[]{"T.1=I.1",
+                "T.1+T.2=0"};
     }
 
     @Override
     protected String getDescription() {
-        return "Produces constant torque";
+        return "Produces constant torque equalve value from mathematical input";
     }
 
     @Override
     protected void setParams() {
-        A=new Parameter("Torque value",1);
-        getParameters().add(A);
 
-        setName("Constant torque\nsource");
+        setName("Controlled torque\nsource");
     }
 }

@@ -5,6 +5,7 @@
  */
 package Elements;
 
+import ElementBase.ElemMechPin;
 import ElementBase.ElemPin;
 import ElementBase.SchemeElement;
 
@@ -20,8 +21,8 @@ public class DPTPM extends SchemeElement {
 //        Dymamic=true;
         addElemCont(new ElemPin(this, 31, 4));
         addElemCont(new ElemPin(this, 31, 66));
-        addMathContact('i');
-        addMathContact('o');
+        addMechCont(new ElemMechPin(this,40,40));
+        addMechCont(new ElemMechPin(this,4,40));
     }
 
     public DPTPM(boolean Catalog){
@@ -38,8 +39,10 @@ public class DPTPM extends SchemeElement {
                 f=F.toString();
         return new String[]{"d.X.1=(p.1-p.2-" + cw + "*X.2*" + f + "-i.1*" + rya + ")/" + lya,
                 "X.1=i.1",
-                "d.X.2=(i.1*" + f + "*" + cm + "-I.1)/" + J,
-                "O.1=X.2", "i.1+i.2=0"};
+                "X.2=w.1-w.2",
+                "-T.1=T.2+i.1*" + f + "*" + cm,
+                "d.X.2=(i.1*" + f + "*" + cm + "-T.1)/" + J,
+                "i.1+i.2=0"};
     }
 
     @Override

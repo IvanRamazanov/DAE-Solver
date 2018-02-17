@@ -66,15 +66,15 @@ public class MathInPin extends MathPin{
         this.source = source;
     }
 
-    @Override
-    public void setItsConnection(MathMarker itsConnection) {
-        this.itsConnection = itsConnection;
-        //view.setOpacity(0.0);
-    }
+//    @Override
+//    public void setItsConnection(MathMarker itsConnection) {
+//        this.itsConnection = itsConnection;
+//        //view.setOpacity(0.0);
+//    }
 
     @Override
-    final public void clearPin(){
-        super.clearPin();
+    final public void clear(){
+        super.clear();
         source=null;
     }
 }

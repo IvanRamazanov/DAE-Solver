@@ -33,19 +33,32 @@ import javafx.scene.shape.Shape;
  */
 public class Pin {
     private Shape view;
-    protected SimpleDoubleProperty arrowX;
-    protected SimpleDoubleProperty arrowY;
-    protected LineMarker itsConnection;
+    private SimpleDoubleProperty bindX;
+    private SimpleDoubleProperty bindY;
+    private LineMarker itsConnection;
+    private Element owner;
 
 
+
+//    /**
+//     * Удаляет следы
+//     */
+//    void clear(){
+////        this.owner=null;
+//        if(itsConnection!=null)
+//            itsConnection.setIsPlugged(false);
+//    }
 
     /**
      * Удаляет следы
      */
-    void clear(){
-//        this.owner=null;
-        if(itsConnection!=null)
+    public void clear(){
+        this.owner=null;
+        if(itsConnection!=null){
+            itsConnection.unPlug(); //??????????
             itsConnection.setIsPlugged(false);
+        }
+        this.getView().setOpacity(1);
     }
 
     /**
@@ -64,5 +77,37 @@ public class Pin {
 
     public void setView(Shape view) {
         this.view = view;
+    }
+
+    public SimpleDoubleProperty getBindX() {
+        return bindX;
+    }
+
+    public void setBindX(SimpleDoubleProperty bindX) {
+        this.bindX = bindX;
+    }
+
+    public SimpleDoubleProperty getBindY() {
+        return bindY;
+    }
+
+    public void setBindY(SimpleDoubleProperty bindY) {
+        this.bindY = bindY;
+    }
+
+    public LineMarker getItsConnection() {
+        return itsConnection;
+    }
+
+    public void setItsConnection(LineMarker itsConnection) {
+        this.itsConnection = itsConnection;
+    }
+
+    public Element getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Element owner) {
+        this.owner = owner;
     }
 }

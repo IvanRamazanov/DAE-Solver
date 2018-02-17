@@ -9,11 +9,11 @@ import ElementBase.DynamMathElem;
 import ElementBase.MathInPin;
 import ElementBase.OutputElement;
 import ElementBase.SchemeElement;
-import MathPack.DAE;
-import MathPack.MatrixEqu;
-import MathPack.StringGraph;
-import MathPack.WorkSpace;
+import MathPack.*;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,7 +77,7 @@ abstract public class Solver {
         vector=vars.getVarList();
         int i=0,j=0;
         for(String var:vars.getVarNameList()){
-            if(var.startsWith("Cur.")||var.startsWith("Pot.")||var.startsWith("d.X.")){
+            if(!var.startsWith("X.")&&!var.startsWith("I.")){
                 //varNames.add(var);
                 x0[i]=vars.get(var);
                 ind[i]=j;
@@ -211,27 +211,32 @@ abstract public class Solver {
                 }
             }
         //for logout
-
-//            if(time==0){
-//                try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt"))){
-//                    bw.write("t ");
-//                    for(String entry:vars.getVarNameList()){
-//                        //if(entry.getKey().startsWith("X.")){
-//                            bw.write(entry+" ");
-//                        //}
-//                    }
-//                    bw.write(" numOfJac");
-//                    bw.newLine();
-//                } catch (IOException e) { System.err.println(e.getMessage()); }
-//            }
-//            try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt",true))){
-//                bw.write(Double.toString(time)+" ");
-//                for(Double entry:vars.getVarList()){
-//                    bw.write(entry+" ");
-//                }
-//                bw.write(Integer.toString(cnt));
-//                bw.newLine();
-//            } catch (IOException e) { System.err.println(e.getMessage()); }
+        if(Rechatel.IS_LOGGING) {
+            if (time == 0) {
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt"))) {
+                    bw.write("t ");
+                    for (String entry : vars.getVarNameList()) {
+                        //if(entry.getKey().startsWith("X.")){
+                        bw.write(entry + " ");
+                        //}
+                    }
+                    bw.write(" numOfJac");
+                    bw.newLine();
+                } catch (IOException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt", true))) {
+                bw.write(Double.toString(time) + " ");
+                for (Double entry : vars.getVarList()) {
+                    bw.write(entry + " ");
+                }
+                bw.write(Integer.toString(cnt));
+                bw.newLine();
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        }
 
     }
 

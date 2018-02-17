@@ -27,17 +27,17 @@ import raschetkz.RaschetKz;
  * @author Ivan
  */
 public class ElemPin extends Pin{
-    SchemeElement owner;
-    WireMarker wireCont;
-    SimpleDoubleProperty centerX,centerY;
+//    SchemeElement owner;
+//    WireMarker wireCont;
+//    SimpleDoubleProperty centerX,centerY;
 
     public ElemPin(SchemeElement owner){
-        this.owner=owner;
+        setOwner(owner);
     }
 
     public ElemPin(SchemeElement owner, int x, int y){
         setView(new Circle());
-        this.owner=owner;
+        setOwner(owner);
         ((Circle) getView()).setCenterX(x);
         ((Circle) getView()).setCenterY(y);
         ((Circle) getView()).setRadius(4);
@@ -52,7 +52,7 @@ public class ElemPin extends Pin{
             getView().setCursor(Cursor.DEFAULT);
         };
         EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            if(ElectricWire.activeWireConnect!=null&&this.wireCont==null){
+            if(ElectricWire.activeWireConnect!=null&&getItsConnection()==null){
                 System.out.println("You are plugged");
                 ElectricWire.activeWireConnect.getWire().setEnd(this);
                 getView().toFront();
@@ -82,7 +82,7 @@ public class ElemPin extends Pin{
 //            this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
 //            this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
 
-            if(ElectricWire.activeWireConnect!=null&&getWireContact()!=null){
+            if(ElectricWire.activeWireConnect!=null&&getItsConnection()!=null){
                 //if(Wire.activeWireConnect.getElemContact()!=this){
                 if(ElectricWire.activeWireConnect.getIsPlugged().getValue()){
 
@@ -133,7 +133,7 @@ public class ElemPin extends Pin{
         };
         getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){
-                if(wireCont==null){
+                if(getItsConnection()==null){
 //                    this.setOpacity(0);
                     RaschetKz.BranchList.add(new ElectricWire(this,
                             me.getSceneX(),me.getSceneY()));
@@ -145,7 +145,7 @@ public class ElemPin extends Pin{
 //                    this.setOpacity(1);
 //                    Wire.activeWireConnect=wireCont;
                     System.out.println("Hello from drag detect!");
-                    this.wireCont.unPlug();
+                    getItsConnection().unPlug();
 //                    this.wireCont=null;
 //                    ElectricWire.activeWireConnect=getWireContact();
                     getView().startFullDrag();
@@ -167,13 +167,13 @@ public class ElemPin extends Pin{
         getView().setOnMouseExited(exitMouse);
         //------
 
-        this.centerX=new SimpleDoubleProperty(((Circle) getView()).getCenterX());
-        this.centerY=new SimpleDoubleProperty(((Circle) getView()).getCenterY());
+        setBindX(new SimpleDoubleProperty(((Circle) getView()).getCenterX()));
+        setBindY(new SimpleDoubleProperty(((Circle) getView()).getCenterY()));
         getView().localToSceneTransformProperty().addListener((aza, oldVal, newVal)->{
             Point2D point=newVal.transform(((Circle) getView()).getCenterX(), ((Circle) getView()).getCenterY());
             point=RaschetKz.drawBoard.sceneToLocal(point);
-            this.centerX.set(point.getX());
-            this.centerY.set(point.getY());
+            getBindX().set(point.getX());
+            getBindY().set(point.getY());
         });
         getView().setFill(Paint.valueOf("#ffffff"));
         getView().setStrokeWidth(2);
@@ -181,29 +181,29 @@ public class ElemPin extends Pin{
         getView().setCursor(Cursor.HAND);
     }
 
-    /**
-     * Удаляет следы
-     */
-    void clear(){
-        this.owner=null;
-        if(wireCont!=null){
-            wireCont.unPlug(); //??????????
-            wireCont.setIsPlugged(false);
-        }
-    }
+//    /**
+//     * Удаляет следы
+//     */
+//    void clear(){
+//        this.owner=null;
+//        if(wireCont!=null){
+//            wireCont.unPlug(); //??????????
+//            wireCont.setIsPlugged(false);
+//        }
+//    }
 
-    /**
-     * If isReal true, add EC pointer to WC and bind CenterProp.
-     * If false just bind CenterProp.
-     * @param contactr wireCont
-     */
-    public void setWirePointer(WireMarker contactr){
-        this.wireCont=contactr;
-        getView().setOpacity(0);
-        //this.wireCont.activate();
-        //contactr.bindElemContact(this);
-        //this.setVisible(false);
-    }
+//    /**
+//     * If isReal true, add EC pointer to WC and bind CenterProp.
+//     * If false just bind CenterProp.
+//     * @param contactr wireCont
+//     */
+//    public void setWirePointer(LineMarker contactr){
+//        this.wireCont=contactr;
+//        getView().setOpacity(0);
+//        //this.wireCont.activate();
+//        //contactr.bindElemContact(this);
+//        //this.setVisible(false);
+//    }
 
 //    public void bindWCendProp(WireMarker wCont){
 //        wCont.getBindX().bind(centerX);
@@ -216,29 +216,29 @@ public class ElemPin extends Pin{
 //        wCont.getItsLine().getStartY().bind(centerY);
 //    }
 
-    public SimpleDoubleProperty getBindX(){
-        return centerX;
-    }
+//    public SimpleDoubleProperty getBindX(){
+//        return centerX;
+//    }
+//
+//    public SimpleDoubleProperty getBindY(){
+//        return centerY;
+//    }
 
-    public SimpleDoubleProperty getBindY(){
-        return centerY;
-    }
+//    public WireMarker getWireContact(){
+//        return (WireMarker) getItsConnection();
+//    }
 
-    public WireMarker getWireContact(){
-        return(wireCont);
-    }
+//    /**
+//     * Remove wire cont reference, and setOpacity to 1.0
+//     */
+//    public void clearWireContact(){
+//        setItsConnection(null);
+//        getView().setOpacity(1.0);
+//    }
 
-    /**
-     * Remove wire cont reference, and setOpacity to 1.0
-     */
-    public void clearWireContact(){
-        this.wireCont=null;
-        getView().setOpacity(1.0);
-    }
-
-    public SchemeElement getOwner(){
-        return(owner);
-    }
+//    public SchemeElement getOwner(){
+//        return(owner);
+//    }
 
 }
 

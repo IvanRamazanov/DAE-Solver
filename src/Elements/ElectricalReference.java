@@ -31,7 +31,7 @@ public class ElectricalReference extends SchemeElement {
 
     @Override
     protected void setParams(){
-        setName("Electical refference");
+        setName("Electrical reference");
     }
 
     @Override

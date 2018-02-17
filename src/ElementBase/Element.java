@@ -36,10 +36,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.text.*;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import static raschetkz.RaschetKz.drawBoard;
@@ -133,14 +130,16 @@ public abstract class Element {
             catalogFlag=catalog;
 
             getView(); //for creation!
+
+            setParams();
+            this.viewPane.setOnDragDetected(de->{
+                if(de.getButton().equals(MouseButton.PRIMARY)){
+                    initDND();
+                }
+            });
         }
 
-        setParams();
-        this.viewPane.setOnDragDetected(de->{
-            if(de.getButton().equals(MouseButton.PRIMARY)){
-                initDND();
-            }
-        });
+
     }
 
     private void initDND(){
@@ -191,6 +190,7 @@ public abstract class Element {
             });
             viewPane.getChildren().add(view);
             name=new Label();
+            name.setTextAlignment(TextAlignment.CENTER);
             layout.getChildren().addAll(viewPane,name);
 //            viewPane.setMaxSize(view.getLayoutBounds().getWidth(), view.getLayoutBounds().getHeight());
             if(catalogFlag){

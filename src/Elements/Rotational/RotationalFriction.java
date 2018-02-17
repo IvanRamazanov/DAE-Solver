@@ -8,8 +8,8 @@ public class RotationalFriction extends SchemeElement{
 
     public RotationalFriction(){
         super();
-        addMechCont(new ElemMechPin(this,12,6));
-        addMechCont(new ElemMechPin(this,12,30));
+        addMechCont(new ElemMechPin(this,17,2));
+        addMechCont(new ElemMechPin(this,17,52));
     }
 
     public RotationalFriction(boolean val){
@@ -18,7 +18,7 @@ public class RotationalFriction extends SchemeElement{
 
     @Override
     public String[] getStringFunction() {
-        return new String[]{"T.1=(w.1-w.2)*"+f.toString()};
+        return new String[]{"T.2=(w.1-w.2)*"+f.toString(),"T.1+T.2=0"};
     }
 
     @Override

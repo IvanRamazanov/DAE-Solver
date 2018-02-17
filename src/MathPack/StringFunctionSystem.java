@@ -119,718 +119,452 @@ public class StringFunctionSystem {
         List<StringGraph> speRight=new ArrayList();
         List<StringGraph> torRight=new ArrayList();
 
-//        List<List<Integer>> testCurMap=new ArrayList();
-//        List<List<Integer>> testPotMap=new ArrayList();
-//        List<StringGraph> testCurRight=new ArrayList();
-//        List<StringGraph> testPotRight=new ArrayList();
         DAE output=new DAE();
 
-//        if(!((potM==null)&&(currM==null))){
-            //init matrx
-            int i=0;
-            for(int[] row:potM){
-                pots.add(new ArrayList());
-                //            testPotMap.add(new ArrayList());
-                for(int j:row){
-                    pots.get(i).add(j);
-                    //                testPotMap.get(i).add(j);
-                }
-                potRight.add(new StringGraph(0));
-                //            testPotRight.add(new StringGraph(0));
-                i++;
+        //init matrx
+        int i=0;
+        for(int[] row:potM){
+            pots.add(new ArrayList());
+            for(int j:row){
+                pots.get(i).add(j);
             }
-            i=0;
-            for(int[] row:currM){
-                currs.add(new ArrayList());
-                //            testCurMap.add(new ArrayList());
-                for(int j:row){
-                    currs.get(i).add(j);
-                    //                testCurMap.get(i).add(j);
-                }
-                curRight.add(new StringGraph(0));
-                //            testCurRight.add(new StringGraph(0));
-                i++;
+            potRight.add(new StringGraph(0));
+            i++;
+        }
+        i=0;
+        for(int[] row:currM){
+            currs.add(new ArrayList());
+            for(int j:row){
+                currs.get(i).add(j);
             }
+            curRight.add(new StringGraph(0));
+            i++;
+        }
         i=0;
         for(int[] row:speedM){
             speeds.add(new ArrayList());
-            //            testCurMap.add(new ArrayList());
             for(int j:row){
                 speeds.get(i).add(j);
-                //                testCurMap.get(i).add(j);
             }
             speRight.add(new StringGraph(0));
-            //            testCurRight.add(new StringGraph(0));
             i++;
         }
         i=0;
         for(int[] row:torqM){
             torqs.add(new ArrayList());
-            //            testCurMap.add(new ArrayList());
             for(int j:row){
                 torqs.get(i).add(j);
-                //                testCurMap.get(i).add(j);
             }
             torRight.add(new StringGraph(0));
-            //            testCurRight.add(new StringGraph(0));
             i++;
         }
-            //---end of init---
+        //---end of init---
 
-            //gather funcs
-            StringFunctionSystem system=new StringFunctionSystem(list);
-            output.initOutputs(system);
-            output.setInps(system.getInputs());
+        //gather funcs
+        StringFunctionSystem system=new StringFunctionSystem(list);
+        output.initOutputs(system);
+        output.setInps(system.getInputs());
 
-            for(i=0;i<system.leftSides.size();i++){
-                LeftPart lp=system.leftSides.get(i);
-                StringGraph rp=system.rightSides.get(i);
-                boolean flag=true;
-                if(lp.containInstance("i.")){
-                    if(rp.isInvariant()){
-                        List<Integer> row=new ArrayList();
-                        for(int j=0;j<currs.get(0).size();j++){
-                            row.add(0);
-                        }
-                        for(int j=0;j<lp.getNumOfVars();j++){
-                            row.set(lp.getIndex(j),lp.getValue(j));
-                        }
-                        currs.add(row);
-                        curRight.add(system.rightSides.get(i));
-                        system.rightSides.remove(i);
-                        system.leftSides.remove(i);
-                        i--;
-                    }else{
-                        rp.sub(new StringGraph(lp));
+        for(i=0;i<system.leftSides.size();i++){
+            LeftPart lp=system.leftSides.get(i);
+            StringGraph rp=system.rightSides.get(i);
+            boolean flag=true;
+            if(lp.containInstance("i.")){
+                if(rp.isInvariant()){
+                    List<Integer> row=new ArrayList();
+                    for(int j=0;j<currs.get(0).size();j++){
+                        row.add(0);
                     }
-                    flag=false;
-                }
-                if(lp.containInstance("p.")){
-                    if(rp.isInvariant()){
-                        List<Integer> row=new ArrayList();
-                        for(int j=0;j<pots.get(0).size();j++){
-                            row.add(0);
-                        }
-                        for(int j=0;j<lp.getNumOfVars();j++){
-                            row.set(lp.getIndex(j),lp.getValue(j));
-                        }
-                        pots.add(row);
-                        potRight.add(system.rightSides.get(i));
-                        system.rightSides.remove(i);
-                        system.leftSides.remove(i);
-                        i--;
-                    }else{
-                        rp.sub(new StringGraph(lp));
+                    for(int j=0;j<lp.getNumOfVars();j++){
+                        row.set(lp.getIndex(j),lp.getValue(j));
                     }
-                    flag=false;
-                }
-                if(lp.containInstance("w.")){
-                    if(rp.isInvariant()){
-                        List<Integer> row=new ArrayList();
-                        for(int j=0;j<speeds.get(0).size();j++){
-                            row.add(0);
-                        }
-                        for(int j=0;j<lp.getNumOfVars();j++){
-                            row.set(lp.getIndex(j),lp.getValue(j));
-                        }
-                        speeds.add(row);
-                        speRight.add(system.rightSides.get(i));
-                        system.rightSides.remove(i);
-                        system.leftSides.remove(i);
-                        i--;
-                    }else{
-                        rp.sub(new StringGraph(lp));
-                    }
-                    flag=false;
-                }
-                if(lp.containInstance("T.")){
-                    if(rp.isInvariant()){
-                        List<Integer> row=new ArrayList();
-                        for(int j=0;j<torqs.get(0).size();j++){
-                            row.add(0);
-                        }
-                        for(int j=0;j<lp.getNumOfVars();j++){
-                            row.set(lp.getIndex(j),lp.getValue(j));
-                        }
-                        torqs.add(row);
-                        torRight.add(system.rightSides.get(i));
-                        system.rightSides.remove(i);
-                        system.leftSides.remove(i);
-                        i--;
-                    }else{
-                        rp.sub(new StringGraph(lp));
-                    }
-                    flag=false;
-                }
-                if(flag){
+                    currs.add(row);
+                    curRight.add(system.rightSides.get(i));
+                    system.rightSides.remove(i);
+                    system.leftSides.remove(i);
+                    i--;
+                }else{
                     rp.sub(new StringGraph(lp));
                 }
+                flag=false;
             }
-
-
-            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logFile)))) {
-                bw.write("Initial data");
-                bw.newLine();
-                int cols;
-                if(pots.isEmpty())
-                    cols=0;
-                else
-                    cols=pots.get(0).size();
-                bw.write("Потенциалы: "+pots.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<pots.size();x++){
-                    bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
-                    bw.newLine();
+            if(lp.containInstance("p.")){
+                if(rp.isInvariant()){
+                    List<Integer> row=new ArrayList();
+                    for(int j=0;j<pots.get(0).size();j++){
+                        row.add(0);
+                    }
+                    for(int j=0;j<lp.getNumOfVars();j++){
+                        row.set(lp.getIndex(j),lp.getValue(j));
+                    }
+                    pots.add(row);
+                    potRight.add(system.rightSides.get(i));
+                    system.rightSides.remove(i);
+                    system.leftSides.remove(i);
+                    i--;
+                }else{
+                    rp.sub(new StringGraph(lp));
                 }
-                bw.newLine();
-                if(currs.isEmpty())
-                    cols=0;
-                else
-                    cols=currs.get(0).size();
-                bw.write("Токи: "+currs.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<currs.size();x++){
-                    bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                if(speeds.isEmpty())
-                    cols=0;
-                else
-                    cols=speeds.get(0).size();
-                bw.write("Скорости: "+speeds.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<speeds.size();x++){
-                    bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                if(torqs.isEmpty())
-                    cols=0;
-                else
-                    cols=torqs.get(0).size();
-                bw.write("Моменты: "+torqs.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<torqs.size();x++){
-                    bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Функции:");
-                bw.newLine();
-                for(int x=0;x<system.leftSides.size();x++){
-                    String left="0",
-                            right=system.rightSides.get(x).toString();
-                    bw.write(left+" = "+right);
-                    bw.newLine();
-                }
-                bw.newLine();
-                for(int x=0;x<system.outputFuncs.size();x++){
-                    String left="O."+(x+1),
-                            right=system.outputFuncs.get(x).toString();
-                    bw.write(left+" = "+right);
-                    bw.newLine();
-                }
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
+                flag=false;
             }
+            if(lp.containInstance("w.")){
+                if(rp.isInvariant()){
+                    List<Integer> row=new ArrayList();
+                    for(int j=0;j<speeds.get(0).size();j++){
+                        row.add(0);
+                    }
+                    for(int j=0;j<lp.getNumOfVars();j++){
+                        row.set(lp.getIndex(j),lp.getValue(j));
+                    }
+                    speeds.add(row);
+                    speRight.add(system.rightSides.get(i));
+                    system.rightSides.remove(i);
+                    system.leftSides.remove(i);
+                    i--;
+                }else{
+                    rp.sub(new StringGraph(lp));
+                }
+                flag=false;
+            }
+            if(lp.containInstance("T.")){
+                if(rp.isInvariant()){
+                    List<Integer> row=new ArrayList();
+                    for(int j=0;j<torqs.get(0).size();j++){
+                        row.add(0);
+                    }
+                    for(int j=0;j<lp.getNumOfVars();j++){
+                        row.set(lp.getIndex(j),lp.getValue(j));
+                    }
+                    torqs.add(row);
+                    torRight.add(system.rightSides.get(i));
+                    system.rightSides.remove(i);
+                    system.leftSides.remove(i);
+                    i--;
+                }else{
+                    rp.sub(new StringGraph(lp));
+                }
+                flag=false;
+            }
+            if(flag){
+                rp.sub(new StringGraph(lp));
+            }
+        }
 
-            //List<StringGraph> rightWithDiff=new ArrayList();
-//            //collect ODEs vars 'X1=f(i,p)'
-//            for(i=0;i<system.leftSides.size();i++){
-//                if(system.leftSides.get(i).containInstance("X.")){
-//                    rightWithDiff.add(system.rightSides.get(i));
-//                    system.rightSides.remove(i);
-//                    system.leftSides.remove(i);
-//                    i--;
-//                }
-//            }
 
-            setVarsByKirhgof(pots,potRight,currs,curRight,speeds,speRight,torqs,torRight,system);
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logFile)))) {
+            bw.write("Initial data");
+            bw.newLine();
+            int cols;
+            if(pots.isEmpty())
+                cols=0;
+            else
+                cols=pots.get(0).size();
+            bw.write("Потенциалы: "+pots.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<pots.size();x++){
+                bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(currs.isEmpty())
+                cols=0;
+            else
+                cols=currs.get(0).size();
+            bw.write("Токи: "+currs.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<currs.size();x++){
+                bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(speeds.isEmpty())
+                cols=0;
+            else
+                cols=speeds.get(0).size();
+            bw.write("Скорости: "+speeds.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<speeds.size();x++){
+                bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(torqs.isEmpty())
+                cols=0;
+            else
+                cols=torqs.get(0).size();
+            bw.write("Моменты: "+torqs.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<torqs.size();x++){
+                bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            bw.write("Функции:");
+            bw.newLine();
+            for(int x=0;x<system.leftSides.size();x++){
+                String left="0",
+                        right=system.rightSides.get(x).toString();
+                bw.write(left+" = "+right);
+                bw.newLine();
+            }
+            bw.newLine();
+            for(int x=0;x<system.outputFuncs.size();x++){
+                String left="O."+(x+1),
+                        right=system.outputFuncs.get(x).toString();
+                bw.write(left+" = "+right);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+
+        setVarsByKirhgof(pots,potRight,currs,curRight,speeds,speRight,torqs,torRight,system);
         List<StringGraph> Pmc;
         List<StringGraph> Pmp;
         List<StringGraph> Pmt;
         List<StringGraph> Pms;
 
-            if(currs.isEmpty()) {
-                Pmc = new ArrayList<>();
-                Pmp = new ArrayList<>();
-            } else {
-                Pmc = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
-                Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
-            }
-            if(torqs.isEmpty()){
-                Pmt=new ArrayList<>();
-                Pms=new ArrayList<>();
-            } else {
-                Pmt = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(torqs)), torRight);
-                Pms= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(speeds)), speRight);
-            }
+        if(currs.isEmpty()) {
+            Pmc = new ArrayList<>();
+            Pmp = new ArrayList<>();
+        } else {
+            Pmc = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
+            Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
+        }
+        if(torqs.isEmpty()){
+            Pmt=new ArrayList<>();
+            Pms=new ArrayList<>();
+        } else {
+            Pmt = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(torqs)), torRight);
+            Pms= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(speeds)), speRight);
+        }
 
-            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                bw.write("New data");
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            bw.write("New data");
+            bw.newLine();
+            int cols;
+            if(pots.isEmpty())
+                cols=0;
+            else
+                cols=pots.get(0).size();
+            bw.write("Потенциалы: "+pots.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<pots.size();x++){
+                bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
                 bw.newLine();
-                int cols;
-                if(pots.isEmpty())
-                    cols=0;
+            }
+            bw.newLine();
+            if(currs.isEmpty())
+                cols=0;
+            else
+                cols=currs.get(0).size();
+            bw.write("Токи: "+currs.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<currs.size();x++){
+                bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(speeds.isEmpty())
+                cols=0;
+            else
+                cols=speeds.get(0).size();
+            bw.write("Скорости: "+speeds.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<speeds.size();x++){
+                bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            if(torqs.isEmpty())
+                cols=0;
+            else
+                cols=torqs.get(0).size();
+            bw.write("Моменты: "+torqs.size()+" out of "+cols);
+            bw.newLine();
+            for(int x=0;x<torqs.size();x++){
+                bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            bw.write("ODEs:");
+            bw.newLine();
+            for(int x=0;x<system.rightWithDiff.size();x++){
+                String left="X."+(x+1), right;
+                if(system.rightWithDiff.get(x)==null)
+                    right="null"+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
                 else
-                    cols=pots.get(0).size();
-                bw.write("Потенциалы: "+pots.size()+" out of "+cols);
+                    right=system.rightWithDiff.get(x).toString()+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
+                bw.write(left+" = "+right);
                 bw.newLine();
-                for(int x=0;x<pots.size();x++){
-                    bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                if(currs.isEmpty())
-                    cols=0;
-                else
-                    cols=currs.get(0).size();
-                bw.write("Токи: "+currs.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<currs.size();x++){
-                    bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                if(speeds.isEmpty())
-                    cols=0;
-                else
-                    cols=speeds.get(0).size();
-                bw.write("Скорости: "+speeds.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<speeds.size();x++){
-                    bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                if(torqs.isEmpty())
-                    cols=0;
-                else
-                    cols=torqs.get(0).size();
-                bw.write("Моменты: "+torqs.size()+" out of "+cols);
-                bw.newLine();
-                for(int x=0;x<torqs.size();x++){
-                    bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("ODEs:");
-                bw.newLine();
-                for(int x=0;x<system.rightWithDiff.size();x++){
-                    String left="X."+(x+1), right;
-                    if(system.rightWithDiff.get(x)==null)
-                        right="null"+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
-                    else
-                        right=system.rightWithDiff.get(x).toString()+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
-                    bw.write(left+" = "+right);
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Pmp:");
-                bw.newLine();
-                for(int x=0;x<Pmp.size();x++){
-                    bw.write("p."+(x+1)+" = "+Pmp.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Pmc:");
-                bw.newLine();
-                for(int x=0;x<Pmc.size();x++){
-                    bw.write("i."+(x+1)+" = "+Pmc.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Pms:");
-                bw.newLine();
-                for(int x=0;x<Pms.size();x++){
-                    bw.write("w."+(x+1)+" = "+Pms.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Pmt:");
-                bw.newLine();
-                for(int x=0;x<Pmt.size();x++){
-                    bw.write("T."+(x+1)+" = "+Pmt.get(x).toString());
-                    bw.newLine();
-                }
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
             }
-
-//            //replace d.X.i = (f(p,i)-X.i)/dt
-//            for(i=0;i<system.leftSides.size();i++){
-//                StringGraph sg=new StringGraph(system.leftSides.get(i));
-//                sg=system.rightSides.get(i).otnyat(sg);
-//                for(int j=0;j<rightWithDiff.size();j++){
-//                    String s="d.X."+(j+1);
-//                    if(sg.contains(s)){
-//                        StringGraph rep=new StringGraph(rightWithDiff.get(j).otnyat(new StringGraph("X."+(j+1))));
-//                        rep.divide(new StringGraph("dt"));
-//                        sg.replaceVariable(s, rep);
-//                    }
-//                }
-//                system.rightSides.set(i,sg);
-//            }
-
-            // Dependence check
-            String bigMassage="";
-            for(i=0;i<system.rightWithDiff.size();i++){
-                LeftPart lp=system.rightWithDiff.get(i);
-                if(lp!=null){
-                    StringGraph sg=new StringGraph(lp);
-                    // var replace
-                    for(int j=0;j<Pmp.size();j++) {
-                        sg.replaceVariable("p." + (j + 1), Pmp.get(j));
-                        sg.replaceVariable("i." + (j + 1), Pmc.get(j));
-                    }
-                    for(int j=0;j<Pms.size();j++){
-                        sg.replaceVariable("w."+(j+1), Pms.get(j));
-                        sg.replaceVariable("T."+(j+1), Pmt.get(j));
-                    }
-
-                    String message="\r\n\r\nVariable dependence: X."+(i+1)+"="+sg.toString();
-                    // eval new d.X.i
-                    StringGraph dsg=sg.getFullTimeDiffer();
-                    message+="\r\n\r\nNew dX."+(i+1)+"="+dsg.toString();
-                    for(int j=0;j<system.rightSides.size();j++){ //raplace old d.X.i
-                        system.rightSides.get(j).replaceVariable("d.X."+(i+1), dsg);
-                    }
-                    System.out.println(message);
-                    bigMassage+=message;
-                }
+            bw.newLine();
+            bw.write("Pmp:");
+            bw.newLine();
+            for(int x=0;x<Pmp.size();x++){
+                bw.write("p."+(x+1)+" = "+Pmp.get(x).toString());
+                bw.newLine();
             }
-            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                bw.write(bigMassage);
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
+            bw.newLine();
+            bw.write("Pmc:");
+            bw.newLine();
+            for(int x=0;x<Pmc.size();x++){
+                bw.write("i."+(x+1)+" = "+Pmc.get(x).toString());
+                bw.newLine();
             }
+            bw.newLine();
+            bw.write("Pms:");
+            bw.newLine();
+            for(int x=0;x<Pms.size();x++){
+                bw.write("w."+(x+1)+" = "+Pms.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            bw.write("Pmt:");
+            bw.newLine();
+            for(int x=0;x<Pmt.size();x++){
+                bw.write("T."+(x+1)+" = "+Pmt.get(x).toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
 
-//            setVarsByKirhgof(pots,potRight,currs,curRight);
-//            List<StringGraph> Pmc= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
-//            List<StringGraph> Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
-
-
-//            //eval conversion matrices
-//            List<StringGraph> nodePots=new ArrayList();
-//            for(int j=0;j<Pmp.get(0).size();j++){
-//                nodePots.add(new StringGraph("Pot."+(j+1)));
-//            }
-//            nodePots=MatrixEqu.mulDMatxToSRow(Pmp,nodePots);
-//            List<StringGraph> branhCurs=new ArrayList();
-//            for(int j=0;j<Pmc.get(0).size();j++){
-//                branhCurs.add(new StringGraph("Cur."+(j+1)));
-//            }
-//            branhCurs=MatrixEqu.mulDMatxToSRow(Pmc,branhCurs);
-
-            //vars replacement
-
-                for(int k=0;k<system.rightSides.size();k++) {
-                    for (int j = 0; j < Pmp.size(); j++) {
-                        system.rightSides.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
-                        system.rightSides.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
-                    }
-                    for (int j=0;j<Pms.size();j++) {
-                        system.rightSides.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
-                        system.rightSides.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
-                    }
+        // Dependence check
+        String bigMassage="";
+        for(i=0;i<system.rightWithDiff.size();i++){
+            LeftPart lp=system.rightWithDiff.get(i);
+            if(lp!=null){
+                StringGraph sg=new StringGraph(lp);
+                // var replace
+                for(int j=0;j<Pmp.size();j++) {
+                    sg.replaceVariable("p." + (j + 1), Pmp.get(j));
+                    sg.replaceVariable("i." + (j + 1), Pmc.get(j));
                 }
-//                for(int k=0;k<rightWithDiff.size();k++){
-//                    rightWithDiff.get(k).replaceVariable("p."+(j+1), Pmp.get(j));
-//                    rightWithDiff.get(k).replaceVariable("i."+(j+1), Pmc.get(j));
-//                }
-                for(int k=0;k<system.outputFuncs.size();k++){
-                    for(int j=0;j< Pmp.size();j++) {
-                        system.outputFuncs.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
-                        system.outputFuncs.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
-                    }
-                    for(int j=0;j<Pms.size();j++) {
-                        system.outputFuncs.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
-                        system.outputFuncs.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
-                    }
+                for(int j=0;j<Pms.size();j++){
+                    sg.replaceVariable("w."+(j+1), Pms.get(j));
+                    sg.replaceVariable("T."+(j+1), Pmt.get(j));
                 }
 
+                String message="\r\n\r\nVariable dependence: X."+(i+1)+"="+sg.toString();
+                // eval new d.X.i
+                StringGraph dsg=sg.getFullTimeDiffer();
+                message+="\r\n\r\nNew dX."+(i+1)+"="+dsg.toString();
+                for(int j=0;j<system.rightSides.size();j++){ //raplace old d.X.i
+                    system.rightSides.get(j).replaceVariable("d.X."+(i+1), dsg);
+                }
+                System.out.println(message);
+                bigMassage+=message;
+            }
+        }
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            bw.write(bigMassage);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
 
-            //renumerate X.i and d.X.i
-            i=0; //sum of deleted elems
-            for(int j=0;j<system.rightWithDiff.size();j++){
-                if(system.rightWithDiff.get(j)!=null){ //if depended X
-                    i++;
-                    system.initials.remove(j);
-                }else{
-                    // replace
-                    if(i!=0){
-                        for(int y=0;y<system.rightSides.size();y++){
-                            system.rightSides.get(y).replaceVariable("X."+(j+1), new StringGraph("X."+(j-i+1)));
-                            system.rightSides.get(y).replaceVariable("d.X."+(j+1), new StringGraph("d.X."+(j-i+1)));
-                        }
-                        for(int y=0;y<system.outputFuncs.size();y++){
-                            system.outputFuncs.get(y).replaceVariable("X."+(j+1), new StringGraph("X."+(j-i+1)));
-                        }
+        //vars replacement
+
+        for(int k=0;k<system.rightSides.size();k++) {
+            for (int j = 0; j < Pmp.size(); j++) {
+                system.rightSides.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
+                system.rightSides.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
+            }
+            for (int j=0;j<Pms.size();j++) {
+                system.rightSides.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
+                system.rightSides.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
+            }
+        }
+        for(int k=0;k<system.outputFuncs.size();k++){
+            for(int j=0;j< Pmp.size();j++) {
+                system.outputFuncs.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
+                system.outputFuncs.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
+            }
+            for(int j=0;j<Pms.size();j++) {
+                system.outputFuncs.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
+                system.outputFuncs.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
+            }
+        }
+
+        //renumerate X.i and d.X.i
+        i=0; //sum of deleted elems
+        for(int j=0;j<system.rightWithDiff.size();j++){
+            if(system.rightWithDiff.get(j)!=null){ //if depended X
+                i++;
+                system.initials.remove(j);
+            }else{
+                // replace
+                if(i!=0){
+                    for(int y=0;y<system.rightSides.size();y++){
+                        system.rightSides.get(y).replaceVariable("X."+(j+1), new StringGraph("X."+(j-i+1)));
+                        system.rightSides.get(y).replaceVariable("d.X."+(j+1), new StringGraph("d.X."+(j-i+1)));
                     }
+                    for(int y=0;y<system.outputFuncs.size();y++){
+                        system.outputFuncs.get(y).replaceVariable("X."+(j+1), new StringGraph("X."+(j-i+1)));
+                    }
+                }
 
+            }
+        }
+
+        // layout
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            bw.newLine();
+            bw.write("Замена переменных.");
+            bw.newLine();
+            bw.write("ODEs:");
+            bw.newLine();
+            for(int x=0;x<system.rightSides.size();x++){
+                bw.write("0 = "+system.rightSides.get(x).toString());
+                bw.newLine();
+            }
+            bw.newLine();
+            bw.write("Xes:");
+            bw.newLine();
+            for(int x=0;x<system.initials.size();x++){
+                String left="X."+(x+1),
+                        right=" initial value: "+system.initials.get(x);
+                bw.write(left+right);
+                bw.newLine();
+            }
+            bw.newLine();
+            bw.write("Outs:");
+            bw.newLine();
+            for(int x=0;x<system.outputFuncs.size();x++){
+                bw.write("O."+(x+1)+" = "+system.outputFuncs.get(x).toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+
+        List<StringGraph> potAlgSys=system.rightSides;
+        output.setOutSystem(system.outputFuncs);
+        output.setAlgSystem(potAlgSys);
+        output.initXes(system.getInitsX());
+
+        // initial guesses
+        for(i=0;i<potAlgSys.size();i++){    //loop for ODEs
+            StringGraph right=potAlgSys.get(i);
+            Set rightSideVars=right.getVariableSet();
+            for(Object obj:rightSideVars){
+                String name=(String)obj;
+                if(!name.startsWith("X.")&&!name.startsWith("I.")){
+                    output.addVariable(name, 0.0);  //TODO maybe not 0.0
                 }
             }
-
-            // layout
-            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                bw.newLine();
-                bw.write("Замена переменных.");
-                bw.newLine();
-                bw.write("ODEs:");
-                bw.newLine();
-                for(int x=0;x<system.rightSides.size();x++){
-                    bw.write("0 = "+system.rightSides.get(x).toString());
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Xes:");
-                bw.newLine();
-                for(int x=0;x<system.initials.size();x++){
-                    String left="X."+(x+1),
-                            right=" initial value: "+system.initials.get(x);
-                    bw.write(left+right);
-                    bw.newLine();
-                }
-                bw.newLine();
-                bw.write("Outs:");
-                bw.newLine();
-                for(int x=0;x<system.outputFuncs.size();x++){
-                    bw.write("O."+(x+1)+" = "+system.outputFuncs.get(x).toString());
-                    bw.newLine();
-                }
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-            }
-
-//            //замена и проверка
-//            boolean replaceFlag=true;
-//            while(replaceFlag){
-//                replaceFlag=false;
-//                for(i=0;i<system.rightSides.size();i++){
-//                    StringGraph gr=system.rightSides.get(i);
-//                    if(gr.isInvariant()){
-//                        replaceFlag=true;
-//                        String varname=system.leftSides.get(i).getName(0);
-//                        int varindex=Integer.parseInt(varname.substring(varname.lastIndexOf('.')+1))-1;
-//                        if(varname.startsWith("i.")){
-//                            StringGraph right=cVector.get(varindex);
-//                            if(right.toString().equals(gr.toString())){
-//                                //removing
-//                                system.rightSides.remove(i);
-//                                system.leftSides.remove(i);
-//                                i--;
-//                                continue;
-//                            }
-//                            List<String> rvars=new ArrayList(right.getVariableSet());
-//                            boolean flag=false;
-//                            for(String name:rvars){
-//                                if(name.startsWith("Cur.")){
-//                                    String replace=name;
-//                                    int varindx=Integer.parseInt(name.substring(name.lastIndexOf('.')+1))-1;
-//                                    right.getVariable(replace, gr);
-//                                    flag=true;
-//                                    //replacing
-//                                    for(StringGraph sgr:cVector) sgr.replaceVariable(replace, right);
-//                                    for(StringGraph sgr:system.rightSides) sgr.replaceVariable(replace, right);
-//                                    for(StringGraph sgr:system.outputFuncs) sgr.replaceVariable(replace, right);
-//                                    for(StringGraph sgr:rightWithDiff) sgr.replaceVariable(replace, right);
-//
-//                                    kirhCurs[varindx]=right;
-//                                    iPmc.set(varindx,null);
-//                                    break;
-//                                }
-//                            }
-//                            if(!flag){ //case x1=f(x2,x3)
-//                                //check pryorities !!!!!!!
-//                                List<Integer> pry=system.getXpryority();
-//                                List<String> vars=new ArrayList();
-//                                int lowPry=10;
-//                                String lowPryVar="";
-//                                vars.addAll(gr.getVariableSet());
-//                                vars.addAll(right.getVariableSet());
-//                                if(gr.getVariableSet().isEmpty()||right.getVariableSet().isEmpty()) throw new Error("Неверная зависимость переменных: "+gr+"="+right);
-//                                if(gr.getVariableSet().isEmpty()&&right.getVariableSet().isEmpty()) throw new Error("Невозможная зависимость источников: "+gr+"="+right);
-//                                for(String vari:vars){
-//                                    if(vari.startsWith("X.")){
-//                                        int index=Integer.parseInt(vari.substring(vari.lastIndexOf('.')+1))-1;
-//                                        if(pry.get(index)<lowPry){
-//                                            lowPry=pry.get(index);
-//                                            lowPryVar=vari;
-//                                        }
-//                                    }
-//                                }
-//                                if(lowPryVar.isEmpty()) throw new Error("Неверная зависимость переменных (Do not contain X.i): "+gr+"="+right);
-//                                StringGraph replace=new StringGraph(gr);
-//                                replace.sub(right);
-//                                replace.getVariable(lowPryVar);
-//                                //pryority chek done (Bad var: lowPryVar=replace(...))
-//                                System.err.println("Depended currents!: "+gr.toString()+"="+right.toString());
-//                                for(StringGraph sgr:cVector) sgr.replaceVariable(lowPryVar, replace);
-//                                for(StringGraph sgr:system.rightSides) sgr.replaceVariable(lowPryVar, replace);
-//                                for(StringGraph sgr:system.outputFuncs) sgr.replaceVariable(lowPryVar, replace);
-//                                for(StringGraph sgr:rightWithDiff) sgr.replaceVariable(lowPryVar, replace);
-//                                StringGraph diffgr=replace.getFullTimeDiffer();
-//                                System.err.println("and: "+"d."+lowPryVar+"="+diffgr.toString());
-//                                for(StringGraph sgr:cVector) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                                for(StringGraph sgr:system.rightSides) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                                for(StringGraph sgr:system.outputFuncs) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                                for(StringGraph sgr:rightWithDiff) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                            }
-//                        }else{
-//                            StringGraph right=pVector.get(varindex);
-//                            if(right.toString().equals(gr.toString())){
-//                                //removing
-//                                system.rightSides.remove(i);
-//                                system.leftSides.remove(i);
-//                                i--;
-//                                continue;
-//                            }
-//                            List<String> rvars=new ArrayList(right.getVariableSet());
-//                            boolean flag=false;
-//                            for(String name:rvars){
-//                                if(name.startsWith("Pot.")){
-//                                    String replace=name;
-//                                    int varindx=Integer.parseInt(name.substring(name.lastIndexOf('.')+1))-1;
-//                                    right.getVariable(replace, gr);
-//                                    flag=true;
-//                                    //replacing
-//                                    for(StringGraph sgr:pVector) sgr.replaceVariable(replace, right);
-//                                    for(StringGraph sgr:system.rightSides) sgr.replaceVariable(replace, right);
-//                                    for(StringGraph sgr:system.outputFuncs) sgr.replaceVariable(replace, right);
-//                                    for(StringGraph sgr:rightWithDiff) sgr.replaceVariable(replace, right);
-//
-//                                    kirhPots[varindx]=right;
-//                                    iPmp.set(varindx,null);
-//                                    break;
-//                                }
-//                            }
-//                            if(!flag){ //case x1=f(x2,x3)
-//                                //check pryorities !!!!!!!
-//                                //check pryorities !!!!!!!
-//                                List<Integer> pry=system.getXpryority();
-//                                List<String> vars=new ArrayList();
-//                                int lowPry=10;
-//                                String lowPryVar="";
-//                                vars.addAll(gr.getVariableSet());
-//                                vars.addAll(right.getVariableSet());
-//    //                            if(gr.getVariableSet().isEmpty()||right.getVariableSet().isEmpty()) throw new Error("Неверная зависимость переменных: "+gr+"="+right);
-//    //                            if(gr.getVariableSet().isEmpty()&&right.getVariableSet().isEmpty()) throw new Error("Невозможная зависимость источников: "+gr+"="+right);
-//
-//                                for(String vari:vars){
-//                                    if(vari.startsWith("X.")){
-//                                        int index=Integer.parseInt(vari.substring(vari.lastIndexOf('.')+1))-1;
-//                                        if(pry.get(index)<lowPry){
-//                                            lowPry=pry.get(index);
-//                                            lowPryVar=vari;
-//                                        }
-//                                    }
-//                                }
-//                                if(lowPryVar.isEmpty()){
-//    //                                throw new Error("Неверная зависимость переменных (Do not contain X.i):\n "+gr+"="+right);
-//                                    replaceFlag=false;
-//                                    continue;
-//                                }
-//                                StringGraph replace=new StringGraph(gr);
-//                                replace.sub(right);
-//                                replace.getVariable(lowPryVar);
-//                                //pryority chek done (Bad var: lowPryVar=replace(...))
-//                                System.err.println("Depended potentials!: "+gr.toString()+"="+right.toString());
-//                                for(StringGraph sgr:pVector) sgr.replaceVariable(lowPryVar, replace);
-//                                for(StringGraph sgr:system.rightSides) sgr.replaceVariable(lowPryVar, replace);
-//                                for(StringGraph sgr:system.outputFuncs) sgr.replaceVariable(lowPryVar, replace);
-//                                for(StringGraph sgr:rightWithDiff) sgr.replaceVariable(lowPryVar, replace);
-//                                StringGraph diffgr=replace.getFullTimeDiffer();
-//                                System.err.println("and: "+"d."+lowPryVar+"="+diffgr.toString());
-//                                for(StringGraph sgr:pVector) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                                for(StringGraph sgr:system.rightSides) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                                for(StringGraph sgr:system.outputFuncs) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                                for(StringGraph sgr:rightWithDiff) sgr.replaceVariable("d."+lowPryVar, diffgr);
-//                            }
-//                        }
-//                        //removing
-//                        system.rightSides.remove(i);
-//                        system.leftSides.remove(i);
-//                        i--;
-//                    }
-//                }
-//            }
-
-            //КОНЕЦ ПРОВЕРКИ Н.У.
-
-            //        List<StringGraph> curAlgSys=MatrixEqu.mulDMatxToSRow(iPmc, cVector);
-            //        for(i=iPmc.size()-1;i>=0;i--){
-            //            if(iPmc.get(i)==null){
-            //                iPmc.remove(i);
-            //                curAlgSys.remove(i);
-            //            }else{
-            //                curAlgSys.get(i).sub(new Variable("Cur."+(i+1)));
-            //            }
-            //        }
-            //        List<StringGraph> potAlgSys=MatrixEqu.mulDMatxToSRow(iPmp, pVector);
-            //        for(i=iPmp.size()-1;i>=0;i--){
-            //            if(iPmp.get(i)==null){
-            //                iPmp.remove(i);
-            //                potAlgSys.remove(i);
-            //            }else{
-            //                potAlgSys.get(i).sub(new Variable("Pot."+(i+1)));
-            //            }
-            //        }
-
-            //        boolean flag=true;
-            //        for(StringGraph gr:rightWithDiff)
-            //            if(!gr.isInvariant()){
-            //                flag=false;
-            //                break;
-            //            }
-            //        output.setCouchyFlag(flag);
-
-            List<StringGraph> potAlgSys=system.rightSides;
-            output.setOutSystem(system.outputFuncs);
-            output.setAlgSystem(potAlgSys);
-            output.initXes(system.getInitsX());
-
-            // initial guesses
-            List<String> worksp=new ArrayList();
-//            for(i=0;i<rightWithDiff.size();i++){    //loop for ODEs
-//                StringGraph right=rightWithDiff.get(i);
-//                Set rightSideVars=right.getVariableSet();
-//                for(Object obj:rightSideVars){
-//                    String name=(String)obj;
-//                    if(name.startsWith("Cur.")||name.startsWith("Pot.")){
-//    //                    addToWorkSpace(name,worksp,answers,output);
-//                        output.addVariable(name, 0.0);
-//                    }
-//                }
-//            }
-            for(i=0;i<potAlgSys.size();i++){    //loop for ODEs
-                StringGraph right=potAlgSys.get(i);
-                Set rightSideVars=right.getVariableSet();
-                for(Object obj:rightSideVars){
-                    String name=(String)obj;
-                    //if(name.startsWith("Cur.")||name.startsWith("Pot.")||name.startsWith("d.X.")){
-                    if(!name.startsWith("X.")){
-                        //                    addToWorkSpace(name,worksp,answers,output);
-                        output.addVariable(name, 0.0);  //TODO maybe not 0.0
-                    }
+        }
+        for(i=0;i<system.outputFuncs.size();i++){   //loop for Outs
+            StringGraph right=system.outputFuncs.get(i);
+            Set rightSideVars=right.getVariableSet();
+            for(Object obj:rightSideVars){
+                String name=(String)obj;
+                if(!name.startsWith("X.")&&!name.startsWith("I.")){
+                    output.addVariable(name, 0.0);
                 }
             }
-            for(i=0;i<system.outputFuncs.size();i++){   //loop for Outs
-                StringGraph right=system.outputFuncs.get(i);
-                Set rightSideVars=right.getVariableSet();
-                for(Object obj:rightSideVars){
-                    String name=(String)obj;
-                    //if(name.startsWith("Cur.")||name.startsWith("Pot.")||name.startsWith("d.X."))
-                    if(!name.startsWith("X."))
-                    {
-                        output.addVariable(name, 0.0);
-                        //                    addToWorkSpace(name,worksp,answers,output);
-                    }
-                }
-            }
+        }
 
-
-//        }  // if(null null)
         return output;
     }
 

@@ -191,7 +191,7 @@ public class DAE {
             getJacob().add(new ArrayList());
             for(String var:getVars().getVarNameList()){
                 //if(var.startsWith("Cur.")||var.startsWith("Pot.")||var.startsWith("d.X.")){
-                if(!var.startsWith("X.")){
+                if(!var.startsWith("X.")&&!var.startsWith("I.")){
                     getJacob().get(i).add(func.getDiffer(var));
                 }
             }
