@@ -1246,31 +1246,48 @@ public class MatrixEqu {
     }
 
     public static int rank(List<List<Integer>> inp){
-        int nRow=inp.size(),nCol=inp.get(0).size(),rnk=0;
+        int nRow=inp.size(),nCol=inp.get(0).size(),rnk=0,offset=0;
         int[][] A=listToArray(inp);
-        for(int i=0;i<nRow;i++){ //main cycle
-            if(A[i][i]==0){
+        int i=0;
+        while(i<nRow&&i+offset<nCol){ //main cycle
+            if(A[i][i+offset]==0){
+                boolean flag=true;
                 //swap lines
-                for(int j=i+1;j<nRow;j++){ //cycle by rows under current
-                    if(A[j][i]!=0){
-                        for(int q=0;q<nCol;q++){
-                            int tmp=A[j][q];
-                            A[j][q]=A[i][q];
-                            A[i][q]=tmp;
+                while(i+offset<nCol&&flag) {
+                    for (int j = i ; j < nRow; j++) { //cycle by rows under current
+                        if (A[j][i + offset] != 0) {
+                            if(i!=j)
+                                for (int q = 0; q < nCol; q++) {
+                                    int tmp = A[j][q];
+                                    A[j][q] = A[i][q];
+                                    A[i][q] = tmp;
+                                }
+                            flag=false;
+                            break;
                         }
-                        break;
                     }
+                    if(flag){
+                        offset++;
+                    }
+                }
+                if(flag){
+                    System.out.println("Rank end of the line?");
+                    for(int[] l:A)
+                        System.out.println(Arrays.toString(l));
+                    System.out.println("");
+                    break;
                 }
             }
             for(int j=i+1;j<nRow;j++){ //cycle by rows under current
-                if(A[j][i]!=0){
-                    int k=A[j][i]/A[i][i];
-                    if(A[i][i]>A[j][i]) System.err.println("AAAAAAaa k="+k+"!!");
+                if(A[j][i+offset]!=0){
+                    int k=A[j][i+offset]/A[i][i+offset];
+                    if(A[i][i+offset]*A[i][i+offset]>A[j][i+offset]*A[j][i+offset]) System.err.println("AAAAAAaa k="+(double)A[j][i+offset]/(double)A[i][i+offset]+"!!");
                     for(int q=i;q<nCol;q++){ //cycle by length of row
                         A[j][q]=A[j][q]-A[i][q]*k;
                     }
                 }
             }
+            i++;
         }
         //layout
 //        for(int i=0;i<nRow;i++){
@@ -1280,7 +1297,7 @@ public class MatrixEqu {
 //            System.out.print("\n");
 //        }
 
-        for(int i=0;i<nRow;i++){
+        for(i=0;i<nRow;i++){
             for(int j=i;j<nCol;j++){
                 if(A[i][j]!=0){
                     rnk++;
