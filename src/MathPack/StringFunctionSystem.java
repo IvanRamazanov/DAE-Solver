@@ -451,6 +451,7 @@ public class StringFunctionSystem {
                 StringGraph dsg=sg.getFullTimeDiffer();
                 message+="\r\n\r\nNew dX."+(i+1)+"="+dsg.toString();
                 for(int j=0;j<system.rightSides.size();j++){ //raplace old d.X.i
+                    system.rightSides.get(j).replaceVariable("X."+(i+1), sg);
                     system.rightSides.get(j).replaceVariable("d.X."+(i+1), dsg);
                 }
                 System.out.println(message);
@@ -490,8 +491,8 @@ public class StringFunctionSystem {
         i=0; //sum of deleted elems
         for(int j=0;j<system.rightWithDiff.size();j++){
             if(system.rightWithDiff.get(j)!=null){ //if depended X
+                system.initials.remove(j-i);
                 i++;
-                system.initials.remove(j);
             }else{
                 // replace
                 if(i!=0){
@@ -549,7 +550,7 @@ public class StringFunctionSystem {
             Set rightSideVars=right.getVariableSet();
             for(Object obj:rightSideVars){
                 String name=(String)obj;
-                if(!name.startsWith("X.")&&!name.startsWith("I.")){
+                if(!name.startsWith("X.")&&!name.startsWith("I.")&&!name.startsWith("time")){
                     output.addVariable(name, 0.0);  //TODO maybe not 0.0
                 }
             }
@@ -559,7 +560,7 @@ public class StringFunctionSystem {
             Set rightSideVars=right.getVariableSet();
             for(Object obj:rightSideVars){
                 String name=(String)obj;
-                if(!name.startsWith("X.")&&!name.startsWith("I.")){
+                if(!name.startsWith("X.")&&!name.startsWith("I.")&&!name.startsWith("time")){
                     output.addVariable(name, 0.0);
                 }
             }
@@ -1678,7 +1679,8 @@ public class StringFunctionSystem {
                     row.set(i,1);
                     currs.add(row);
                 }
-                if(MatrixEqu.det_i(currs)==0){
+//                if(MatrixEqu.det_i(currs)==0){
+                if(rank(currs)!=currs.size()){
                     for(int i=0;i<exesRows.size();i++){
                         currs.remove(currs.size()-1);
                     }
@@ -1706,7 +1708,8 @@ public class StringFunctionSystem {
                     row.set(i,1);
                     pots.add(row);
                 }
-                if(MatrixEqu.det_i(pots)==0){
+//                if(MatrixEqu.det_i(pots)==0){
+                if(rank(pots)!=pots.size()){
                     for(int i=0;i<exesRows.size();i++){
                         pots.remove(pots.size()-1);
                     }
@@ -1738,7 +1741,8 @@ public class StringFunctionSystem {
                     row.set(i,1);
                     speeds.add(row);
                 }
-                if(MatrixEqu.det_i(speeds)==0){
+//                if(MatrixEqu.det_i(speeds)==0){
+                if(rank(speeds)!=speeds.size()){
                     for(int i=0;i<exesRows.size();i++){
                         speeds.remove(speeds.size()-1);
                     }
@@ -1766,7 +1770,8 @@ public class StringFunctionSystem {
                     row.set(i,1);
                     torqs.add(row);
                 }
-                if(MatrixEqu.det_i(torqs)==0){
+//                if(MatrixEqu.det_i(torqs)==0){
+                if(rank(torqs)!=torqs.size()){
                     for(int i=0;i<exesRows.size();i++){
                         torqs.remove(torqs.size()-1);
                     }

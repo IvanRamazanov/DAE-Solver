@@ -23,6 +23,7 @@
  */
 package Elements;
 
+import ElementBase.ElemMechPin;
 import ElementBase.ElemPin;
 import ElementBase.SchemeElement;
 
@@ -38,8 +39,10 @@ public class InductionMotor extends SchemeElement {
         addElemCont(new ElemPin(this, 9, 4));
         addElemCont(new ElemPin(this, 25, 4));
         addElemCont(new ElemPin(this, 40, 4));
-        this.addMathContact('o');
-        this.addMathContact('i');
+//        this.addMathContact('o');
+//        this.addMathContact('i');
+        addMechCont(new ElemMechPin(this,45,35));
+        addMechCont(new ElemMechPin(this,4,35));
     }
 
     public InductionMotor(boolean Catalog){
@@ -62,7 +65,7 @@ public class InductionMotor extends SchemeElement {
                 KiB=Double.toString(6.0*Math.sqrt(3.0)*M12*M12*zp/M3)+"*X.5",
                 Kia=Double.toString(2.0*Math.sqrt(3.0)*M12/M3)+"*("+Double.toString(lr*zp)+"*X.5*(sin(X.6)*"+Double.toString(Math.sqrt(3.0))+"+cos(X.6))+"+Double.toString(rr)+"*(cos(X.6)*"+Double.toString(Math.sqrt(3.0))+"-sin(X.6)))",
                 Kib=Double.toString(4.0*Math.sqrt(3.0)*M12/M3)+"*(X.5*"+Double.toString(lr*zp)+"*cos(X.6)-"+Double.toString(rr)+"*sin(X.6))";
-        String[] str=new String[10];
+        String[] str=new String[11];
         str[0]="d.X.1="+Kuac+"*(p.1-p.3)-"+Kubc+"*(p.2-p.3)+("+KiA+")*X.1+("+KiB+")*X.2+("+Kia+")*X.3+("+Kib+")*X.4";
         Kuac=Double.toString(4.0*lr/3.0/M3);
         Kubc=Double.toString(8.0*lr/3.0/M3);
@@ -88,12 +91,13 @@ public class InductionMotor extends SchemeElement {
         Kia=Double.toString(6.0*Math.sqrt(3.0)*M12*M12*zp/M3)+"*X.5";
         str[3]="d.X.4=("+Kuac+")*(p.1-p.3)-"+Kubc+"*(p.2-p.3)+("+KiA+")*X.1+("+KiB+")*X.2+"+Kia+"*X.3+("+Kib+")*X.4";
         String M=Double.toString(2.0/3.0*M12*zp)+"*((X.2*X.3-X.1*X.4)*"+Double.toString(Math.sqrt(3.0))+"*cos(X.6)-(2*X.1*X.3+2*X.2*X.4+X.1*X.4+X.2*X.3)*sin(X.6))";
-        str[4]="d.X.5=("+M+"-I.1-X.5*"+Fc.toString()+")/"+jm; //I.1 !!!!!!!
+        str[4]="d.X.5=("+M+"-T.1-X.5*"+Fc.toString()+")/"+jm; //I.1 !!!!!!!
         str[5]="d.X.6="+zp+"*X.5";
         str[6]="i.1+i.2+i.3=0";
-        str[7]="O.1=X.5";
+        str[7]="-T.1=T.2+"+M;
         str[8]="X.1=i.1";
         str[9]="X.2=i.2";
+        str[10]="X.5=w.1-w.2";
 
 //        String  rs=Rs.getStringValue(),
 //                rr=Rr.getStringValue(),

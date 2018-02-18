@@ -23,6 +23,7 @@
  */
 package Elements;
 
+import ElementBase.ElemMechPin;
 import ElementBase.ElemPin;
 import ElementBase.SchemeElement;
 
@@ -38,8 +39,10 @@ public class SDPM extends SchemeElement {
         addElemCont(new ElemPin(this, 9, 4));
         addElemCont(new ElemPin(this, 25, 4));
         addElemCont(new ElemPin(this, 40, 4));
-        this.addMathContact('o');
-        this.addMathContact('i');
+//        this.addMathContact('o');
+//        this.addMathContact('i');
+        addMechCont(new ElemMechPin(this,45,35));
+        addMechCont(new ElemMechPin(this,4,35));
     }
 
     public SDPM(boolean flag){
@@ -52,10 +55,11 @@ public class SDPM extends SchemeElement {
         String[] out={
                 "d.X.1=1/(3*ls)*(2*(p.1-p.2)+p.2-p.3-3*rs*X.1+ksim*zp*X.3*(cos(X.4+2/3*pi)-2*cos(X.4)+cos(X.4+4/3*pi)))",
                 "d.X.2=1/(3*ls)*(p.2-p.1+p.2-p.3-3*rs*X.2+ksim*zp*X.3*(cos(X.4)-2*cos(X.4+2/3*pi)+cos(X.4+4/3*pi)))",
-                "d.X.3=("+M+"-I.1-fc*X.3)/J",
+                "d.X.3=("+M+"-T.1-fc*X.3)/J",
                 "d.X.4=X.3*zp",
+                "-T.1=T.2+"+M,
+                "X.3=w.1-w.2",
                 "i.1+i.2+i.3=0",
-                "O.1=X.3",
                 "X.1=i.1",
                 "X.2=i.2"
         };

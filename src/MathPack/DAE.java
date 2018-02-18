@@ -185,18 +185,27 @@ public class DAE {
     }
 
     public void initJacobian(int jacobType){
+        String varsLayout="[ ";
+        for(String var:getVars().getVarNameList()) {
+            if (!var.startsWith("X.")) {
+                varsLayout+=var+" ";
+            }
+        }
+        varsLayout+="]";
+
         Jacob=new ArrayList();
         int i=0;
         for(StringGraph func:algSystem){
             getJacob().add(new ArrayList());
             for(String var:getVars().getVarNameList()){
                 //if(var.startsWith("Cur.")||var.startsWith("Pot.")||var.startsWith("d.X.")){
-                if(!var.startsWith("X.")&&!var.startsWith("I.")){
+                if(!var.startsWith("X.")){
                     getJacob().get(i).add(func.getDiffer(var));
                 }
             }
             i++;
         }
+
 //        for(StringGraph func:diffSystem){
 //            Jacob.add(new ArrayList());
 //            for(String var:getVars().getVarList()){
@@ -208,7 +217,7 @@ public class DAE {
 //        }
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\MyLog.txt",true))) {
             bw.newLine();
-            bw.write("Jacobian: "+getVars().getVarNameList().toString());
+            bw.write("Jacobian: "+varsLayout+" out of "+getVars().getVarNameList().toString());
             bw.newLine();
             for(List<StringGraph> row:getJacob()){
                 for(StringGraph item:row){

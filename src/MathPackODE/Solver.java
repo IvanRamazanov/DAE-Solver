@@ -77,7 +77,7 @@ abstract public class Solver {
         vector=vars.getVarList();
         int i=0,j=0;
         for(String var:vars.getVarNameList()){
-            if(!var.startsWith("X.")&&!var.startsWith("I.")){
+            if(!var.startsWith("X.")){
                 //varNames.add(var);
                 x0[i]=vars.get(var);
                 ind[i]=j;
