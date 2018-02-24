@@ -103,6 +103,8 @@ public abstract class LineMarker{
         bindEndTo(eleCont.getBindX(), eleCont.getBindY());
         eleCont.setWirePointer(this);
         this.setIsPlugged(true);
+
+        eleCont.toFront();
     }
 
     abstract public void unPlug();

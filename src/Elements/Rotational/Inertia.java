@@ -18,7 +18,7 @@ public class Inertia extends SchemeElement{
 
     @Override
     public String[] getStringFunction() {
-        return new String[]{"T.1=d.X.1*"+P.toString(),
+        return new String[]{"T.2=d.X.1*"+P.toString(),
         "X.1=w.1-w.2","T.1+T.2=0"};
     }
 

@@ -44,17 +44,22 @@ public class StringGraph {
 
     public StringGraph(String function){  // Х indexes disappear?
         variables=new HashSet();
-        if(isSimple(function)){
-            if(isDigit(function)){
-                root=new Const(function);
-            }else{
-                root=new Variable(function);
-                variables.add(function);
+        if(function.isEmpty()) {
+            root = new Const(0.0);
+        }else {
+            if (isSimple(function)) {
+                if (isDigit(function)) {
+                    root = new Const(function);
+                } else {
+                    root = new Variable(function);
+                    variables.add(function);
+                }
+            } else {
+                root = new FuncUzel(function); //recursiv creation
             }
-        }else{
-            root=new FuncUzel(function); //recursiv creation
         }
-        if(root instanceof FuncUzel)    simplify();
+        if(root instanceof FuncUzel)
+            simplify();
     }
 
     static boolean isOperand(String str,int symbolPos){
@@ -229,6 +234,25 @@ public class StringGraph {
             }
         }
         return -1;
+    }
+
+    boolean canGet(String varName){
+        boolean outFlag=false;
+        if(root.numOfContains(varName)==1){
+            if(onlySimpleFuncs(findPath(varName).getFuncs()));
+                outFlag=true;
+        }
+        return outFlag;
+    }
+
+    private boolean onlySimpleFuncs(List<FuncUzel> inp){
+        boolean flag=true;
+        for(FuncUzel uz:inp){
+            if(!(uz.getFuncName().equals("+")||uz.getFuncName().equals("*"))){
+                flag=false;
+            }
+        }
+        return flag;
     }
 
     boolean getCurrent(LeftPart left,int numOfVars){
@@ -1269,5 +1293,9 @@ class Path{
 
     int length(){
         return uzelPath.size();
+    }
+
+    List<FuncUzel> getFuncs(){
+        return uzelPath;
     }
 }

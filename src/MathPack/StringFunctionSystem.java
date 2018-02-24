@@ -14,11 +14,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -319,6 +315,72 @@ public class StringFunctionSystem {
         }
 
         setVarsByKirhgof(pots,potRight,currs,curRight,speeds,speRight,torqs,torRight,system);
+
+        if(LOG_FLAG){
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                bw.write("New data");
+                bw.newLine();
+                int cols;
+                if(pots.isEmpty())
+                    cols=0;
+                else
+                    cols=pots.get(0).size();
+                bw.write("Потенциалы: "+pots.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<pots.size();x++){
+                    bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(currs.isEmpty())
+                    cols=0;
+                else
+                    cols=currs.get(0).size();
+                bw.write("Токи: "+currs.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<currs.size();x++){
+                    bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(speeds.isEmpty())
+                    cols=0;
+                else
+                    cols=speeds.get(0).size();
+                bw.write("Скорости: "+speeds.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<speeds.size();x++){
+                    bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                if(torqs.isEmpty())
+                    cols=0;
+                else
+                    cols=torqs.get(0).size();
+                bw.write("Моменты: "+torqs.size()+" out of "+cols);
+                bw.newLine();
+                for(int x=0;x<torqs.size();x++){
+                    bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
+                    bw.newLine();
+                }
+                bw.newLine();
+                bw.write("ODEs:");
+                bw.newLine();
+                for(int x=0;x<system.rightWithDiff.size();x++){
+                    String left="X."+(x+1), right;
+                    if(system.rightWithDiff.get(x)==null)
+                        right="not depend"+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
+                    else
+                        right=system.rightWithDiff.get(x).toString()+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
+                    bw.write(left+" = "+right);
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
+            }
+        }
+
         List<StringGraph> Pmc;
         List<StringGraph> Pmp;
         List<StringGraph> Pmt;
@@ -328,106 +390,60 @@ public class StringFunctionSystem {
             Pmc = new ArrayList<>();
             Pmp = new ArrayList<>();
         } else {
-            Pmc = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
-            Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
+//            Pmc = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(currs)), curRight);
+//            Pmp= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(pots)), potRight);
+
+            MatrixEqu.solveLU(currs,curRight);
+            Pmc = curRight;
+            MatrixEqu.solveLU(pots,potRight);
+            Pmp = potRight;
         }
         if(torqs.isEmpty()){
             Pmt=new ArrayList<>();
             Pms=new ArrayList<>();
         } else {
-            Pmt = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(torqs)), torRight);
-            Pms= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(speeds)), speRight);
+//            Pmt = MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(torqs)), torRight);
+//            Pms= MatrixEqu.mulDMatxToSRow(MatrixEqu.invMatr(MatrixEqu.int2dbl(speeds)), speRight);
+
+            MatrixEqu.solveLU(torqs,torRight);
+            Pmt = torRight;
+            MatrixEqu.solveLU(speeds,speRight);
+            Pms = speRight;
         }
 
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-            bw.write("New data");
-            bw.newLine();
-            int cols;
-            if(pots.isEmpty())
-                cols=0;
-            else
-                cols=pots.get(0).size();
-            bw.write("Потенциалы: "+pots.size()+" out of "+cols);
-            bw.newLine();
-            for(int x=0;x<pots.size();x++){
-                bw.write(pots.get(x).toString()+"="+potRight.get(x).toString());
+        if(LOG_FLAG){
+            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.newLine();
-            }
-            bw.newLine();
-            if(currs.isEmpty())
-                cols=0;
-            else
-                cols=currs.get(0).size();
-            bw.write("Токи: "+currs.size()+" out of "+cols);
-            bw.newLine();
-            for(int x=0;x<currs.size();x++){
-                bw.write(currs.get(x).toString()+"="+curRight.get(x).toString());
+                bw.write("Pmp:");
                 bw.newLine();
-            }
-            bw.newLine();
-            if(speeds.isEmpty())
-                cols=0;
-            else
-                cols=speeds.get(0).size();
-            bw.write("Скорости: "+speeds.size()+" out of "+cols);
-            bw.newLine();
-            for(int x=0;x<speeds.size();x++){
-                bw.write(speeds.get(x).toString()+"="+speRight.get(x).toString());
+                for(int x=0;x<Pmp.size();x++){
+                    bw.write("p."+(x+1)+" = "+Pmp.get(x).toString());
+                    bw.newLine();
+                }
                 bw.newLine();
-            }
-            bw.newLine();
-            if(torqs.isEmpty())
-                cols=0;
-            else
-                cols=torqs.get(0).size();
-            bw.write("Моменты: "+torqs.size()+" out of "+cols);
-            bw.newLine();
-            for(int x=0;x<torqs.size();x++){
-                bw.write(torqs.get(x).toString()+"="+torRight.get(x).toString());
+                bw.write("Pmc:");
                 bw.newLine();
-            }
-            bw.newLine();
-            bw.write("ODEs:");
-            bw.newLine();
-            for(int x=0;x<system.rightWithDiff.size();x++){
-                String left="X."+(x+1), right;
-                if(system.rightWithDiff.get(x)==null)
-                    right="null"+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
-                else
-                    right=system.rightWithDiff.get(x).toString()+"  priority: "+system.xPryor.get(x)+" initial value: "+system.initials.get(x);
-                bw.write(left+" = "+right);
+                for(int x=0;x<Pmc.size();x++){
+                    bw.write("i."+(x+1)+" = "+Pmc.get(x).toString());
+                    bw.newLine();
+                }
                 bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Pmp:");
-            bw.newLine();
-            for(int x=0;x<Pmp.size();x++){
-                bw.write("p."+(x+1)+" = "+Pmp.get(x).toString());
+                bw.write("Pms:");
                 bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Pmc:");
-            bw.newLine();
-            for(int x=0;x<Pmc.size();x++){
-                bw.write("i."+(x+1)+" = "+Pmc.get(x).toString());
+                for(int x=0;x<Pms.size();x++){
+                    bw.write("w."+(x+1)+" = "+Pms.get(x).toString());
+                    bw.newLine();
+                }
                 bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Pms:");
-            bw.newLine();
-            for(int x=0;x<Pms.size();x++){
-                bw.write("w."+(x+1)+" = "+Pms.get(x).toString());
+                bw.write("Pmt:");
                 bw.newLine();
+                for(int x=0;x<Pmt.size();x++){
+                    bw.write("T."+(x+1)+" = "+Pmt.get(x).toString());
+                    bw.newLine();
+                }
+            } catch (IOException e) {
+                System.err.println(e.getMessage());
             }
-            bw.newLine();
-            bw.write("Pmt:");
-            bw.newLine();
-            for(int x=0;x<Pmt.size();x++){
-                bw.write("T."+(x+1)+" = "+Pmt.get(x).toString());
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
         }
 
         // Dependence check
@@ -539,6 +555,50 @@ public class StringFunctionSystem {
             System.err.println(e.getMessage());
         }
 
+        // Try to reduce alg system
+        for(i=system.rightSides.size()-1;i>=0;i--){
+            StringGraph rp=system.rightSides.get(i);
+            Set vars=rp.getVariableSet();
+            for(Iterator<String> iter=vars.iterator();iter.hasNext();){
+                String var=iter.next();
+                if(WorkSpace.isRealVariable(var)&&!var.startsWith("d.X.")){
+                    if(rp.canGet(var)){
+                        //log this
+                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                            bw.newLine();
+                            bw.write("Get var: "+var+"  from "+rp.toString());
+                        }catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
+
+                        //evaluate var=rp(...)
+                        rp.getVariable(var);
+
+                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                            bw.newLine();
+                            bw.write("result: "+var+" = "+rp.toString());
+                        }catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
+
+                        //remove
+                        system.rightSides.remove(i);
+
+                        //replace var in system
+                        for(int j=0;j<system.rightSides.size();j++){
+                            system.rightSides.get(j).replaceVariable(var,rp);
+                        }
+                        for(int j=0;j<system.outputFuncs.size();j++){
+                            system.outputFuncs.get(j).replaceVariable(var,rp);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+
         List<StringGraph> potAlgSys=system.rightSides;
         output.setOutSystem(system.outputFuncs);
         output.setAlgSystem(potAlgSys);
@@ -550,7 +610,7 @@ public class StringFunctionSystem {
             Set rightSideVars=right.getVariableSet();
             for(Object obj:rightSideVars){
                 String name=(String)obj;
-                if(!name.startsWith("X.")&&!name.startsWith("I.")&&!name.startsWith("time")){
+                if(WorkSpace.isRealVariable(name)){
                     output.addVariable(name, 0.0);  //TODO maybe not 0.0
                 }
             }
@@ -560,7 +620,7 @@ public class StringFunctionSystem {
             Set rightSideVars=right.getVariableSet();
             for(Object obj:rightSideVars){
                 String name=(String)obj;
-                if(!name.startsWith("X.")&&!name.startsWith("I.")&&!name.startsWith("time")){
+                if(WorkSpace.isRealVariable(name)){
                     output.addVariable(name, 0.0);
                 }
             }
@@ -1659,132 +1719,275 @@ public class StringFunctionSystem {
                                          List<List<Integer>> currs,List<StringGraph> curRight,
                                          List<List<Integer>> speeds,List<StringGraph> speRight,
                                          List<List<Integer>> torqs,List<StringGraph> torRight){
-        List<List<Integer>> C=new ArrayList();
-        boolean badCurs=true,badPots=true,
-                badTorqs=true,badSpeeds=true;
-        int numOfCurs=currs.size(),numOfVars;
-        if(numOfCurs==0)
-            numOfVars=0;
-        else
-            numOfVars=currs.get(0).size();
-        //curs
-        if(numOfVars!=numOfCurs){
-            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfCurs);
-            for(List<Integer> exesRows:C){      //try all combinations
-                for(Integer i:exesRows){
-                    List<Integer> row=new ArrayList();
-                    for(int j=0;j<numOfVars;j++){
+        // potentials
+        if(!pots.isEmpty()){
+            List<List<Integer>> M=pots;
+            List<StringGraph> R=potRight;
+            int num=M.get(0).size(),varCnt=1;
+            boolean success=false;
+            if(M.size()!=num) {
+                for (int i = 0; i < num; i++) {
+                    //init row
+                    List<Integer> row = new ArrayList();
+                    for (int j = 0; j < num; j++)
                         row.add(0);
+
+                    // set i'th var
+                    row.set(i, 1);
+
+                    //check rank
+                    M.add(row);
+                    if (MatrixEqu.rank(M) == M.size()) {
+                        // add right side
+                        R.add(new StringGraph("Pot." + varCnt));
+                        varCnt++;
+                        if (M.size() == num) {
+                            success = true;
+                            break;
+                        }
+                    } else {
+                        M.remove(M.size() - 1);
                     }
-                    row.set(i,1);
-                    currs.add(row);
                 }
-//                if(MatrixEqu.det_i(currs)==0){
-                if(rank(currs)!=currs.size()){
-                    for(int i=0;i<exesRows.size();i++){
-                        currs.remove(currs.size()-1);
-                    }
-                }else{
-                    for(int i=0;i<exesRows.size();i++){
-                        curRight.add(new StringGraph("Cur."+(i+1)));
-                    }
-                    badCurs=false;
-                    break;
+                if (!success) {
+                    throw new Error("Pot.i compilation unsuccessful try");
                 }
             }
-            if(badCurs)   throw new Error("AAAAAA, bad curr in Kirghoff");
         }
-        //pots
-        C=new ArrayList();
-        int numOfPots=pots.size();
-        if(numOfVars!=numOfPots){
-            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfPots);
-            for(List<Integer> exesRows:C){      //try all combinations
-                for(Integer i:exesRows){
-                    List<Integer> row=new ArrayList();
-                    for(int j=0;j<numOfVars;j++){
+
+        // currents
+        if(!currs.isEmpty()){
+            List<List<Integer>> M=currs;
+            List<StringGraph> R=curRight;
+            int num=M.get(0).size(),varCnt=1;
+            boolean success=false;
+            if(M.size()!=num) {
+                for (int i = 0; i < num; i++) {
+                    //init row
+                    List<Integer> row = new ArrayList();
+                    for (int j = 0; j < num; j++)
                         row.add(0);
+
+                    // set i'th var
+                    row.set(i, 1);
+
+                    //check rank
+                    M.add(row);
+                    if (MatrixEqu.rank(M) == M.size()) {
+                        // add right side
+                        R.add(new StringGraph("Cur." + varCnt));
+                        varCnt++;
+                        if (M.size() == num) {
+                            success = true;
+                            break;
+                        }
+                    } else {
+                        M.remove(M.size() - 1);
                     }
-                    row.set(i,1);
-                    pots.add(row);
                 }
-//                if(MatrixEqu.det_i(pots)==0){
-                if(rank(pots)!=pots.size()){
-                    for(int i=0;i<exesRows.size();i++){
-                        pots.remove(pots.size()-1);
-                    }
-                }else{
-                    for(int i=0;i<exesRows.size();i++){
-                        potRight.add(new StringGraph("Pot."+(i+1)));
-                    }
-                    badPots=false;
-                    break;
+                if (!success) {
+                    throw new Error("Cur.i compilation unsuccessful try");
                 }
             }
-            if(badPots)   throw new Error("AAAAAA, bad pots in Kirghoff");
         }
-        //speeds
-        C=new ArrayList();
-        int numOfSpeeds=speeds.size();
-        if(numOfSpeeds==0)
-            numOfVars=0;
-        else
-            numOfVars=speeds.get(0).size();
-        if(numOfVars!=numOfSpeeds){
-            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfSpeeds);
-            for(List<Integer> exesRows:C){      //try all combinations
-                for(Integer i:exesRows){
-                    List<Integer> row=new ArrayList();
-                    for(int j=0;j<numOfVars;j++){
+
+        // speed
+        if(!speeds.isEmpty()){
+            List<List<Integer>> M=speeds;
+            List<StringGraph> R=speRight;
+            int num=M.get(0).size(),varCnt=1;
+            boolean success=false;
+            if(M.size()!=num) {
+                for (int i = 0; i < num; i++) {
+                    //init row
+                    List<Integer> row = new ArrayList();
+                    for (int j = 0; j < num; j++)
                         row.add(0);
+
+                    // set i'th var
+                    row.set(i, 1);
+
+                    //check rank
+                    M.add(row);
+                    if (MatrixEqu.rank(M) == M.size()) {
+                        // add right side
+                        R.add(new StringGraph("Spe." + varCnt));
+                        varCnt++;
+                        if (M.size() == num) {
+                            success = true;
+                            break;
+                        }
+                    } else {
+                        M.remove(M.size() - 1);
                     }
-                    row.set(i,1);
-                    speeds.add(row);
                 }
-//                if(MatrixEqu.det_i(speeds)==0){
-                if(rank(speeds)!=speeds.size()){
-                    for(int i=0;i<exesRows.size();i++){
-                        speeds.remove(speeds.size()-1);
-                    }
-                }else{
-                    for(int i=0;i<exesRows.size();i++){
-                        speRight.add(new StringGraph("Spe."+(i+1)));
-                    }
-                    badSpeeds=false;
-                    break;
+                if (!success) {
+                    throw new Error("Spe.i compilation unsuccessful try");
                 }
             }
-            if(badSpeeds)   throw new Error("AAAAAA, bad speeds in Kirghoff");
         }
-        //torqs
-        C=new ArrayList();
-        int numOfTorqs=torqs.size();
-        if(numOfVars!=numOfTorqs){
-            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfTorqs);
-            for(List<Integer> exesRows:C){      //try all combinations
-                for(Integer i:exesRows){
-                    List<Integer> row=new ArrayList();
-                    for(int j=0;j<numOfVars;j++){
+
+        // torques
+        if(!torqs.isEmpty()){
+            List<List<Integer>> M=torqs;
+            List<StringGraph> R=torRight;
+            int num=M.get(0).size(),varCnt=1;
+            boolean success=false;
+            if(M.size()!=num) {
+                for (int i = 0; i < num; i++) {
+                    //init row
+                    List<Integer> row = new ArrayList();
+                    for (int j = 0; j < num; j++)
                         row.add(0);
+
+                    // set i'th var
+                    row.set(i, 1);
+
+                    //check rank
+                    M.add(row);
+                    if (MatrixEqu.rank(M) == M.size()) {
+                        // add right side
+                        R.add(new StringGraph("Tor." + varCnt));
+                        varCnt++;
+                        if (M.size() == num) {
+                            success = true;
+                            break;
+                        }
+                    } else {
+                        M.remove(M.size() - 1);
                     }
-                    row.set(i,1);
-                    torqs.add(row);
                 }
-//                if(MatrixEqu.det_i(torqs)==0){
-                if(rank(torqs)!=torqs.size()){
-                    for(int i=0;i<exesRows.size();i++){
-                        torqs.remove(torqs.size()-1);
-                    }
-                }else{
-                    for(int i=0;i<exesRows.size();i++){
-                        torRight.add(new StringGraph("Tor."+(i+1)));
-                    }
-                    badTorqs=false;
-                    break;
+                if (!success) {
+                    throw new Error("Tor.i compilation unsuccessful try");
                 }
             }
-            if(badTorqs)   throw new Error("AAAAAA, bad torques in Kirghoff");
         }
+//        List<List<Integer>> C=new ArrayList();
+//        boolean badCurs=true,badPots=true,
+//                badTorqs=true,badSpeeds=true;
+//        int numOfCurs=currs.size(),numOfVars;
+//        if(numOfCurs==0)
+//            numOfVars=0;
+//        else
+//            numOfVars=currs.get(0).size();
+//        //curs
+//        if(numOfVars!=numOfCurs){
+//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfCurs);
+//            for(List<Integer> exesRows:C){      //try all combinations
+//                for(Integer i:exesRows){
+//                    List<Integer> row=new ArrayList();
+//                    for(int j=0;j<numOfVars;j++){
+//                        row.add(0);
+//                    }
+//                    row.set(i,1);
+//                    currs.add(row);
+//                }
+////                if(MatrixEqu.det_i(currs)==0){
+//                if(rank(currs)!=currs.size()){
+//                    for(int i=0;i<exesRows.size();i++){
+//                        currs.remove(currs.size()-1);
+//                    }
+//                }else{
+//                    for(int i=0;i<exesRows.size();i++){
+//                        curRight.add(new StringGraph("Cur."+(i+1)));
+//                    }
+//                    badCurs=false;
+//                    break;
+//                }
+//            }
+//            if(badCurs)   throw new Error("AAAAAA, bad curr in Kirghoff");
+//        }
+//        //pots
+//        C=new ArrayList();
+//        int numOfPots=pots.size();
+//        if(numOfVars!=numOfPots){
+//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfPots);
+//            for(List<Integer> exesRows:C){      //try all combinations
+//                for(Integer i:exesRows){
+//                    List<Integer> row=new ArrayList();
+//                    for(int j=0;j<numOfVars;j++){
+//                        row.add(0);
+//                    }
+//                    row.set(i,1);
+//                    pots.add(row);
+//                }
+////                if(MatrixEqu.det_i(pots)==0){
+//                if(rank(pots)!=pots.size()){
+//                    for(int i=0;i<exesRows.size();i++){
+//                        pots.remove(pots.size()-1);
+//                    }
+//                }else{
+//                    for(int i=0;i<exesRows.size();i++){
+//                        potRight.add(new StringGraph("Pot."+(i+1)));
+//                    }
+//                    badPots=false;
+//                    break;
+//                }
+//            }
+//            if(badPots)   throw new Error("AAAAAA, bad pots in Kirghoff");
+//        }
+//        //speeds
+//        C=new ArrayList();
+//        int numOfSpeeds=speeds.size();
+//        if(numOfSpeeds==0)
+//            numOfVars=0;
+//        else
+//            numOfVars=speeds.get(0).size();
+//        if(numOfVars!=numOfSpeeds){
+//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfSpeeds);
+//            for(List<Integer> exesRows:C){      //try all combinations
+//                for(Integer i:exesRows){
+//                    List<Integer> row=new ArrayList();
+//                    for(int j=0;j<numOfVars;j++){
+//                        row.add(0);
+//                    }
+//                    row.set(i,1);
+//                    speeds.add(row);
+//                }
+////                if(MatrixEqu.det_i(speeds)==0){
+//                if(rank(speeds)!=speeds.size()){
+//                    for(int i=0;i<exesRows.size();i++){
+//                        speeds.remove(speeds.size()-1);
+//                    }
+//                }else{
+//                    for(int i=0;i<exesRows.size();i++){
+//                        speRight.add(new StringGraph("Spe."+(i+1)));
+//                    }
+//                    badSpeeds=false;
+//                    break;
+//                }
+//            }
+//            if(badSpeeds)   throw new Error("AAAAAA, bad speeds in Kirghoff");
+//        }
+//        //torqs
+//        C=new ArrayList();
+//        int numOfTorqs=torqs.size();
+//        if(numOfVars!=numOfTorqs){
+//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfTorqs);
+//            for(List<Integer> exesRows:C){      //try all combinations
+//                for(Integer i:exesRows){
+//                    List<Integer> row=new ArrayList();
+//                    for(int j=0;j<numOfVars;j++){
+//                        row.add(0);
+//                    }
+//                    row.set(i,1);
+//                    torqs.add(row);
+//                }
+////                if(MatrixEqu.det_i(torqs)==0){
+//                if(rank(torqs)!=torqs.size()){
+//                    for(int i=0;i<exesRows.size();i++){
+//                        torqs.remove(torqs.size()-1);
+//                    }
+//                }else{
+//                    for(int i=0;i<exesRows.size();i++){
+//                        torRight.add(new StringGraph("Tor."+(i+1)));
+//                    }
+//                    badTorqs=false;
+//                    break;
+//                }
+//            }
+//            if(badTorqs)   throw new Error("AAAAAA, bad torques in Kirghoff");
+//        }
     }
 
     public List<MathInPin> getInputs(){

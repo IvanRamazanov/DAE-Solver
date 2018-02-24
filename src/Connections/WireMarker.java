@@ -95,6 +95,7 @@ public class WireMarker extends LineMarker{
 
         EventHandler enterMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
             view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
+            //view.toFront();
             view.setCursor(Cursor.HAND);
         };
 
@@ -105,7 +106,6 @@ public class WireMarker extends LineMarker{
 
         view.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
             activeWireConnect=this;
-            view.toFront();
             e.consume();
         });
         view.addEventHandler(MouseDragEvent.DRAG_DETECTED, connDragDetectHandle);
@@ -228,6 +228,7 @@ public class WireMarker extends LineMarker{
         setItsConnectedPin(null);
         switch(getWire().getRank()){
             case 1:
+                System.out.println("Unplug in WireMarker case 1");
                 WireMarker wc=new WireMarker(getWire(),this.getStartX().get(),this.getStartY().get());
                 activeWireConnect=wc;
                 //wc.setElemContact(this.getElemContact());
@@ -236,6 +237,7 @@ public class WireMarker extends LineMarker{
                 this.hide();
                 break;
             case 2:
+                System.out.println("Unplug in WireMarker case 2");
                 WireMarker loser;
                 if(getWire().getWireContacts().get(0)==this){
                     loser=getWire().getWireContacts().get(1);
@@ -250,6 +252,7 @@ public class WireMarker extends LineMarker{
                 this.show();
                 break;
             default:
+                System.out.println("Unplug in WireMarker case default");
                 activeWireConnect=this;
         }
     }

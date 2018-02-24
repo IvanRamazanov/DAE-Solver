@@ -436,7 +436,13 @@ public class MatrixEqu {
         return result;
     }
 
-    public static double[] solveLU(double[][] A,double[] b){
+    /**
+     * VERY IMPORTANT! Answer will be returned in b
+     * @param A
+     * @param b
+     * @return
+     */
+    public static void solveLU(double[][] A,double[] b){
         if(A.length!=A[0].length) throw new Error("Matrix must be square!");
         int n=A.length,i=0,index;
         double[][] L=new double[n][n],U=new double[n][n];
@@ -481,29 +487,106 @@ public class MatrixEqu {
                 L[j][i]=k;
 
                 // subtract rows
-                for(int m=0;m<n;m++){
+                for(int m=i;m<n;m++){
                     U[j][m]=U[j][m]-U[i][m]*k;
                 }
+
+                // ans
+                b[j]=b[j]-b[i]*k;
             }
         }
 
         // solve LY=b
         double[] Y=new double[n];
+//        for(i=0;i<n;i++){
+//            Y[i]=b[i];
+//            for(int j=i+1;j<n;j++){
+//                b[j]=b[j]-Y[i]*L[j][i];
+//            }
+//        }
+
+        // solve UX=Y
+        for(i=n-1;i>=0;i--){
+//            Y[i]=Y[i]/U[i][i];
+            b[i]=b[i]/U[i][i];
+            for(int j=i-1;j>=0;j--){
+                b[j]=b[j]-b[i]*U[j][i];
+            }
+        }
+//        return Y;
+    }
+
+    /**
+     * VERY IMPORTANT! Answer will be returned in b
+     * @param A
+     * @param b
+     */
+    public static void solveLU(List<List<Integer>> A,List<StringGraph> b){
+        if(A.size()!=A.get(0).size()) throw new Error("Matrix must be square!");
+        int n=A.size(),i=0,index;
+        double[][] L=new double[n][n],U=new double[n][n];
+
+        //init
+        for(List<Integer> row:A) {
+            for(int j=0;j<row.size();j++) {
+                int val = row.get(j).intValue();
+                U[i][j] = (double) val;
+            }
+            i++;
+        }
+
+        // main cycle for rows
         for(i=0;i<n;i++){
-            Y[i]=b[i];
+            // permutation
+            double max=Math.abs(U[i][i]);
+            index=i;
             for(int j=i+1;j<n;j++){
-                b[j]=b[j]-Y[i]*L[j][i];
+                double val=Math.abs(U[j][i]);
+                if(val>max){
+                    max=val;
+                    index=j;
+                }
+            }
+            if(index!=i){
+                // swap
+                for(int j=i;j<n;j++){
+                    double tmp=U[i][j];
+                    U[i][j]=U[index][j];
+                    U[index][j]=tmp;
+                }
+                StringGraph tmp=b.get(i);
+                b.set(i,b.get(index));
+                b.set(index,tmp);
+            }
+
+
+            // general cycle
+            L[i][i]=1.0;
+            for(int j=i+1;j<n;j++){
+                double k=U[j][i]/U[i][i];
+
+                // change L
+                L[j][i]=k;
+
+                // subtract rows
+                for(int m=i;m<n;m++){
+                    U[j][m]=U[j][m]-U[i][m]*k;
+                }
+
+                // ans
+                b.get(j).sub(StringGraph.mul(b.get(i),k));
             }
         }
 
         // solve UX=Y
         for(i=n-1;i>=0;i--){
-            Y[i]=Y[i]/U[i][i];
+//            Y[i]=Y[i]/U[i][i];
+            b.get(i).multiplex(1.0/U[i][i]);
             for(int j=i-1;j>=0;j--){
-                Y[j]=Y[j]-Y[i]*U[j][i];
+//                b[j]=b[j]-b[i]*U[j][i];
+                b.get(j).sub(StringGraph.mul(b.get(i),U[j][i]));
             }
         }
-        return Y;
     }
 
     /**
@@ -1271,10 +1354,10 @@ public class MatrixEqu {
                     }
                 }
                 if(flag){
-                    System.out.println("Rank end of the line?");
-                    for(int[] l:A)
-                        System.out.println(Arrays.toString(l));
-                    System.out.println("");
+//                    System.out.println("Rank end of the line?");
+//                    for(int[] l:A)
+//                        System.out.println(Arrays.toString(l));
+//                    System.out.println("");
                     break;
                 }
             }

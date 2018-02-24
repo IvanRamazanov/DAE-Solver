@@ -50,7 +50,7 @@ public class ElemMechPin extends Pin{
 
         };
         EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            System.out.println("Hello from drag exit (in ElemPin)! Source: "+me.getGestureSource());
+            System.out.println("Hello from drag exit (in ElemMechPin)! Source: "+me.getGestureSource());
             if(MechWire.activeWireConnect!=null)
                 //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
                 switch(me.getButton()){

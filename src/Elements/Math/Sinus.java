@@ -7,7 +7,6 @@ package Elements.Math;
 
 import ElementBase.MathElement;
 import MathPackODE.Solver;
-import static java.lang.StrictMath.PI;
 import static java.lang.StrictMath.sin;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +19,7 @@ import java.util.List;
 
 public class Sinus extends MathElement{
     private Parameter apmlitude,freq,phase;
+    private final double pi=Math.PI;
 
     public Sinus(){
         super();
@@ -36,7 +36,7 @@ public class Sinus extends MathElement{
                 f=freq.getDoubleValue(),
                 ph=phase.getDoubleValue();
         List<Double> out=new ArrayList();
-        out.add(ampl*sin(2*PI*f*Solver.time+ph));
+        out.add(ampl*sin(2*pi*f*Solver.time+ph/180*pi));
         return out;
     }
 
@@ -44,9 +44,9 @@ public class Sinus extends MathElement{
     protected void setParams(){
         apmlitude=new Parameter("Amplitude",1);
         parameters.add(apmlitude);
-        freq=new Parameter("Frequency",1);
+        freq=new Parameter("Frequency, Hz",1);
         parameters.add(freq);
-        phase=new Parameter("Phase shift",0);
+        phase=new Parameter("Phase shift, deg",0);
         parameters.add(phase);
         setName("Sinus wave");
     }

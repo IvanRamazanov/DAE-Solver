@@ -56,7 +56,7 @@ public class Pin {
         this.owner=null;
         if(itsConnection!=null){
             itsConnection.unPlug(); //??????????
-            itsConnection.setIsPlugged(false);
+            //itsConnection.setIsPlugged(false);  // TODO check this
         }
         this.getView().setOpacity(1);
     }
@@ -109,5 +109,10 @@ public class Pin {
 
     public void setOwner(Element owner) {
         this.owner = owner;
+    }
+
+    public void toFront(){
+        getView().toFront();
+        getOwner().toBack();
     }
 }

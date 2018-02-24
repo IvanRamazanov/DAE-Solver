@@ -11,7 +11,7 @@ import java.util.List;
 import raschetkz.RaschetKz;
 
 /**
- *
+ * Number of functions equals NumOfContacts-1. Not include obvious current dependencies.
  * @author Ivan
  */
 public abstract class SchemeElement extends Element{
@@ -72,12 +72,38 @@ public abstract class SchemeElement extends Element{
      */
     @Override
     public void delete(){
-        this.electricContacts.forEach(elemCont->{
+        getElemContactList().forEach(elemCont->{
             elemCont.clear();
             if(elemCont.getItsConnection()!=null){
                 elemCont.getItsConnection().unPlug();
             }
         });
+        getElemContactList().clear();
+
+        getMechContactList().forEach(elemCont->{
+            elemCont.clear();
+            if(elemCont.getItsConnection()!=null){
+                elemCont.getItsConnection().unPlug();
+            }
+        });
+        getMechContactList().clear();
+
+        getInputs().forEach(elemCont->{
+            elemCont.clear();
+            if(elemCont.getItsConnection()!=null){
+                elemCont.getItsConnection().unPlug();
+            }
+        });
+        getInputs().clear();
+
+        getOutputs().forEach(elemCont->{
+            elemCont.clear();
+            if(elemCont.getItsConnection()!=null){
+                elemCont.getItsConnection().unPlug();
+            }
+        });
+        getOutputs().clear();
+
         RaschetKz.ElementList.remove(this);
         RaschetKz.drawBoard.getChildren().remove(this.getView());
     }
