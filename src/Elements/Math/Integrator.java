@@ -7,6 +7,8 @@ package Elements.Math;
 
 import ElementBase.DynamMathElem;
 
+import java.util.List;
+
 /**
  *
  * @author Ivan
@@ -25,6 +27,11 @@ public class Integrator extends DynamMathElem{
     @Override
     protected void setParams(){
         setName("Integrator");
+    }
+
+    @Override
+    protected List<Double> getValue(int outIndex) {
+        return X_old;
     }
 
     @Override

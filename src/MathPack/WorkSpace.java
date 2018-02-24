@@ -24,7 +24,6 @@
 package MathPack;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -52,6 +51,14 @@ public class WorkSpace {
 //            return 0.0;
 //        }
         return varValues.get(indx);
+    }
+
+    public static boolean isRealVariable(String name){
+        if(!name.startsWith("X.")&&!name.startsWith("I.")&&!name.startsWith("time")){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     public List<String> getVarNameList(){

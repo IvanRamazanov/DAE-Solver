@@ -246,6 +246,7 @@ public class ElectricWire extends Wire{
     public void setEnd(ElemPin elemCont){
         switch(wireContList.size()){
             case 1:
+                System.out.println("Set end case 1");
                 Pin oldEc=activeWireConnect.getItsConnectedPin();   // начальный O--->
                 activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
 
@@ -257,6 +258,7 @@ public class ElectricWire extends Wire{
                 wcNew.hide();
                 break;
             case 2:
+                System.out.println("Set end case 2");
                 if(!wireContList.get(0).isPlugged()&&!wireContList.get(1).isPlugged()) {   // free floating wire case
                     WireMarker loser;
                     if(wireContList.get(0).equals(activeWireConnect))
@@ -266,6 +268,7 @@ public class ElectricWire extends Wire{
                     activeWireConnect.setEndProp(loser.getBindX().get(),loser.getBindY().get());
                     activeWireConnect.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
                     elemCont.setWirePointer(activeWireConnect);
+                    activeWireConnect.setItsConnectedPin(elemCont);
                     loser.delete();
                     //activeWireConnect=null;
 //                    activeWireConnect.bindElemContact(elemCont);
@@ -275,6 +278,7 @@ public class ElectricWire extends Wire{
                 }
                 break;
             default:
+                System.out.println("Set end case default");
                 activeWireConnect.bindElemContact(elemCont);
         }
     }

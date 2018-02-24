@@ -39,8 +39,14 @@ public class Scope extends OutputElement{
             File file=filechoose.showSaveDialog(null);
             if(file!=null){
                 try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+                    bw.write("time ");
+                    for(int i=0;i<data.size();i++)
+                        bw.write("in"+(i+1)+" ");
+                    bw.newLine();
                     for(int i=0;i<data.get(0).size();i++){
-                        bw.write(time.get(i).toString()+" "+data.get(0).get(i).toString());
+                        bw.write(time.get(i).toString()+" ");
+                        for(int j=0;j<data.size();j++)
+                            bw.write(data.get(j).get(i).toString()+" ");
                         bw.newLine();
                     }
                 }catch(IOException ea){}

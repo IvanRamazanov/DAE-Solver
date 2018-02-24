@@ -48,27 +48,25 @@ public class SolverEuler extends Solver{
 
     @Override
     public void evalNextStep(){
-        //estimate p.1... i.1...(Newton...)
-//        for(int i=0;i<diffSystem.size();i++){
-//            ds[i]=diffSystem.get(i).evaluate(vars,inps);
-////            dx[i]=vars.get("d.X."+(i+1));
-//        }
         //update dX in each elem
         for(int i=0;i<mathDynamics.size();i++){
             mathDynamics.get(i).evalDerivatives(time);
         }
+
         evalSysState(); // Eval current dX
+
         // Euler method itself
         for(int i=0;i<diffRank;i++){
             vars.setValue("X."+(i+1), vars.get("d.X."+(i+1))*dt+vars.get("X."+(i+1)));
         }
-        //Update X(n-1)
-        for(DynamMathElem delem:mathDynamics){
-            delem.updateOutputs(this);      // и сюда)))0
-        }
 
         for(OutputElement elem:mathOuts){
             elem.updateData(time);
+        }
+
+        //Update X(n-1)
+        for(DynamMathElem delem:mathDynamics){
+            delem.updateOutputs(this);      // и сюда)))0
         }
     }
 }

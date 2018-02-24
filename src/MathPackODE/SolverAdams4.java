@@ -69,28 +69,6 @@ public class SolverAdams4 extends Solver{
 
     @Override
     public void evalNextStep(){
-//        for(int i=0;i<diffSystem.size();i++){
-//            ds[i]=diffSystem.get(i).evaluate(time,vars,inps);
-////            dx[i]=vars.get("d.X."+(i+1));
-//        }
-//        //update dX in each elem
-//        for(int i=0;i<mathDynamics.size();i++){
-//            mathDynamics.get(i).evalDerivatives(time);
-//        }
-//        // Euler method itself
-//        for(int i=0;i<diffSystem.size();i++){
-//            vars.setValue("X."+(i+1), ds[i]*dt+vars.get("X."+(i+1)));
-//        }
-//        //Update X(n-1)
-//        for(DynamMathElem delem:mathDynamics){
-//            delem.updateOutputs(this);      // и сюда)))0
-//        }
-//        evalSysState(time); //Newton update
-//        for(OutputElement elem:mathOuts){
-//            elem.updateData(time);
-//        }
-
-
         if(fullfill){
             for(int i=0;i<diffRank;i++){
                 ds[i][matrStep]=vars.get("d.X."+(i+1));
@@ -104,10 +82,10 @@ public class SolverAdams4 extends Solver{
                         +37.0/24.0*this.ds[i][(matrStep+2)%rank]-3.0/8.0*this.ds[i][(matrStep+1)%rank]);
                 vars.setValue("X."+(i+1), val);
             }
-            //Update X(n-1)
-            for(DynamMathElem delem:mathDynamics){
-                delem.updateOutputs(this);      // и сюда)))0
-            }
+//            //Update X(n-1)
+//            for(DynamMathElem delem:mathDynamics){
+//                delem.updateOutputs(this);      // и сюда)))0
+//            }
             matrStep=(matrStep+1)%rank;
         }else{
             for(int i=0;i<diffRank;i++){
@@ -120,15 +98,16 @@ public class SolverAdams4 extends Solver{
             for(int i=0;i<diffRank;i++){
                 vars.setValue("X."+(i+1), ds[i][matrStep]*dt+vars.get("X."+(i+1)));
             }
-            //Update X(n-1)
-            for(DynamMathElem delem:mathDynamics){
-                delem.updateOutputs(this);      // и сюда)))0
-            }
+
             if(++matrStep==rank-1) fullfill=true;
         }
         evalSysState(); //Newton update
         for(OutputElement elem:mathOuts){
             elem.updateData(time);
+        }
+        //Update X(n-1)
+        for(DynamMathElem delem:mathDynamics){
+            delem.updateOutputs(this);      // и сюда)))0
         }
     }
 

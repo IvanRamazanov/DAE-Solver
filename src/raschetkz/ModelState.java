@@ -42,7 +42,7 @@ public class ModelState{
     private SimpleDoubleProperty dt;
     private SimpleDoubleProperty tend;
     private int jacobianEstimationType;
-    private String fileName;
+    private String filePath;
 
     ModelState(){
         ElementList=new ArrayList();
@@ -201,7 +201,7 @@ public class ModelState{
 
         //write to file
 
-        try (FileOutputStream fos = new FileOutputStream(getFileName())) {
+        try (FileOutputStream fos = new FileOutputStream(getFilePath())) {
             baos.writeTo(fos);
         }
         catch(IOException io){
@@ -214,15 +214,27 @@ public class ModelState{
         Save();
     }
 
+    public void clearState(){
+        for(int i=BranchList.size()-1;i>=0;i--)
+            BranchList.get(i).delete();
+        for(int i=ElementList.size()-1;i>=0;i--)
+            ElementList.get(i).delete();
+        for(int i=MathElemList.size()-1;i>=0;i--)
+            MathElemList.get(i).delete();
+        for(int i=mathConnList.size()-1;i>=0;i--)
+            mathConnList.get(i).delete();
+        for(int i=mechWires.size()-1;i>=0;i--)
+            mechWires.get(i).delete();
+
+        setFileName(null);
+    }
+
     public void Load(String filePath){
         try{
             FileInputStream fis = new FileInputStream(filePath);
-            this.setFileName(filePath);
-            this.BranchList.clear();
-            this.ElementList.clear();
-            this.MathElemList.clear();
-            this.mathConnList.clear();
-            this.draws.getChildren().clear();
+            clearState();
+            setFileName(filePath);
+
             ByteBuffer temp=ByteBuffer.allocate(8);
 
             //solver
@@ -418,10 +430,6 @@ public class ModelState{
 //            return this.tend;
 //        }
 
-    String getName() {
-        return(this.getFileName());
-    }
-
     /**
      * @return the mathConnList
      */
@@ -464,12 +472,12 @@ public class ModelState{
         this.jacobianEstimationType = jacobianEstimationType;
     }
 
-    public String getFileName() {
-        return fileName;
+    public String getFilePath() {
+        return filePath;
     }
 
     public void setFileName(String fileName) {
-        this.fileName = fileName;
+        this.filePath = fileName;
     }
 }
 

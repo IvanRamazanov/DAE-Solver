@@ -14,9 +14,9 @@ import java.util.List;
  * @author Ivan
  */
 abstract public class DynamMathElem extends MathElement{
-    private List<Double> X_old;
-    List<Double> dX;
-    List<Parameter> x0;
+    protected List<Double> X_old;
+    protected List<Double> dX;
+    protected List<Parameter> x0;
 
     public DynamMathElem(){
         super();
@@ -49,11 +49,6 @@ abstract public class DynamMathElem extends MathElement{
         X_old.clear();
         X_old.add(x0.get(0).getDoubleValue());
         // MUST BE A VECTOR!!!!
-    }
-
-    @Override
-    protected List<Double> getValue(int outIndex) {
-        return X_old;
     }
 
     /**

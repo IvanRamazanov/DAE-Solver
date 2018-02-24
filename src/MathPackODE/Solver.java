@@ -146,7 +146,7 @@ abstract public class Solver {
 //                            invJ=MathPack.MatrixEqu.invMatr(MathPack.MatrixEqu.evalSymbMatr(Jacob,vars, inps));
 //                            vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
                             MathPack.MatrixEqu.putValuesFromSymbMatr(J,symbJacobian,vars, inps);
-                            vals = MatrixEqu.solveLU(J,vals); // first 'vals' contains F(x)
+                            MatrixEqu.solveLU(J,vals); // first 'vals' contains F(x)
                             break;
                         default:
                             vals=null;

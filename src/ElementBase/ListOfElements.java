@@ -32,6 +32,7 @@ public class ListOfElements {
         list.add(new Categorie("Measurments"));
         list.add(new Categorie("Maths"));
         list.add(new Categorie("Mechanics"));
+        list.add(new Categorie("Control systems"));
     }
     public List<Categorie> getCategories() {
         return(list);
@@ -60,12 +61,14 @@ public class ListOfElements {
                 cat.elements.add(new ShortCircuit(true));
                 cat.elements.add(new IdealKey(true));
                 cat.elements.add(new CircuitBreaker(true));
+                cat.elements.add(new ThreePhaseFault(true));
                 break;
             case "Electrical machines":
                 cat.elements.add(new DPTPM(true));
                 cat.elements.add(new DPTnV(true));
                 cat.elements.add(new InductionMotor(true));
                 cat.elements.add(new SDPM(true));
+                cat.elements.add(new SynchronousMachine(true));
                 break;
             case "Measurments":
                 cat.elements.add(new Voltmeter(true));
@@ -98,6 +101,10 @@ public class ListOfElements {
                 cat.elements.add(new RotationalFriction(true));
                 cat.elements.add(new RotationReference(true));
                 cat.elements.add(new ControlledTorqueSource(true));
+                break;
+            case "Control systems":
+                cat.elements.add(new PIDRegulator(true));
+                cat.elements.add(new SqeezeWave(true));
                 break;
         }
     }
