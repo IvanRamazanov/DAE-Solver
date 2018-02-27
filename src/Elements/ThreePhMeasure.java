@@ -30,15 +30,15 @@ import ElementBase.SchemeElement;
  *
  * @author ramazanov_im
  */
-public class ThreePhMeasure extends SchemeElement {  // TODO what is this?
+public class ThreePhMeasure extends SchemeElement {
     public ThreePhMeasure(){
         super();
-        addElemCont(new ElemPin(this, 4, 4));
-        addElemCont(new ElemPin(this, 12, 4));
-        addElemCont(new ElemPin(this, 20, 4));
-        addElemCont(new ElemPin(this, 4, 60));
-        addElemCont(new ElemPin(this, 12, 60));
-        addElemCont(new ElemPin(this, 20, 60));
+        addElemCont(new ElemPin(this, 4, 4));   //A
+        addElemCont(new ElemPin(this, 20, 4));  //B
+        addElemCont(new ElemPin(this, 40, 4));  //C
+        addElemCont(new ElemPin(this, 4, 60));  //a
+        addElemCont(new ElemPin(this, 20, 60)); //b
+        addElemCont(new ElemPin(this, 40, 60)); //c
         addMathContact('o');
         addMathContact('o');
     }
@@ -48,18 +48,23 @@ public class ThreePhMeasure extends SchemeElement {  // TODO what is this?
 
     @Override
     public String[] getStringFunction() {
-        String[] str={"p.1=p.4","p.2=p.5","O.1=i.1","i.1+i.2=0"};
+        String[] str={
+                "p.1=p.4","p.2=p.5","p.3=p.6",
+                "i.1+i.4=0","i.2+i.5=0","i.3+i.6=0",
+                "O.1={i.1,i.2,i.3}",
+                "O.1={p.1-p.2,p.1-p.3,p.2-p.3}"
+        };
         return str;
     }
 
     @Override
     protected void setParams(){
-        setName("Трехфазный измеритель");
+        setName("Three-phase measurements");
     }
 
     @Override
     protected String getDescription(){
-        return "This block represents something.";
+        return "This block measures three-phase currents and line-line voltages.";
     }
 }
 

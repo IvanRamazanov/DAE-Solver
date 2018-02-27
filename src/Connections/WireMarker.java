@@ -250,6 +250,7 @@ public class WireMarker extends LineMarker{
                 temp.setWirePointer(this);
                 setItsConnectedPin(temp);
                 this.show();
+                temp.toFront();
                 break;
             default:
                 System.out.println("Unplug in WireMarker case default");

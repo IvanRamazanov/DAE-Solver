@@ -36,6 +36,7 @@ public class ShortCircuit extends SchemeElement {
         t=new Parameter("Trigger time, sec", 1.0);
         this.parameters.add(t);
         ron=new Parameter("ON resistance, ohm", 0.001);
+        this.parameters.add(ron);
         setName("Short circuit");
     }
 

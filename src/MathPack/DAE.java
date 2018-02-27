@@ -43,9 +43,8 @@ import java.util.List;
 public class DAE {
     private List<StringGraph>   innerFuncSystem,
             algSystem,
-            outSystem,
             newtonFunc;
-    private List<List<StringGraph>> Jacob,invJacob;
+    private List<List<StringGraph>> Jacob,invJacob,outSystem;
     private WorkSpace vars;
     private List<MathOutPin> outs;
     private List<MathInPin> inps;
@@ -93,14 +92,14 @@ public class DAE {
     /**
      * @return the outSystem
      */
-    public List<StringGraph> getOutSystem() {
+    public List<List<StringGraph>> getOutSystem() {
         return outSystem;
     }
 
     /**
      * @param outSystem the outSystem to set
      */
-    public void setOutSystem(List<StringGraph> outSystem) {
+    public void setOutSystem(List<List<StringGraph>> outSystem) {
         this.outSystem = outSystem;
     }
 
@@ -349,9 +348,9 @@ public class DAE {
     }
 
     class DaeToMatOut extends MathOutPin{
-        StringGraph function;
+        private List<StringGraph> function;
 
-        DaeToMatOut(StringGraph f){
+        DaeToMatOut(List<StringGraph> f){
             function=f;
             //replace reference in matConnect
 
@@ -360,7 +359,8 @@ public class DAE {
         @Override
         public List<Double> getValue(){
             List<Double> out=new ArrayList();
-            out.add(function.evaluate(getVars(), inps));
+            for(StringGraph sg:function)
+                out.add(sg.evaluate(getVars(), inps));
             return out; //??
         }
     }

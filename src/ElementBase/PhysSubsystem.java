@@ -91,9 +91,9 @@ public class PhysSubsystem{
     }
 
     class PhysToMatOut extends MathOutPin{
-        StringGraph function;
+        List<StringGraph> function;
 
-        PhysToMatOut(StringGraph f){
+        PhysToMatOut(List<StringGraph> f){
             function=f;
             //replace reference in matConnect
 
