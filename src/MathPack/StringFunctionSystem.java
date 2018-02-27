@@ -22,13 +22,26 @@ import java.util.*;
  */
 public class StringFunctionSystem {
     List<LeftPart> leftSides,rightWithDiff;
-    List<StringGraph> rightSides,outputFuncs;
+    List<StringGraph> rightSides;
+    List<List<StringGraph>> outputFuncs;
     List<MathInPin> inputs;
     List<MathOutPin> outputs;
     List<Integer> xPryor;
     List<Double> initials=new ArrayList();
-    private static int electricVariableCount =0,mechVariableCount=0,stateVarCnt=0,inputCnt=0,outputCnt=0;
-    private int varCntTemp,inpCntTmp,outCntTmp;
+    private static int
+            electricPotentialCount =0,
+            electricCurrentCount=0,
+            mechSpeedCount=0,
+            mechTorqueCount=0,
+            stateVarCnt=0,
+            inputCnt=0,
+            outputCnt=0,
+            localVarCnt=0;
+    private int
+            varCntTemp,
+            inpCntTmp,
+            outCntTmp,
+            localVarCntTmp;
 
     private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
     private static boolean LOG_FLAG=true;
@@ -54,6 +67,7 @@ public class StringFunctionSystem {
         varCntTemp=0;
         inpCntTmp=0;
         outCntTmp=0;
+        localVarCntTmp=0;
         for(String str:list){
             str=numerateVars(str);
             int k;
@@ -63,7 +77,26 @@ public class StringFunctionSystem {
                 }
             }
             if(str.substring(0, k).startsWith("O.")){
-                outputFuncs.add(new StringGraph(str.substring(k+1, str.length())));
+                int n=outputFuncs.size();
+                outputFuncs.add(new ArrayList<>());
+                if(str.charAt(k+1)=='{'){
+                    String tmp="";
+                    for(k=k+2;k<str.length();k++){
+                        char c=str.charAt(k);
+                        if(c=='}') {
+                            outputFuncs.get(n).add(new StringGraph(tmp));
+                            break;
+                        }
+                        else if(c==','){
+                            outputFuncs.get(n).add(new StringGraph(tmp));
+                            tmp="";
+                        }else{
+                            tmp+=c;
+                        }
+                    }
+                }else {
+                    outputFuncs.get(n).add(new StringGraph(str.substring(k + 1, str.length())));
+                }
             }else if(str.substring(0, k).startsWith("X.")){
                 int index=str.substring(0, k).lastIndexOf('.');
                 index=Integer.parseInt(str.substring(index+1, k))-1;
@@ -73,11 +106,14 @@ public class StringFunctionSystem {
                 rightSides.add(new StringGraph(str.substring(k+1, str.length())));
             }
         }
-        electricVariableCount +=element.getElemContactList().size();    // НЕ ФАКТ, ДЛЯ МЕХАНИКИ
-        mechVariableCount += element.getMechContactList().size();
+        electricPotentialCount +=element.getElemContactList().size();
+        electricCurrentCount+=element.getElemContactList().size();
+        mechSpeedCount += element.getMechContactList().size();
+        mechTorqueCount += element.getMechContactList().size();
         inputCnt+=inpCntTmp;
         outputCnt+=outCntTmp;
         stateVarCnt+=varCntTemp;
+        localVarCnt+=localVarCntTmp;
     }
 
 
@@ -494,12 +530,16 @@ public class StringFunctionSystem {
         }
         for(int k=0;k<system.outputFuncs.size();k++){
             for(int j=0;j< Pmp.size();j++) {
-                system.outputFuncs.get(k).replaceVariable("p." + (j + 1), Pmp.get(j));
-                system.outputFuncs.get(k).replaceVariable("i." + (j + 1), Pmc.get(j));
+                for(int m=0;m<system.outputFuncs.get(k).size();m++) {
+                    system.outputFuncs.get(k).get(m).replaceVariable("p." + (j + 1), Pmp.get(j));
+                    system.outputFuncs.get(k).get(m).replaceVariable("i." + (j + 1), Pmc.get(j));
+                }
             }
             for(int j=0;j<Pms.size();j++) {
-                system.outputFuncs.get(k).replaceVariable("w." + (j + 1), Pms.get(j));
-                system.outputFuncs.get(k).replaceVariable("T." + (j + 1), Pmt.get(j));
+                for(int m=0;m<system.outputFuncs.get(k).size();m++) {
+                    system.outputFuncs.get(k).get(m).replaceVariable("w." + (j + 1), Pms.get(j));
+                    system.outputFuncs.get(k).get(m).replaceVariable("T." + (j + 1), Pmt.get(j));
+                }
             }
         }
 
@@ -517,7 +557,8 @@ public class StringFunctionSystem {
                         system.rightSides.get(y).replaceVariable("d.X."+(j+1), new StringGraph("d.X."+(j-i+1)));
                     }
                     for(int y=0;y<system.outputFuncs.size();y++){
-                        system.outputFuncs.get(y).replaceVariable("X."+(j+1), new StringGraph("X."+(j-i+1)));
+                        for(int m=0;m<system.outputFuncs.get(y).size();m++)
+                            system.outputFuncs.get(y).get(m).replaceVariable("X."+(j+1), new StringGraph("X."+(j-i+1)));
                     }
                 }
 
@@ -556,6 +597,7 @@ public class StringFunctionSystem {
         }
 
         // Try to reduce alg system
+        if(false)
         for(i=system.rightSides.size()-1;i>=0;i--){
             StringGraph rp=system.rightSides.get(i);
             Set vars=rp.getVariableSet();
@@ -577,6 +619,7 @@ public class StringFunctionSystem {
                         if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                             bw.newLine();
                             bw.write("result: "+var+" = "+rp.toString());
+                            bw.newLine();
                         }catch (IOException e) {
                             System.err.println(e.getMessage());
                         }
@@ -589,7 +632,8 @@ public class StringFunctionSystem {
                             system.rightSides.get(j).replaceVariable(var,rp);
                         }
                         for(int j=0;j<system.outputFuncs.size();j++){
-                            system.outputFuncs.get(j).replaceVariable(var,rp);
+                            for(int m=0;m<system.outputFuncs.get(j).size();m++)
+                                system.outputFuncs.get(j).get(m).replaceVariable(var,rp);
                         }
 
                         break;
@@ -598,6 +642,20 @@ public class StringFunctionSystem {
             }
         }
 
+
+        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+            bw.newLine();
+            bw.write("After reduction.");
+            bw.newLine();
+            bw.write("Equation system:");
+            bw.newLine();
+            for(int x=0;x<system.rightSides.size();x++){
+                bw.write("0 = "+system.rightSides.get(x).toString());
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
 
         List<StringGraph> potAlgSys=system.rightSides;
         output.setOutSystem(system.outputFuncs);
@@ -616,12 +674,14 @@ public class StringFunctionSystem {
             }
         }
         for(i=0;i<system.outputFuncs.size();i++){   //loop for Outs
-            StringGraph right=system.outputFuncs.get(i);
-            Set rightSideVars=right.getVariableSet();
-            for(Object obj:rightSideVars){
-                String name=(String)obj;
-                if(WorkSpace.isRealVariable(name)){
-                    output.addVariable(name, 0.0);
+            for(int m=0;m<system.outputFuncs.get(i).size();m++) {
+                StringGraph right = system.outputFuncs.get(i).get(m);
+                Set rightSideVars = right.getVariableSet();
+                for (Object obj : rightSideVars) {
+                    String name = (String) obj;
+                    if (WorkSpace.isRealVariable(name)) {
+                        output.addVariable(name, 0.0);
+                    }
                 }
             }
         }
@@ -644,881 +704,22 @@ public class StringFunctionSystem {
         }
     }
 
-    /**
-     * Сводит функции к ODE и записывает их в list.
-     * @param list список функций, содержащий функции тока и напряжения.
-     * @param potM карта потенциалов
-     * @param currM карта токов
-     * @return true если система линейна, false если система нелинейна.
-     */
-    public static StringFunctionSystem MergeFunctions(List<StringFunctionSystem> list,int[][] potM,int[][] currM){
-
-        List<List<Integer>> pots=new ArrayList();
-        List<List<Integer>> currs=new ArrayList();
-        List<StringGraph> potRight=new ArrayList();
-        List<StringGraph> curRight=new ArrayList();
-
-        //init matrx
-        int i=0;
-        for(int[] row:potM){
-            pots.add(new ArrayList());
-            for(int j:row){
-                pots.get(i).add(j);
-            }
-            potRight.add(new StringGraph(0));
-            i++;
-        }
-        i=0;
-        for(int[] row:currM){
-            currs.add(new ArrayList());
-            for(int j:row){
-                currs.get(i).add(j);
-            }
-            curRight.add(new StringGraph(0));
-            i++;
-        }
-        //---end of init---
-
-        //gather funcs
-        StringFunctionSystem output=new StringFunctionSystem(list);
-
-        //Layout
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
-            bw.write("Initial data");
-            bw.newLine();
-            bw.write("Потенциалы:");
-            bw.newLine();
-            for (int[] potM1 : potM) {
-                bw.write(Arrays.toString(potM1));
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Токи:");
-            bw.newLine();
-            for (int[] currM1 : currM) {
-                bw.write(Arrays.toString(currM1));
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Функции:");
-            bw.newLine();
-            for(int x=0;x<output.leftSides.size();x++){
-                String left=output.leftSides.get(x).toString(),
-                        right=output.rightSides.get(x).toString();
-                bw.write(left+" = "+right);
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-        //---end of layout---
-
-
-        //filtering
-        int numOfVars=currM[0].length;
-        int numOfPots=pots.size();
-        for(LeftPart lp:output.leftSides){
-            if(lp.containInstance("p.")){
-                numOfPots++;
-            }
-        }
-        int numOfCurs=currs.size();
-        for(LeftPart lp:output.leftSides){
-            if(lp.containInstance("i.")){
-                numOfCurs++;
-            }
-        }
-
-        if(numOfCurs<numOfVars){
-            int iterCount=numOfVars-numOfCurs;
-            int[] arr=new int[iterCount];
-
-            for(i=0;i<iterCount;i++){
-
-            }
-
-
-
-
-            for(i=0;i<output.rightSides.size();i++){
-                StringGraph right=output.rightSides.get(i);
-                if(right.getCurrent(output.leftSides.get(i),numOfVars)) break;
-            }
-        }else if(numOfPots<numOfVars){
-            for(i=0;i<output.rightSides.size();i++){
-                StringGraph right=output.rightSides.get(i);
-                if(right.getPotential(output.leftSides.get(i),numOfVars)) break;
-            }
-        }
-
-
-        //Layout
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-            bw.newLine();
-            bw.write("After 'filtering' data");
-            bw.newLine();
-            bw.write("Функции:");
-            bw.newLine();
-            for(int x=0;x<output.leftSides.size();x++){
-                String left=output.leftSides.get(x).toString(),
-                        right=output.rightSides.get(x).toString();
-                bw.write(left+" = "+right);
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-        //---end of layout---
-
-        //translate funcs to pots/currs
-        for(i=output.rightSides.size()-1;i>=0;i--){
-            LeftPart left=output.leftSides.get(i);
-            if(left.containInstance("p.")){
-                List<Integer> row=new ArrayList();
-                for(int j=0;j<numOfVars;j++){
-                    row.add(0);
-                }
-                for(int j=0;j<left.getNumOfVars();j++){
-                    row.set(left.getIndex(j),left.getValue(j));
-                }
-                pots.add(row);
-                potRight.add(output.rightSides.get(i));
-                output.leftSides.remove(i);
-                output.rightSides.remove(i);
-            }else if(left.containInstance("i.")){
-                List<Integer> row=new ArrayList();
-                for(int j=0;j<numOfVars;j++){
-                    row.add(0);
-                }
-                for(int j=0;j<left.getNumOfVars();j++){
-                    row.set(left.getIndex(j),left.getValue(j));
-                }
-                currs.add(row);
-                curRight.add(output.rightSides.get(i));
-                output.leftSides.remove(i);
-                output.rightSides.remove(i);
-            }
-        }
-
-        //Layout
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-            bw.newLine();
-            bw.write("Final data:");
-            bw.newLine();
-            bw.write("Потенциалы:");
-            bw.newLine();
-            for(int x=0;x<pots.size();x++){
-                bw.write(pots.get(x).toString());
-                bw.write("="+potRight.get(x).toString());
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Токи:");
-            bw.newLine();
-            for(int x=0;x<currs.size();x++){
-                bw.write(currs.get(x).toString());
-                bw.write("="+curRight.get(x).toString());
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Функции:");
-            bw.newLine();
-            for(int x=0;x<output.leftSides.size();x++){
-                String left=output.leftSides.get(x).toString(),
-                        right=output.rightSides.get(x).toString();
-                bw.write(left+" = "+right);
-                bw.newLine();
-            }
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-        //---end of layout---
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-            bw.newLine();
-            bw.write("In progress...");
-            bw.newLine();
-        } catch (IOException e) {}
-        List<StringGraph> answers=new ArrayList();
-        List<String> vars=new ArrayList();
-
-        boolean flag=true;
-        while(flag){
-            flag=false;
-            for(i=0;i<pots.size();i++){
-                List<Integer> row=pots.get(i);
-                if(row==null) continue; //????
-                int indx=MatrixEqu.getSingleInd(row);
-                if(indx!=-1){
-                    StringGraph right=potRight.get(i);
-                    int add=row.get(indx);
-                    right.multiplex(add);
-                    flag=true;
-                    //add 'var'=answ
-                    String name="p."+Integer.toString(indx+1);
-                    vars.add(name);
-                    answers.add(new StringGraph(right));
-                    if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                        bw.write(name+"="+right.toString());
-                        bw.newLine();
-                    } catch (IOException e) {}
-                    //remove solo index row
-                    pots.set(i, null);
-                    //replacing
-                    for(int j=0;j<pots.size();j++){
-                        List<Integer> rrow=pots.get(j);
-                        if(rrow!=null){
-                            if(rrow.get(indx)!=0&&MatrixEqu.getSingleInd(rrow)==-1){
-                                add=rrow.get(indx)*-1;
-                                StringGraph temp=StringGraph.mul(right,add);
-                                potRight.get(j).add(temp);
-                                rrow.set(indx, 0);
-                            }
-                        }
-                    }
-//                    for(int j=0;j<numOfVars;j++){
-//                        curRight.get(j).replaceVariable(name, new StringGraph(right));
-//                        potRight.get(j).replaceVariable(name, new StringGraph(right));
-//                    }
-                    for(int j=0;j<answers.size();j++){
-                        StringGraph ans=answers.get(j);
-                        ans.replaceVariable(name, new StringGraph(right));
-                    }//replacing ends
-                }//single row case end
-            }//pots end
-
-            //currs
-            for(i=0;i<currs.size();i++){
-                List<Integer> row=currs.get(i);
-                if(row==null) continue; //????
-                int indx=MatrixEqu.getSingleInd(row);
-                if(indx!=-1){
-                    StringGraph right=curRight.get(i);
-                    int add=row.get(indx);
-                    right.multiplex(add);
-                    flag=true;
-                    //add 'var'=answ
-                    String name="i."+Integer.toString(indx+1);
-                    vars.add(name);
-                    answers.add(new StringGraph(right));
-                    if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                        bw.write(name+"="+right.toString());
-                        bw.newLine();
-                    } catch (IOException e) {}
-                    //remove solo index row
-                    currs.set(i, null);
-
-                    //replacing
-                    for(int j=0;j<currs.size();j++){
-                        List<Integer> rrow=currs.get(j);
-                        if(rrow!=null){
-                            if(rrow.get(indx)!=0&&MatrixEqu.getSingleInd(rrow)==-1){
-                                add=rrow.get(indx)*-1;
-                                StringGraph temp=StringGraph.mul(right,add);
-                                curRight.get(j).add(temp);
-                                rrow.set(indx,0);
-                            }
-                        }
-                    }
-//                    for(int j=0;j<numOfVars;j++){
-//                        curRight.get(j).replaceVariable(name, new StringGraph(right));
-//                        potRight.get(j).replaceVariable(name, new StringGraph(right));
-//                    }
-                    for(int j=0;j<answers.size();j++){
-                        StringGraph ans=answers.get(j);
-                        ans.replaceVariable(name, new StringGraph(right));
-                    }
-                    //replacing ends
-                }
-            }//currs end
-        }//end of magic
-
-        //insert answers into dX and outs
-//        for(i=vars.size()-1;i>=0;i--){
-//            String name=vars.get(i);
-//            StringGraph rep=answers.get(i);
-//            if(checkVars(rep)){
-//                for(int j=0;j<vars.size();j++){
-//                    answers.get(j).replaceVariable(name, rep);
-//                }
-//                vars.remove(i);
-//                answers.remove(i);
-//            }
-//        }
-        for(i=0;i<vars.size();i++){
-            String name=vars.get(i);
-            StringGraph rep=answers.get(i);
-            for(int j=0;j<vars.size();j++){
-                answers.get(j).replaceVariable(name, rep);
-                if(answers.get(j).contains(vars.get(j))){
-                    answers.get(j).getVariable(vars.get(j),1);
-                }
-            }
-        }
-
-        for(i=0;i<vars.size();i++){
-            String name=vars.get(i);
-            for(int j=0;j<output.rightSides.size();j++){
-                if(output.rightSides.get(j).contains(name)){
-                    output.rightSides.get(j).replaceVariable(name, answers.get(i));
-                    output.rightSides.get(j).simplify();
-                }
-            }
-            for(int j=0;j<output.outputFuncs.size();j++){
-                if(output.outputFuncs.get(j).contains(name)){
-                    output.outputFuncs.get(j).replaceVariable(name, answers.get(i));
-                    output.outputFuncs.get(j).simplify();
-                }
-            }
-        }
-
-        //Layout
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-            bw.newLine();
-            bw.write("Finish:");
-            bw.newLine();
-            bw.write("Потенциалы:");
-            bw.newLine();
-            for(int x=0;x<potM.length;x++){
-                bw.write(Arrays.toString(potM[x]));
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Токи:");
-            bw.newLine();
-            for(int x=0;x<currM.length;x++){
-                bw.write(Arrays.toString(currM[x]));
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("answers:");
-            bw.newLine();
-            for(int j=0;j<vars.size();j++){
-                String left=vars.get(j),
-                        right=answers.get(j).toString();
-                bw.write(left+" = "+right);
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("Outs:");
-            bw.newLine();
-            for(int j=0;j<output.outputFuncs.size();j++){
-                String left="O."+(j+1),
-                        right=output.outputFuncs.get(j).toString();
-                bw.write(left+" = "+right);
-                bw.newLine();
-            }
-            bw.newLine();
-            bw.write("ODE:");
-            bw.newLine();
-            for(int j=0;j<output.rightSides.size();j++){
-                String left=output.leftSides.get(j).toString(),
-                        right=output.rightSides.get(j).toString();
-                bw.write(left+" = "+right);
-                bw.newLine();
-            }
-        } catch (IOException e) {}
-
-
-
-
-        //-------LESS OLDER MAGIC---------
-//        List<LeftPart> potsLeft=new ArrayList();
-//        List<LeftPart> currLeft=new ArrayList();
-//        List<List<Integer>> pots=new ArrayList();
-//        List<List<Integer>> currs=new ArrayList();
-//
-//        //init matrx
-//        int i=0;
-//        for(int[] row:potM){
-//            pots.add(new ArrayList());
-//            for(int j:row){
-//                pots.get(i).add(j);
-//            }
-//            potsLeft.add(null);
-//            i++;
-//        }
-//        i=0;
-//        for(int[] row:currM){
-//            currs.add(new ArrayList());
-//            for(int j:row){
-//                currs.get(i).add(j);
-//            }
-//            currLeft.add(null);
-//            i++;
-//        }
-//        List<StringGraph> potRight=new ArrayList();
-//        for(int j=0;j<pots.size();j++){
-//            potRight.add(new StringGraph(0));
-//        }
-//        List<StringGraph> curRight=new ArrayList();
-//        for(int j=0;j<currs.size();j++){
-//            curRight.add(new StringGraph(0));
-//        }
-//        //---end of init---
-//
-//        //Layout
-//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile))) {
-//            bw.write("Потенциалы:");
-//            bw.newLine();
-//            for(int x=0;x<potM.length;x++){
-//                bw.write(Arrays.toString(potM[x]));
-//                bw.newLine();
-//            }
-//            bw.newLine();
-//            bw.write("Токи:");
-//            bw.newLine();
-//            for(int x=0;x<currM.length;x++){
-//                bw.write(Arrays.toString(currM[x]));
-//                bw.newLine();
-//            }
-//            bw.newLine();
-//        } catch (IOException e) {
-//            System.err.println(e.getMessage());
-//        }
-//        //---end of layout---
-//
-//
-//        //gather funcs
-//        StringFunctionSystem output=new StringFunctionSystem(list);
-//
-//        List<String> vars=new ArrayList();
-//        List<StringGraph> answers=new ArrayList();
-//
-//        boolean flag=true;
-//        while(flag){
-//            flag=false;
-//            for(i=0;i<pots.size();i++){
-//                List<Integer> row=pots.get(i);
-//                if(row==null) continue;
-//                int indx=MatrixEqu.getSingleInd(row);
-//                if(indx!=-1){
-//                    //add var and asw    'var'==answer
-//                    vars.add("p."+Integer.toString(indx+1));
-//                    int add=row.get(indx);
-//                    StringGraph temp=potRight.get(i);
-//                    temp.multiplex(add);
-//                    answers.add(new StringGraph(temp));
-//                    //remove solo index row
-//                    pots.set(i, null);
-//                    //Replace find var in other functions
-//                    if(replacing("p."+(indx+1), temp, pots, potRight, currs, curRight, vars, answers, output)) flag=true;
-//                }
-//            }
-//            for(i=0;i<currs.size();i++){
-//                List<Integer> row=currs.get(i);
-//                if(row==null) continue;
-//                int indx=MatrixEqu.getSingleInd(row);
-//                if(indx!=-1){
-//                    //add var and asw    'var'==answer
-//                    vars.add("i."+Integer.toString(indx+1));
-//                    int add=row.get(indx);
-//                    StringGraph temp=curRight.get(i);
-//                    temp.multiplex(add);
-//                    answers.add(new StringGraph(temp));
-//                    currs.set(i, null);
-//                    //Replace find var in other functions
-//                    if(replacing("i."+(indx+1), temp, pots, potRight, currs, curRight, vars, answers, output)) flag=true;
-//                }
-//            }
-//            for(i=0;i<output.leftSides.size();i++){
-//                LeftPart left=output.leftSides.get(i);
-//                if(left==null) continue;
-//                StringGraph right=output.rightSides.get(i);
-//                switch(left.getRank()){
-//                    case 0:
-//                        if(right.containInstance("i.")){
-//                            for(int j=1;j<=electricVariableCount;j++){
-//                                if(right.contains("i."+j)){
-//                                    vars.add("i."+j);
-//                                    right.getVariable("i."+j);
-//                                    answers.add(new StringGraph(right));
-//                                    // implement blacklist for improve speed
-//                                    // Go srazu naxui replace!
-//
-//                                    output.leftSides.set(i,null);
-//                                    flag=true;
-//                                    break;
-//                                }
-//                            }
-//                        }else if(right.containInstance("p.")){
-//                            for(int j=1;j<=electricVariableCount;j++){
-//                                if(right.contains("p."+j)){
-//                                    vars.add("p."+j);
-//                                    right.getVariable("p."+j);
-//                                    answers.add(new StringGraph(right));
-//                                    output.leftSides.set(i,null);
-//                                    // Go srazu naxui replace!
-//
-//                                    // implement blacklist for improve speed
-//
-//                                    flag=true;
-//                                    break;
-//                                }
-//                            }
-//                        }else{/*??????*/}
-//                        break;
-//                    case 1:
-//                        if(left.getName(0).contains("d.X.")) continue;
-//                        String varName=left.getName(0);
-//                        StringGraph tempG=StringGraph.mul(right,left.getValue(varName));
-//                        output.leftSides.set(i, null);
-//                        answers.add(tempG);
-//                        vars.add(varName);
-//                        if(replacing(varName, tempG, pots, potRight, currs, curRight, vars, answers, output)){
-//                            flag=true;
-//                        }
-//                        //Repacing. If it happens
-//
-//
-//                        break;
-//                }
-//            }
-//            if(!flag){
-//                for(i=0;i<vars.size();i++){
-//                    StringGraph right=answers.get(i);
-//                    if("0".equals(vars.get(i))){
-//                        for(int j=1;j<=electricVariableCount;j++){
-//                            if(right.contains("p."+j)){
-//                                vars.set(i, "p."+j);
-//                                right.getVariable("p."+j);
-//                                if(replacing("p."+j, new StringGraph(right), pots, potRight, currs, curRight, vars, answers, output)) flag=true;
-//                            }else if(right.contains("i."+j)){
-//                                vars.set(i, "i."+j);
-//                                right.getVariable("i."+j);
-//                                if(replacing("i."+j, new StringGraph(right), pots, potRight, currs, curRight, vars, answers, output)) flag=true;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        // mejdusoboichik
-//        for(i=0;i<vars.size();i++){
-//            String var=vars.get(i);
-//            for(int j=0;j<answers.size();j++){
-//                if(i!=j&&answers.get(j).contains(var)){
-//                    answers.get(j).replaceVariable(var, new StringGraph(answers.get(i)));
-//                }
-//            }
-//        }
-//        for(i=output.rightSides.size()-1;i>=0;i--){
-//            if(output.leftSides.get(i)==null){
-//                output.leftSides.remove(i);
-//                output.rightSides.remove(i);
-//            }else{
-//                // mb lines w.o. dX
-//                for(int k=0;k<vars.size();k++){
-//                    String name=vars.get(k);
-//                    if(output.rightSides.get(i).contains(name)){
-//                        output.rightSides.get(i).replaceVariable(name, new StringGraph(answers.get(k)));
-//                    }
-//                }
-//            }
-//        }
-//        //generate outs
-//        for(i=0;i<output.outputFuncs.size();i++){
-//            for(int k=0;k<vars.size();k++){
-//                String name=vars.get(k);
-//                if(output.outputFuncs.get(i).contains(name)){
-//                    output.outputFuncs.get(i).replaceVariable(name, new StringGraph(answers.get(k)));
-//                }
-//            }
-//        }
-//
-//        //Layout
-//        try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-//            bw.newLine();
-//            bw.write("results:");
-//            bw.newLine();
-//            for(int j=0;j<vars.size();j++){
-//                String left=vars.get(j),
-//                        right=answers.get(j).toString();
-//                bw.write(left+" = "+right);
-//                bw.newLine();
-//            }
-//            bw.newLine();
-//            bw.write("Outs:");
-//            bw.newLine();
-//            for(int j=0;j<output.outputFuncs.size();j++){
-//                String left="O."+(j+1),
-//                        right=output.outputFuncs.get(j).toString();
-//                bw.write(left+" = "+right);
-//                bw.newLine();
-//            }
-//            bw.newLine();
-//            bw.write("ODE:");
-//            bw.newLine();
-//            for(int j=0;j<output.rightSides.size();j++){
-//                String left=output.leftSides.get(j).getName(0),
-//                        right=output.rightSides.get(j).toString();
-//                bw.write(left+" = "+right);
-//                bw.newLine();
-//            }
-//        } catch (IOException e) {}
-        //-----end of less older magic----------
-
-        //------OLD----magic----------------
-//            boolean flag=true;
-//            while(flag){
-//                flag=false;
-//
-//                //Chekaem pots
-//                for(int j=0;j<pots.size();j++){
-//                    List<Integer> row=pots.get(j);
-//                    if(row==null) continue;
-//                    int indx=MatrixEqu.getSingleInd(row);
-//                    if(indx!=-1){
-//                        int add=row.get(indx);
-//                        StringGraph temp=potRight.get(j);
-//                        temp.multiplex(add);
-//                        pots.set(j, null);
-//                        potsLeft.set(j, new LeftPart("p."+(indx+1),indx+1));
-//                        if(StringFunctionSystem.replaceVar("p."+(indx+1),temp,pots,potRight,currs,curRight,output,-1)){
-//                            flag=true;
-//                        }
-//                    }
-//                }
-//
-//                //Chekaem toki
-//                for(int j=0;j<currs.size();j++){
-//                    List<Integer> row=currs.get(j);
-//                    if(row==null) continue;
-//                    int indx=MatrixEqu.getSingleInd(row);
-//                    if(indx!=-1){
-//                        int add=row.get(indx);
-//                        StringGraph tempG=curRight.get(j);
-//                        tempG.multiplex(add);
-//                        currs.set(j, null);
-//                        currLeft.set(j, new LeftPart("i."+(indx+1),indx+1));
-//                        if(StringFunctionSystem.replaceVar("i."+(indx+1),tempG,pots,potRight,currs,curRight,output,-1)){
-//                            flag=true;
-//                        }
-//                    }
-//                }
-//
-//                //Chekaem funcs
-//                for(int j=0;j<output.leftSides.size();j++){
-//                    LeftPart left=output.leftSides.get(j);
-//                    if(left.getRank()==1){
-//                        if(left.getName(0).contains("d.X.")) continue;
-//                        String varName=left.getName(0);
-//                        StringGraph tempG=StringGraph.mul(output.rightSides.get(j),left.getValue(varName));
-//                        if(StringFunctionSystem.replaceVar(varName,tempG,pots,potRight,currs,curRight,output,j)){
-//                            flag=true;
-//                        }
-//                    }
-//                }
-//            }
-//            //poidee leftSides empty
-//
-//            //virazi d.X    ВЫРАЖАЙ ПО leftsides.size==0!!!!!!!!!!!!!!!
-//            int numOfX=1;
-//
-//            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-//                bw.write("Функции из матриц:");
-//                bw.newLine();
-//                for(int j=0;j<potsLeft.size();j++){
-//                    String left;
-//                    if(potsLeft.get(j)==null) left="0";
-//                    else left=potsLeft.get(j).getName(0);
-//                    bw.write(left+" = "+potRight.get(j).toString());
-//                    bw.newLine();
-//                }
-//                for(int j=0;j<currLeft.size();j++){
-//                    String left;
-//                    if(currLeft.get(j)==null) left="0";
-//                    else left=currLeft.get(j).getName(0);
-//                    bw.write(left+" = "+curRight.get(j).toString());
-//                    bw.newLine();
-//                }
-//                bw.newLine();
-//                bw.write("Функции элементов:");
-//                bw.newLine();
-//                for(int H=0;H<output.leftSides.size();H++){
-//                    String left;
-//                    if(output.leftSides.get(H).names.isEmpty()){
-//                        left="0";
-//                    }else{
-//                        left=output.leftSides.get(H).getName(0);
-//                    }
-//                    bw.write(left+" = "+output.rightSides.get(H).toString());
-//                    bw.newLine();
-//                }
-//                bw.newLine();
-//                bw.write("Функции выходов:");
-//                bw.newLine();
-//                for(int j=0;j<output.outputFuncs.size();j++){
-//                    bw.write(output.outputFuncs.get(j).toString());
-//                    bw.newLine();
-//                }
-//            } catch (IOException e) {}
-//
-//            if(output.isDynamic){
-//                //gather d.X.i
-//                List<StringGraph> rightSideTemp=new ArrayList();
-//                for(int j=0;j<potsLeft.size();j++){
-//                    LeftPart left=potsLeft.get(j);
-//                    StringGraph right=potRight.get(j);
-//                    if(left==null&&right.containInstance("d.X.")){
-//                        rightSideTemp.add(right);
-//                        numOfX++;
-//                    }
-//                }
-//                for(int j=0;j<currLeft.size();j++){
-//                    LeftPart left=currLeft.get(j);
-//                    StringGraph right=curRight.get(j);
-//                    if(left==null&&right.containInstance("d.X.")){
-//                        rightSideTemp.add(right);
-//                        numOfX++;
-//                    }
-//                }
-//                for(int j=0;j<output.leftSides.size();j++){
-//                    LeftPart left=output.leftSides.get(j);
-//                    StringGraph right=output.rightSides.get(j);
-//                    if(left.names.isEmpty()&&right.containInstance("d.X.")){
-//                        rightSideTemp.add(right);
-//                        numOfX++;
-//                    }
-//                }
-//
-//                //RESOLVE TRIANGLE SYSTEM
-//                List<LeftPart> leftPartsTemp=new ArrayList();
-//                List<List<String>> numOfDx=new ArrayList();
-//                for(int j=0;j<rightSideTemp.size();j++){
-//                    numOfDx.add(new ArrayList());
-//                    leftPartsTemp.add(null);
-//                    for(int k=1;k<numOfX;k++){
-//                        if(rightSideTemp.get(j).contains("d.X."+k)){
-//                            numOfDx.get(j).add("d.X."+k);
-//                        }
-//                    }
-//                }
-//                flag=true;
-//                while(flag){
-//                    flag=false;
-//                    for(int j=0;j<numOfDx.size();j++){
-//                        List<String> vars=numOfDx.get(j);
-//                        if(vars.size()==1){         //Find alone dX/dt
-//                            String name=vars.get(0);
-//                            rightSideTemp.get(j).getVariable(name);  //CHECK FOR CONFLICTS
-//                            leftPartsTemp.set(j,new LeftPart(name));
-//                            for(int k=0;k<rightSideTemp.size();k++){    //replace finded dX/dt
-//                                if(k!=j){
-//                                    if(rightSideTemp.get(k).contains(name)){
-//                                        rightSideTemp.get(k).replaceVariable(name, rightSideTemp.get(j));
-//                                        numOfDx.get(k).remove(name);
-//                                    }
-//                                }
-//                            }
-//                            flag=true;
-//                            vars.remove(0);
-//                        }
-//                    }
-//                }
-//                //Sort d.X.1 d.X.2 d.X.3....
-//                output.leftSides.clear();
-//                output.rightSides.clear();
-//                for(int j=0;j<leftPartsTemp.size();j++){
-//                    output.leftSides.add(null);
-//                    output.rightSides.add(null);
-//                }
-//                for(int j=0;j<leftPartsTemp.size();j++){
-//                    String name=leftPartsTemp.get(j).getName(0);
-//                    int indx=name.lastIndexOf('.')+1;
-//                    String nume=name.substring(indx);
-//                    indx=Integer.parseInt(nume)-1;
-//                    output.leftSides.set(indx, leftPartsTemp.get(j));
-//                    output.rightSides.set(indx, rightSideTemp.get(j));
-//                }
-
-//                for(List<String> vals:numOfDx){
-//                    if(vals.size()>0){
-//    //                    raschetkz.RaschetKz.layoutString("Ti cho pes, tyt not minimal system");
-//                    }
-//                }
-//
-//            }
-//
-//
-//
-////            for(int j=output.leftSides.size()-1;j>=0;j--){
-////                if(output.leftSides.get(j).names.isEmpty()){
-////                    flag=true;
-////                    numOfX++;
-////                }else{
-////                    output.rightSides.remove(j);
-////                    output.leftSides.remove(j);
-////                }
-////            }
-//
-//
-//
-//            //LOG OUT
-//            try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-//                bw.newLine();
-//                bw.write("ODE:");
-//                bw.newLine();
-//                for(int j=0;j<output.rightSides.size();j++){
-//                    bw.write(output.leftSides.get(j).getName(0)+" = "+output.rightSides.get(j).toString());
-//                    bw.newLine();
-//                }
-//            } catch (IOException e) {}
-//
-////            //delete useless already done
-////            int[] ii= new int[numOfX-1]; //for sorting
-////            int iii=0;
-////            for(int j=output.rightSides.size()-1;j>=0;j--){
-////                for(int k=1;k<numOfX;k++){
-////                    if(output.rightSides.get(j).contains("d.X."+k)){
-////                        output.rightSides.get(j).getVariable("d.X."+k);  //CHECK FOR CONFLICTS
-////                        output.leftSides.set(j,new LeftPart("d.X."+k));
-////                        ii[iii]=k;
-////                        iii++;
-////                    }
-////                }
-////            }
-//
-//
-////            for(int j=0;j<output.outputFuncs.size();j++){
-////                System.err.println(output.outputFuncs.get(j).asString());
-////            }
-//
-//            //Outputs
-//            for(int j=0;j<output.outputFuncs.size();j++){
-//                for(int k=1;k<numOfX;k++){
-//                    if(output.outputFuncs.get(j).contains("d.X."+k)){
-//                        output.outputFuncs.get(j).replaceVariable("d.X."+k, output.rightSides.get(k-1));
-//                    }
-//                }
-//            }
-//
-//             try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-//                 bw.newLine();
-//                 bw.write("Выходы:");
-//                 bw.newLine();
-//                 for(int j=0;j<output.outputFuncs.size();j++){
-//                     bw.write(output.outputFuncs.get(j).toString());
-//                     bw.newLine();
-//                 }
-//             } catch (IOException e) {}
-        // ----------OLD-----END---------------
-
-        return output;
-    }
-
     public static void initVarCount(){
-        electricVariableCount = 0;
-        mechVariableCount = 0;
+        electricPotentialCount =0;
+        electricCurrentCount=0;
+        mechSpeedCount=0;
+        mechTorqueCount=0;
         stateVarCnt=0;
         inputCnt=0;
         outputCnt=0;
+        localVarCnt=0;
     }
 
     public List<MathOutPin> getOutputs(){
         return outputs;
     }
 
-    public List<StringGraph> getOutFuncs(){
+    public List<List<StringGraph>> getOutFuncs(){
         return outputFuncs;
     }
 
@@ -2019,7 +1220,7 @@ public class StringFunctionSystem {
      */
     private String numerateVars(String input){
         //-----phi and curr----------
-        int ind,length,startIndx=0,maxX=-1,maxInp=-1,maxOut=-1;
+        int ind,length,startIndx=0,maxX=-1,maxInp=-1,maxOut=-1,maxZ=-1;
         length=input.length();
         for(int i=0;i<length;i++){
             char c=input.charAt(i);
@@ -2030,8 +1231,9 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
-                                ind=Integer.parseInt(temp)+ electricVariableCount;
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
+                                ind=Integer.parseInt(temp);
+                                ind+=electricPotentialCount;
                                 input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 temp="";
                                 break;
@@ -2040,7 +1242,8 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp)+ electricVariableCount;
+                            ind=Integer.parseInt(temp);
+                            ind+=electricPotentialCount;
                             input=input.substring(0, startIndx)+Integer.toString(ind);
                         }
                     }
@@ -2051,8 +1254,9 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
-                                ind=Integer.parseInt(temp)+ electricVariableCount;
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
+                                ind=Integer.parseInt(temp);
+                                ind+=electricCurrentCount;
                                 input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 temp="";
                                 break;
@@ -2061,7 +1265,8 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp)+ electricVariableCount;
+                            ind=Integer.parseInt(temp);
+                            ind+=electricCurrentCount;
                             input=input.substring(0, startIndx)+Integer.toString(ind);
                         }
                     }
@@ -2072,8 +1277,9 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
-                                ind=Integer.parseInt(temp)+ mechVariableCount;
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
+                                ind=Integer.parseInt(temp);
+                                ind+=mechSpeedCount;
                                 input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 temp="";
                                 break;
@@ -2082,7 +1288,8 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp)+ mechVariableCount;
+                            ind=Integer.parseInt(temp);
+                            ind+=mechSpeedCount;
                             input=input.substring(0, startIndx)+Integer.toString(ind);
                         }
                     }
@@ -2093,8 +1300,9 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
-                                ind=Integer.parseInt(temp)+ mechVariableCount;
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
+                                ind=Integer.parseInt(temp);
+                                ind+=mechTorqueCount;
                                 input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 temp="";
                                 break;
@@ -2103,7 +1311,8 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp)+ mechVariableCount;
+                            ind=Integer.parseInt(temp);
+                            ind+=mechTorqueCount;
                             input=input.substring(0, startIndx)+Integer.toString(ind);
                         }
                     }
@@ -2114,7 +1323,7 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
                                 ind=Integer.parseInt(temp);
                                 if(ind>maxX) maxX=ind;
                                 ind+=stateVarCnt;
@@ -2141,7 +1350,7 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
                                 ind=Integer.parseInt(temp);
                                 if(ind>maxOut) maxOut=ind;
                                 ind+=outputCnt;
@@ -2167,7 +1376,7 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'){
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
                                 ind=Integer.parseInt(temp);
                                 if(ind>maxInp) maxInp=ind;
                                 ind+=inputCnt;
@@ -2187,12 +1396,40 @@ public class StringFunctionSystem {
                         }
                     }
                     break;
+                case 'Z':
+                    if(input.charAt(++i)=='.'){
+                        startIndx=++i;
+                        String temp="";
+                        for(;i<length;i++){
+                            c=input.charAt(i);
+                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
+                                ind=Integer.parseInt(temp);
+                                if(ind>maxZ) maxZ=ind;
+                                ind+=localVarCnt;
+                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                temp="";
+
+                                break;
+                            }else{
+                                temp+=c;
+                            }
+                        }
+                        if(!temp.isEmpty()){
+                            ind=Integer.parseInt(temp);
+                            if(ind>maxZ) maxZ=ind;
+                            ind+=localVarCnt;
+                            input=input.substring(0, startIndx)+Integer.toString(ind);
+
+                        }
+                    }
+                    break;
             }
             length=input.length();
         }
         if(maxX>varCntTemp) varCntTemp=maxX;
         if(maxOut>outCntTmp) outCntTmp=maxOut;
         if(maxInp>inpCntTmp) inpCntTmp=maxInp;
+        if(maxZ>localVarCntTmp) localVarCntTmp=maxZ;
         return input;
     }
 
@@ -2288,117 +1525,117 @@ public class StringFunctionSystem {
         return output;
     }
 
-    /**
-     * Заменяет все var в системе функций и удаляет строки.
-     * @param varName
-     * @param replacement
-     * @param potM
-     * @param potR
-     * @param currM
-     * @param curR
-     * @param gathered
-     * @param forbidden
-     * @return
-     */
-    private static boolean replaceVar(String varName,
-                                      StringGraph replacement,
-                                      List<List<Integer>> potM,
-                                      List<StringGraph> potR,
-                                      List<List<Integer>> currM,
-                                      List<StringGraph> curR,
-                                      StringFunctionSystem gathered,int forbidden)
-    {
-        boolean output=false;
-        int varIndex=Integer.parseInt(varName.substring(2))-1;  // NE 2=const Nixiya!!!!!   inp.N opapapa
-        if(varName.charAt(0)=='p'){
-            //Replace variable in pot Matrix
-            for(int i=0;i<potM.size();i++){     //check rows
-                List<Integer> row=potM.get(i);
-                if(row==null) continue;
-                if(row.get(varIndex)!=0){
-                    int add=row.get(varIndex)*-1;
-                    StringGraph replace=StringGraph.mul(replacement,add);
-                    potR.get(i).add(replace);
-                    output=true;
-                    if(MatrixEqu.getSingleInd(row)==-1){
-                        row.set(varIndex, 0);
-                    }else{
-                        potM.set(i, null);
-                    }
-                }
-            }
-        }else{
-            //Replace variable in curr Matrix
-            for(int i=0;i<currM.size();i++){     //check rows
-                List<Integer> row=currM.get(i);
-                if(row==null) continue;
-                if(row.get(varIndex)!=0){
-                    int add=row.get(varIndex)*-1;
-                    StringGraph replace=StringGraph.mul(replacement,add);
-                    curR.get(i).add(replace);
-                    output=true;
-                    if(MatrixEqu.getSingleInd(row)==-1){
-                        row.set(varIndex, 0);
-                    }else{
-                        currM.set(i,null);
-                    }
-                }
-            }
-        }
-
-        for(StringGraph right:potR){
-            if(right.contains(varName)){
-                right.replaceVariable(varName, replacement);
-                output=true;
-            }
-        }
-        for(StringGraph right:curR){
-            if(right.contains(varName)){
-                right.replaceVariable(varName, replacement);
-                output=true;
-            }
-        }
-
-        // Cheсkaem funkcii
-        //label:
-        for(int i=0;i<gathered.leftSides.size();i++){
-            LeftPart left=gathered.leftSides.get(i);
-            StringGraph right=gathered.rightSides.get(i);
-
-            if(left.contain(varName)){
-                if(i==forbidden) continue;   //DO NOT WORKs
-
-//                for(int k=stateVarCnt;k>=0;k--){
-//                    if(replacement.contains("d.X."+k)){
-//                        for(int h=stateVarCnt;h>=0;h--){
-//                            if(right.contains("d.X."+h)){
-//                                continue label;
-//                            }
-//                        }
+//    /**
+//     * Заменяет все var в системе функций и удаляет строки.
+//     * @param varName
+//     * @param replacement
+//     * @param potM
+//     * @param potR
+//     * @param currM
+//     * @param curR
+//     * @param gathered
+//     * @param forbidden
+//     * @return
+//     */
+//    private static boolean replaceVar(String varName,
+//                                      StringGraph replacement,
+//                                      List<List<Integer>> potM,
+//                                      List<StringGraph> potR,
+//                                      List<List<Integer>> currM,
+//                                      List<StringGraph> curR,
+//                                      StringFunctionSystem gathered,int forbidden)
+//    {
+//        boolean output=false;
+//        int varIndex=Integer.parseInt(varName.substring(2))-1;  // NE 2=const Nixiya!!!!!   inp.N opapapa
+//        if(varName.charAt(0)=='p'){
+//            //Replace variable in pot Matrix
+//            for(int i=0;i<potM.size();i++){     //check rows
+//                List<Integer> row=potM.get(i);
+//                if(row==null) continue;
+//                if(row.get(varIndex)!=0){
+//                    int add=row.get(varIndex)*-1;
+//                    StringGraph replace=StringGraph.mul(replacement,add);
+//                    potR.get(i).add(replace);
+//                    output=true;
+//                    if(MatrixEqu.getSingleInd(row)==-1){
+//                        row.set(varIndex, 0);
+//                    }else{
+//                        potM.set(i, null);
 //                    }
 //                }
-
-                int add=left.getValue(varName)*-1;
-                left.remove(varName);
-                StringGraph replace=StringGraph.mul(replacement,add);
-                right.add(replace);
-                right.replaceVariable(varName, replacement);
-                output=true;
-            }else if(right.contains(varName)){
-                right.replaceVariable(varName, replacement);
-                output=true;
-            }
-        }
-
-        //Chekaem outputsi
-        for(int i=0;i<gathered.outputFuncs.size();i++){
-            StringGraph func=gathered.outputFuncs.get(i);
-            if(func.contains(varName))
-                func.replaceVariable(varName, replacement);
-        }
-
-        return output;
-    }
+//            }
+//        }else{
+//            //Replace variable in curr Matrix
+//            for(int i=0;i<currM.size();i++){     //check rows
+//                List<Integer> row=currM.get(i);
+//                if(row==null) continue;
+//                if(row.get(varIndex)!=0){
+//                    int add=row.get(varIndex)*-1;
+//                    StringGraph replace=StringGraph.mul(replacement,add);
+//                    curR.get(i).add(replace);
+//                    output=true;
+//                    if(MatrixEqu.getSingleInd(row)==-1){
+//                        row.set(varIndex, 0);
+//                    }else{
+//                        currM.set(i,null);
+//                    }
+//                }
+//            }
+//        }
+//
+//        for(StringGraph right:potR){
+//            if(right.contains(varName)){
+//                right.replaceVariable(varName, replacement);
+//                output=true;
+//            }
+//        }
+//        for(StringGraph right:curR){
+//            if(right.contains(varName)){
+//                right.replaceVariable(varName, replacement);
+//                output=true;
+//            }
+//        }
+//
+//        // Cheсkaem funkcii
+//        //label:
+//        for(int i=0;i<gathered.leftSides.size();i++){
+//            LeftPart left=gathered.leftSides.get(i);
+//            StringGraph right=gathered.rightSides.get(i);
+//
+//            if(left.contain(varName)){
+//                if(i==forbidden) continue;   //DO NOT WORKs
+//
+////                for(int k=stateVarCnt;k>=0;k--){
+////                    if(replacement.contains("d.X."+k)){
+////                        for(int h=stateVarCnt;h>=0;h--){
+////                            if(right.contains("d.X."+h)){
+////                                continue label;
+////                            }
+////                        }
+////                    }
+////                }
+//
+//                int add=left.getValue(varName)*-1;
+//                left.remove(varName);
+//                StringGraph replace=StringGraph.mul(replacement,add);
+//                right.add(replace);
+//                right.replaceVariable(varName, replacement);
+//                output=true;
+//            }else if(right.contains(varName)){
+//                right.replaceVariable(varName, replacement);
+//                output=true;
+//            }
+//        }
+//
+//        //Chekaem outputsi
+//        for(int i=0;i<gathered.outputFuncs.size();i++){
+//            StringGraph func=gathered.outputFuncs.get(i);
+//            if(func.contains(varName))
+//                func.replaceVariable(varName, replacement);
+//        }
+//
+//        return output;
+//    }
 
 //    /**
 //     *

@@ -49,6 +49,7 @@ public class ListOfElements {
                 cat.elements.add(new Inductance(true));
                 cat.elements.add(new Capasitor(true));
                 cat.elements.add(new ElectricalReference(true));
+                cat.elements.add(new ThreePhLoad(true));
                 break;
             case "Electric sources":
                 cat.elements.add(new VoltageSource(true));
@@ -73,6 +74,7 @@ public class ListOfElements {
             case "Measurments":
                 cat.elements.add(new Voltmeter(true));
                 cat.elements.add(new Ampermeter(true));
+                cat.elements.add(new ThreePhMeasure(true));
                 break;
             case "Maths":
                 cat.elements.add(new Scope(true));

@@ -26,9 +26,12 @@ package Elements.Math;
 import ElementBase.OutputElement;
 import java.util.List;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import raschetkz.Protection;
 
 /**
  *
@@ -52,10 +55,11 @@ public class KZsensor extends OutputElement{
     @Override
     public void updateData(double t) {
         List<Double> val=getInputs().get(0).getValue();
-        if(val.get(0)>maxIVal)  {
-            maxIVal=val.get(0);
-            maxItime=t;
-        }
+        for(Double d:val)
+            if(d>maxIVal)  {
+                maxIVal=d;
+                maxItime=t;
+            }
     }
 
     @Override
@@ -81,6 +85,15 @@ public class KZsensor extends OutputElement{
             Label txt=new Label("No results. Start simulation");
             root.add(txt, 0, 0);
         }
+
+        Button evalButton=new Button("Pick up a protection");
+        Text pickLbl=new Text("");
+        root.add(evalButton,0,2);
+        root.add(pickLbl,1,2);
+        evalButton.setOnAction(ae->{
+            Protection prot=Protection.pickOne(maxIVal);
+            pickLbl.setText("Pick result.\nProtection unit name: "+prot.getUnitName()+"\nNominal current: "+prot.getNominalCurrent());
+        });
         plotStage.show();
     }
 
