@@ -59,9 +59,11 @@ public class PIDRegulator extends DynamMathElem{
     protected void setParams() {
         Kp=new Parameter("Proportional coefficient",1);
         Ki=new Parameter("Integration coefficient",1);
-        Kd=new Parameter("Differentiation coefficient",1);
+        Kd=new Parameter("Differentiation coefficient",0);
         getParameters().add(Kp);
         getParameters().add(Ki);
         getParameters().add(Kd);
+
+        setName("PID regulator");
     }
 }

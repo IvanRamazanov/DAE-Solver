@@ -9,12 +9,20 @@ import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
 import ElementBase.SchemeElement;
 import ElementBase.Element.InitParam;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import static MathPack.MatrixEqu.rank;
+import static MathPack.StringFunctionSystem.parseInt;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.Iterator;
+import java.util.HashMap;
+import java.util.ArrayList;
 
 /**
  *
@@ -28,6 +36,7 @@ public class StringFunctionSystem {
     List<MathOutPin> outputs;
     List<Integer> xPryor;
     List<Double> initials=new ArrayList();
+    public static SimpleBooleanProperty simplyfingFlag=new SimpleBooleanProperty(false);
     private static int
             electricPotentialCount =0,
             electricCurrentCount=0,
@@ -99,7 +108,7 @@ public class StringFunctionSystem {
                 }
             }else if(str.substring(0, k).startsWith("X.")){
                 int index=str.substring(0, k).lastIndexOf('.');
-                index=Integer.parseInt(str.substring(index+1, k))-1;
+                index=parseInt(str.substring(index+1, k))-1;
                 rightWithDiff.set(index-stateVarCnt,new LeftPart(str.substring(k+1, str.length())));
             }else{
                 leftSides.add(new LeftPart(str.substring(0, k)));
@@ -597,50 +606,50 @@ public class StringFunctionSystem {
         }
 
         // Try to reduce alg system
-        if(false)
-        for(i=system.rightSides.size()-1;i>=0;i--){
-            StringGraph rp=system.rightSides.get(i);
-            Set vars=rp.getVariableSet();
-            for(Iterator<String> iter=vars.iterator();iter.hasNext();){
-                String var=iter.next();
-                if(WorkSpace.isRealVariable(var)&&!var.startsWith("d.X.")){
-                    if(rp.canGet(var)){
-                        //log this
-                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                            bw.newLine();
-                            bw.write("Get var: "+var+"  from "+rp.toString());
-                        }catch (IOException e) {
-                            System.err.println(e.getMessage());
+        if(simplyfingFlag.get())
+            for(i=system.rightSides.size()-1;i>=0;i--){
+                StringGraph rp=system.rightSides.get(i);
+                Set vars=rp.getVariableSet();
+                for(Iterator<String> iter=vars.iterator();iter.hasNext();){
+                    String var=iter.next();
+                    if(WorkSpace.isRealVariable(var)&&!var.startsWith("d.X.")){
+                        if(rp.canGet(var)){
+                            //log this
+                            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                                bw.newLine();
+                                bw.write("Get var: "+var+"  from "+rp.toString());
+                            }catch (IOException e) {
+                                System.err.println(e.getMessage());
+                            }
+
+                            //evaluate var=rp(...)
+                            rp.getVariable(var);
+
+                            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                                bw.newLine();
+                                bw.write("result: "+var+" = "+rp.toString());
+                                bw.newLine();
+                            }catch (IOException e) {
+                                System.err.println(e.getMessage());
+                            }
+
+                            //remove
+                            system.rightSides.remove(i);
+
+                            //replace var in system
+                            for(int j=0;j<system.rightSides.size();j++){
+                                system.rightSides.get(j).replaceVariable(var,rp);
+                            }
+                            for(int j=0;j<system.outputFuncs.size();j++){
+                                for(int m=0;m<system.outputFuncs.get(j).size();m++)
+                                    system.outputFuncs.get(j).get(m).replaceVariable(var,rp);
+                            }
+
+                            break;
                         }
-
-                        //evaluate var=rp(...)
-                        rp.getVariable(var);
-
-                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                            bw.newLine();
-                            bw.write("result: "+var+" = "+rp.toString());
-                            bw.newLine();
-                        }catch (IOException e) {
-                            System.err.println(e.getMessage());
-                        }
-
-                        //remove
-                        system.rightSides.remove(i);
-
-                        //replace var in system
-                        for(int j=0;j<system.rightSides.size();j++){
-                            system.rightSides.get(j).replaceVariable(var,rp);
-                        }
-                        for(int j=0;j<system.outputFuncs.size();j++){
-                            for(int m=0;m<system.outputFuncs.get(j).size();m++)
-                                system.outputFuncs.get(j).get(m).replaceVariable(var,rp);
-                        }
-
-                        break;
                     }
                 }
             }
-        }
 
 
         if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
@@ -1231,10 +1240,10 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 ind+=electricPotentialCount;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
                             }else{
@@ -1242,9 +1251,9 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             ind+=electricPotentialCount;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
                         }
                     }
                     break;
@@ -1254,10 +1263,10 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 ind+=electricCurrentCount;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
                             }else{
@@ -1265,9 +1274,9 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             ind+=electricCurrentCount;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
                         }
                     }
                     break;
@@ -1277,10 +1286,10 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 ind+=mechSpeedCount;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
                             }else{
@@ -1288,9 +1297,9 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             ind+=mechSpeedCount;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
                         }
                     }
                     break;
@@ -1300,10 +1309,10 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 ind+=mechTorqueCount;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
                             }else{
@@ -1311,9 +1320,9 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             ind+=mechTorqueCount;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
                         }
                     }
                     break;
@@ -1323,11 +1332,11 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 if(ind>maxX) maxX=ind;
                                 ind+=stateVarCnt;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
 
                                 break;
@@ -1336,10 +1345,10 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             if(ind>maxX) maxX=ind;
                             ind+=stateVarCnt;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
 
                         }
                     }
@@ -1350,11 +1359,11 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 if(ind>maxOut) maxOut=ind;
                                 ind+=outputCnt;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
                             }else{
@@ -1362,10 +1371,10 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             if(ind>maxOut) maxOut=ind;
                             ind+=outputCnt;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
 
                         }
                     }
@@ -1376,11 +1385,12 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 if(ind>maxInp) maxInp=ind;
                                 ind+=inputCnt;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+//                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
                             }else{
@@ -1388,10 +1398,10 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             if(ind>maxInp) maxInp=ind;
                             ind+=inputCnt;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
 
                         }
                     }
@@ -1402,11 +1412,11 @@ public class StringFunctionSystem {
                         String temp="";
                         for(;i<length;i++){
                             c=input.charAt(i);
-                            if(StringGraph.isOperand(input,i)||c=='='||c==','||c==')'||c=='}'){
-                                ind=Integer.parseInt(temp);
+                            if(isEnougth(input,i)){
+                                ind=parseInt(temp);
                                 if(ind>maxZ) maxZ=ind;
                                 ind+=localVarCnt;
-                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
+                                input=renumerate(input,startIndx,temp,ind);
                                 temp="";
 
                                 break;
@@ -1415,11 +1425,11 @@ public class StringFunctionSystem {
                             }
                         }
                         if(!temp.isEmpty()){
-                            ind=Integer.parseInt(temp);
+                            ind=parseInt(temp);
                             if(ind>maxZ) maxZ=ind;
                             ind+=localVarCnt;
-                            input=input.substring(0, startIndx)+Integer.toString(ind);
-
+                            //input=input.substring(0, startIndx)+Integer.toString(ind);
+                            input=renumerate(input,startIndx,temp,ind);
                         }
                     }
                     break;
@@ -1431,6 +1441,34 @@ public class StringFunctionSystem {
         if(maxInp>inpCntTmp) inpCntTmp=maxInp;
         if(maxZ>localVarCntTmp) localVarCntTmp=maxZ;
         return input;
+    }
+
+    static int parseInt(String str){
+        int i;
+        if((i=str.indexOf('['))!=-1){
+            String numb = str.substring(0,i);
+            return Integer.parseInt(numb);
+        }else {
+            return Integer.parseInt(str);
+        }
+    }
+
+    static private String renumerate(String line,int position,String repl,int newIndex){
+        int length=line.length(),replLen=repl.length(),ind;
+        String extra="";
+        if((ind=repl.indexOf('['))!=-1){
+            extra=repl.substring(ind);
+        }
+        String out=line.substring(0, position)+Integer.toString(newIndex)+extra;
+        if(position+replLen<length){
+            out+=line.substring(position+replLen);
+        }
+        return out;
+    }
+
+    static private boolean isEnougth(String str,int position){
+        char c=str.charAt(position);
+        return StringGraph.isOperand(str,position)||c=='='||c==','||c==')'||c=='}';
     }
 
     /**
@@ -1457,7 +1495,7 @@ public class StringFunctionSystem {
                                      StringFunctionSystem gathered)
     {
         boolean output=false;
-        int varIndex=Integer.parseInt(varName.substring(varName.lastIndexOf('.')+1))-1;
+        int varIndex=parseInt(varName.substring(varName.lastIndexOf('.')+1))-1;
         if(varName.charAt(0)=='p'){
             //Replace variable in pot Matrix
             for(int i=0;i<potM.size();i++){     //check rows
@@ -1669,7 +1707,7 @@ class LeftPart{
                 case '+':
                     names.add(new Variable(temp));
                     int i=temp.lastIndexOf('.');
-                    indexs.add(Integer.parseInt(temp.substring(i+1))-1);   // NOT CONSTANT VALUE 2!!!!!!!!
+                    indexs.add(parseInt(temp.substring(i+1))-1);   // NOT CONSTANT VALUE 2!!!!!!!!
                     gains.add(gain);
                     temp="";
                     gain=1;
@@ -1678,7 +1716,7 @@ class LeftPart{
                     if(!temp.isEmpty()){
                         names.add(new Variable(temp));
                         i=temp.lastIndexOf('.');
-                        indexs.add(Integer.parseInt(temp.substring(i+1))-1);
+                        indexs.add(parseInt(temp.substring(i+1))-1);
                         gains.add(gain);
                         temp="";
                     }
@@ -1691,7 +1729,7 @@ class LeftPart{
         }
         if(!temp.isEmpty()){
             names.add(new Variable(temp));
-            indexs.add(Integer.parseInt(temp.substring(temp.lastIndexOf('.')+1))-1);
+            indexs.add(parseInt(temp.substring(temp.lastIndexOf('.')+1))-1);
             gains.add(gain);
         }
     }
@@ -1703,7 +1741,7 @@ class LeftPart{
         names.add(new Variable(name));
         gains.add(add);
         String tmp=name.substring(name.lastIndexOf('.')+1);
-        indexs.add(Integer.parseInt(tmp)-1);
+        indexs.add(parseInt(tmp)-1);
     }
 
 
@@ -1728,7 +1766,7 @@ class LeftPart{
     void add(String name,int gain){
         this.gains.add(gain);
         this.names.add(new Variable(name));
-        this.indexs.add(Integer.parseInt(name.substring(name.lastIndexOf('.')+1))-1);
+        this.indexs.add(parseInt(name.substring(name.lastIndexOf('.')+1))-1);
     }
 
     int getValue(String name){

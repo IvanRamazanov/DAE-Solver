@@ -28,11 +28,12 @@ public class MechMarker extends LineMarker{
 
     MechMarker(){
         super();
-        view=new Circle();
+        Circle view=new Circle();
         view.layoutXProperty().bind(bindX);
         view.layoutYProperty().bind(bindY);
-        ((Circle)view).setRadius(4);
-        itsLines.setColor(COLOR);
+        view.setRadius(4);
+        setView(view);
+
 
         itsLines.setLineDragOver(de->{
             if(activeWireConnect!=null){
@@ -79,27 +80,10 @@ public class MechMarker extends LineMarker{
         });
 
         //EVENT ZONE
-        EventHandler connDragDetectHandle =(EventHandler<MouseEvent>) (MouseEvent me) -> {
-            if(me.getButton()==MouseButton.PRIMARY){
-                this.pushToBack();
-                startFullDrag();
-            }
-            me.consume();
-        };
 
         EventHandler dragMouseReleas = (EventHandler<MouseEvent>)(MouseEvent me) -> {
             activeWireConnect=null;
             me.consume();
-        };
-
-        EventHandler enterMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
-            view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-            view.setCursor(Cursor.HAND);
-        };
-
-        EventHandler exitMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
-            view.setEffect(null);
-            view.setCursor(Cursor.DEFAULT);
         };
 
         view.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
@@ -107,19 +91,16 @@ public class MechMarker extends LineMarker{
             view.toFront();
             e.consume();
         });
-        view.addEventHandler(MouseDragEvent.DRAG_DETECTED, connDragDetectHandle);
         view.addEventHandler(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
         view.addEventHandler(MouseDragEvent.MOUSE_RELEASED, dragMouseReleas);
-        view.addEventHandler(MouseEvent.MOUSE_ENTERED, enterMouse);
-        view.addEventHandler(MouseEvent.MOUSE_EXITED, exitMouse);
         //-------------
 
-        raschetkz.RaschetKz.drawBoard.getChildren().add(view);
     }
 
     MechMarker(Wire thisWire){
         this();
         setWire(thisWire);
+        itsLines.setColor(thisWire.getWireColor());
         getWire().getWireContacts().add(this);
         pushToBack();
     }
@@ -183,22 +164,11 @@ public class MechMarker extends LineMarker{
             }
         }
         setWire(null);
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
         unbindEndPoint();
         unBindStartPoint();
         itsLines.delete();
         itsLines=null;
-    }
-
-    public void show(){
-        this.itsLines.show();
-    }
-
-    /**
-     * push to front of view
-     */
-    public void toFront(){
-        this.view.toFront();
     }
 
     /**

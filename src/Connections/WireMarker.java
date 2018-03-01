@@ -4,15 +4,10 @@ import ElementBase.ElemPin;
 import ElementBase.Pin;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import java.util.ArrayList;
@@ -29,11 +24,13 @@ public class WireMarker extends LineMarker{
 
     WireMarker(){
         super();
-        view=new Circle();
+        Circle view=new Circle();
         view.layoutXProperty().bind(bindX);
         view.layoutYProperty().bind(bindY);
-        ((Circle)view).setRadius(4);
-        itsLines.setColor(COLOR);
+        view.setRadius(4);
+        setView(view);
+
+
 
         itsLines.setLineDragOver(de->{
             if(activeWireConnect!=null){
@@ -80,47 +77,32 @@ public class WireMarker extends LineMarker{
         });
 
         //EVENT ZONE
-        EventHandler connDragDetectHandle =(EventHandler<MouseEvent>) (MouseEvent me) -> {
-            if(me.getButton()==MouseButton.PRIMARY){
-                this.pushToBack();
-                startFullDrag();
-            }
-            me.consume();
-        };
+
 
         EventHandler dragMouseReleas = (EventHandler<MouseEvent>)(MouseEvent me) -> {
             activeWireConnect=null;
             me.consume();
         };
 
-        EventHandler enterMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
-            view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-            //view.toFront();
-            view.setCursor(Cursor.HAND);
-        };
 
-        EventHandler exitMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
-            view.setEffect(null);
-            view.setCursor(Cursor.DEFAULT);
-        };
 
         view.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
             activeWireConnect=this;
             e.consume();
         });
-        view.addEventHandler(MouseDragEvent.DRAG_DETECTED, connDragDetectHandle);
+
         view.addEventHandler(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
         view.addEventHandler(MouseDragEvent.MOUSE_RELEASED, dragMouseReleas);
-        view.addEventHandler(MouseEvent.MOUSE_ENTERED, enterMouse);
-        view.addEventHandler(MouseEvent.MOUSE_EXITED, exitMouse);
+
         //-------------
 
-        raschetkz.RaschetKz.drawBoard.getChildren().add(view);
+
     }
 
     WireMarker(Wire thisWire){
         this();
         setWire(thisWire);
+        itsLines.setColor(thisWire.getWireColor());
         getWire().getWireContacts().add(this);
         pushToBack();
     }
@@ -184,7 +166,7 @@ public class WireMarker extends LineMarker{
             }
         }
         setWire(null);
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
         unbindEndPoint();
         unBindStartPoint();
         itsLines.delete();
@@ -205,16 +187,7 @@ public class WireMarker extends LineMarker{
 //        this.itsElemCont=pin;
 //    }
 
-    public void show(){
-        this.itsLines.show();
-    }
 
-    /**
-     * push to front of view
-     */
-    public void toFront(){
-        this.view.toFront();
-    }
 
     /**
      * Unplug (usually active one) wire contact. If Rank==2 delete second WireCont.
@@ -225,6 +198,7 @@ public class WireMarker extends LineMarker{
         unbindEndPoint();
         getItsConnectedPin().setItsConnection(null);
         getItsConnectedPin().getView().setOpacity(1.0);
+        //getItsConnectedPin().toFront();
         setItsConnectedPin(null);
         switch(getWire().getRank()){
             case 1:
@@ -250,7 +224,7 @@ public class WireMarker extends LineMarker{
                 temp.setWirePointer(this);
                 setItsConnectedPin(temp);
                 this.show();
-                temp.toFront();
+                //temp.toFront();
                 break;
             default:
                 System.out.println("Unplug in WireMarker case default");

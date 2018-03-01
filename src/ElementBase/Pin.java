@@ -112,7 +112,8 @@ public class Pin {
     }
 
     public void toFront(){
+        getOwner().toFront();
         getView().toFront();
-        getOwner().toBack();
+
     }
 }

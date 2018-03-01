@@ -85,57 +85,6 @@ public class ElemPin extends Pin{
                     }
                 }
             }
-//            this.addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);
-//            this.addEventFilter(MouseDragEvent.MOUSE_RELEASED, ElectricWire.WC_MOUSE_RELEAS);
-
-            if(ElectricWire.activeWireConnect!=null&&getItsConnection()!=null){
-                //if(Wire.activeWireConnect.getElemContact()!=this){
-                if(ElectricWire.activeWireConnect.getIsPlugged().getValue()){
-
-
-                }
-            }
-            me.consume();
-
-
-
-
-
-
-
-
-
-
-
-//                if(me.getGestureSource()==null){
-//                    me.consume();
-//                }else   if(((WireConnect)me.getGestureSource()).getElemContact()==this
-//                        &&((WireConnect)me.getGestureSource()).getWire().getRank()==1){
-//                    me.consume();
-//                }else{
-//                    switch(me.getButton()){
-//                        case PRIMARY:
-//                            if(me.isPrimaryButtonDown()){
-//                                this.wireCont=null;
-//                                ((WireConnect)me.getGestureSource()).unPlug();
-//                                this.setOpacity(1);
-//                            }
-//                            break;
-//                        case SECONDARY:
-//                            if(me.isSecondaryButtonDown()){
-//                                this.wireCont=null;
-//                                ((WireConnect)me.getGestureSource()).unPlug();
-//                                this.setOpacity(1);
-//                            }
-//                            break;
-//                    }
-//                    me.consume();
-//                }
-
-
-
-
-
         };
         getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){

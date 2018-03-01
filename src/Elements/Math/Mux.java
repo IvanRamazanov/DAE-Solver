@@ -39,6 +39,7 @@ public class Mux extends MathElement{
         super();
         addMathContact('i');
         addMathContact('i');
+        addMathContact('i');
         addMathContact('o');
     }
 
