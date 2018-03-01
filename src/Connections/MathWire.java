@@ -46,15 +46,11 @@ import javafx.scene.shape.Shape;
  * @author Ivan
  */
 public class MathWire extends Wire{
-    static final String COLOR="#000000";
     public static MathMarker activeMathMarker;
     private List<MathMarker> mathMarkList =new ArrayList<>();
-    private MathMarker sourceMarker;
-//    private List<CrossToCrossLine> ContContList =new ArrayList<>();
-//    List<List<Cross>> dotList=new ArrayList<>();
 
+    private MathMarker sourceMarker;
     private static Shape dragSource;
-    //private static MathMarker majorConnect;
     private MathOutPin source;
 
     public static final EventHandler MC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
@@ -70,6 +66,7 @@ public class MathWire extends Wire{
         @Override
         public void handle(MouseEvent me) {
             activeMathMarker.eraseDragSource();
+            activeMathMarker.toFront();
             activeMathMarker=null;
             ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
             ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
@@ -78,11 +75,11 @@ public class MathWire extends Wire{
     };
 
     public MathWire(){
-
+        setWireColor("#000000");
     }
 
     public MathWire(FileInputStream fis, List<MathPin> ECList) throws IOException{
-        //sourceMarker=new MathMarker(this);
+        this();
 
         ByteBuffer temp=ByteBuffer.allocate(8);
         //num of SubWires
@@ -259,6 +256,7 @@ public class MathWire extends Wire{
      * @param meSceneY
      */
     public MathWire(MathPin mathPin,double meSceneX,double meSceneY){
+        this();
         sourceMarker=new MathMarker(this);
         MathMarker wc=new MathMarker(this);
         if(mathPin instanceof MathOutPin){
@@ -284,26 +282,6 @@ public class MathWire extends Wire{
         dragSource=shape;
     }
 
-//    /**
-//     * Биндит линию к контакту элемента
-//     * @param elemCont контакт элемента
-//     */
-//    public void setEnd(MathPin elemCont){
-//        if(wireContList.size()==1){
-//            MathPin oldEc=activeMathMarker.getElemContact();   // начальный O--->
-//            activeMathMarker.bindElemContact(elemCont);           // --->О цепляем
-//
-//            MathMarker wcNew=new MathMarker(this); // ? bind?      // <---O новый
-//            wcNew.bindElemContact(oldEc);
-//
-//            elemCont.bindWCstartProp(wcNew);                           // OX--->O  цепляем
-//            wcNew.hide();
-//        }
-//        else{
-//            activeMathMarker.bindElemContact(elemCont);
-//        }
-//    }
-
     public boolean setEnd(MathPin cont){
         boolean success=false;
         if(getSourceMarker().equals(activeMathMarker)&&cont instanceof MathOutPin){
@@ -327,11 +305,6 @@ public class MathWire extends Wire{
     public List<MathMarker> getWireContacts(){
         return(mathMarkList);
     };
-
-    public MathMarker addContact(){
-        MathMarker wc=new MathMarker(this);
-        return wc;
-    }
 
     public void Save(ByteArrayOutputStream baos,List<MathPin> ECList){
         ByteBuffer temp=ByteBuffer.allocate(8);
@@ -466,32 +439,6 @@ public class MathWire extends Wire{
 
     }
 
-    public void addContToCont(MathMarker wc1,MathMarker wc2){
-        CrossToCrossLine contToContLine = new CrossToCrossLine(this,wc1.getItsLine().getStartMarker(),wc2.getItsLine().getStartMarker());
-        contToContLine.setColor(COLOR);
-        contToContLine.activate();
-        getContContList().add(contToContLine);
-    }
-
-//    public CrossToCrossLine addContToCont(double sx,double sy,double ex,double ey){
-//        CrossToCrossLine contToContLine = new CrossToCrossLine(this,sx,sy,ex,ey);
-//        contToContLine.setColor(COLOR);
-//        contToContLine.activate();
-//        getContContList().add(contToContLine);
-//        return contToContLine;
-//    }
-
-    /**
-     * Creates WireConnect and bind pointers. Bind start?
-     * @param elemCont
-     * @return
-     */
-    public MathMarker addContact(MathPin elemCont){//boolean endbind???
-        MathMarker wc=new MathMarker(this,elemCont);
-        this.mathMarkList.add(wc);
-        return wc;
-    }
-
     /**
      * Разбиндивает все узлы
      */
@@ -518,22 +465,8 @@ public class MathWire extends Wire{
             if(pin!=null)
                 pin.setSource(source);
         }
-//        this.destin.setSource(source);
-//        this.source.setSource(destin);
     }
 
-//    /**
-//     * Binds all crosses in dotList to first Cross in each line
-//     */
-//    private void bindCrosses(){
-//        for(List<Cross> line:dotList){
-//            Cross major=line.get(0);
-//            major.setVisible(true);
-//            for(int i=1;i<line.size();i++){
-//                line.get(i).bindToCross(major);
-//            }
-//        }
-//    }
 
     public void delete(){
         raschetkz.RaschetKz.mathContsList.remove(this);
@@ -560,179 +493,5 @@ public class MathWire extends Wire{
     public void setSource(MathOutPin source) {
         this.source = source;
     }
-
-//    /**
-//     * @return the ContContList
-//     */
-//    private List<CrossToCrossLine> getContContList() {
-//        return ContContList;
-//    }
-
-//    private class CrossToCrossLine extends ConnectLine{
-//        private Cross endCrossMarker;
-//        private MathWire owner;
-//        /**
-//         *
-//         * @param wc1
-//         * @param wc2 new one
-//         */
-//        CrossToCrossLine(MathWire owner,MathMarker wc1,MathMarker wc2){
-//            super();
-//
-//            this.getLines().forEach(extLine->{
-//                //extLine.setOnKeyReleased(null);
-//                extLine.setOnKeyReleased(k->{
-//                    if(k.getCode()==KeyCode.DELETE){
-//                        this.delete();
-//                    }
-//                });
-//            });
-//
-//            this.owner=owner;
-//            //this.getStartMarker().setVisible(true);
-//            this.setStartXY(wc1.getStartX().get(), wc1.getStartY().get());
-//            endCrossMarker=new Cross(this,wc2.bindX.get(),wc2.bindY.get());
-//            //endCrossMarker.setVisible(true);
-//            this.getEndX().bind(endCrossMarker.centerXProperty());
-//            this.getEndY().bind(endCrossMarker.centerYProperty());
-//            endCrossMarker.centerXProperty().addListener(super.getPropListen());
-//            endCrossMarker.centerYProperty().addListener(super.getPropListen());
-//            //find in dotList line with 'major' list
-//            for(List<Cross> line:dotList){
-//                if(line.contains(wc1.getItsLine().getStartMarker())){ // set it's start cross as major
-//                    line.remove(line.indexOf(wc1.getItsLine().getStartMarker()));    //remove wc1 from list
-//                    line.add(0, getStartMarker()); // set new major cross - CrToCr start one
-//                    // add new line
-//                    List<Cross> nLine=new ArrayList();
-//                    nLine.add(endCrossMarker);
-//                    nLine.add(wc1.getItsLine().getStartMarker());
-//                    nLine.add(wc2.getItsLine().getStartMarker());
-//                    dotList.add(nLine);
-//                    bindCrosses();
-//                    break;
-//                }
-//            }
-//            setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-//                if(me.getButton().equals(MouseButton.SECONDARY)){
-//                    double x=me.getX(),y=me.getY();
-//                    CrossToCrossLine newOne=owner.addContToCont(x,y,
-//                            this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
-//                    this.getEndCrossMarker().unbind();
-//                    this.setEndXY(x, y);
-//                    //create new WireMarker
-//                    MathMarker wm=new MathMarker(owner,x,y);
-//                    activeMathMarker=wm;
-//                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-//                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-//                    wm.startFullDrag();
-//                    // dotList manipulation
-//                    int len=dotList.size();
-//                    List<Cross> line=new ArrayList();
-//                    line.add(wm.getItsLine().getStartMarker());
-//                    line.add(this.getEndCrossMarker());
-//                    line.add(newOne.getStartMarker());
-//                    //replace old crTcr end to new end
-//                    Point2D p=MathPack.MatrixEqu.findFirst(dotList, this.getEndCrossMarker());
-//                    dotList.get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
-//                    dotList.add(line);
-//
-//                    owner.bindCrosses();
-//                }
-//            });
-//        }
-//
-//        /**
-//         * Only creates line. Handle dotList by yourself
-//         * @param sx
-//         * @param sy
-//         * @param ex
-//         * @param ey
-//         */
-//        CrossToCrossLine(MathWire owner,double sx,double sy,double ex,double ey){
-//            super();
-//
-//            this.getLines().forEach(extLine->{
-//                //extLine.setOnKeyReleased(null);
-//                extLine.setOnKeyReleased(k->{
-//                    if(k.getCode()==KeyCode.DELETE){
-//                        this.delete();
-//                    }
-//                });
-//            });
-//
-//            this.owner=owner;
-//            this.setStartXY(sx, sy);
-//            endCrossMarker=new Cross(this,ex,ey);
-//            this.getEndX().bind(endCrossMarker.centerXProperty());
-//            this.getEndY().bind(endCrossMarker.centerYProperty());
-//            endCrossMarker.centerXProperty().addListener(super.getPropListen());
-//            endCrossMarker.centerYProperty().addListener(super.getPropListen());
-//
-//            setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-//                if(me.getButton().equals(MouseButton.SECONDARY)){
-//                    double x=me.getX(),y=me.getY();
-//                    CrossToCrossLine newOne=owner.addContToCont(x,y,
-//                            this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
-//                    this.getEndCrossMarker().unbind();
-//                    this.setEndXY(x, y);
-//                    //create new WireMarker
-//                    MathMarker wm=new MathMarker(owner,x,y);
-//                    activeMathMarker=wm;
-//                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-//                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-//                    wm.startFullDrag();
-//                    // dotList manipulation
-//                    int len=dotList.size();
-//                    List<Cross> line=new ArrayList();
-//                    line.add(wm.getItsLine().getStartMarker());
-//                    line.add(this.getEndCrossMarker());
-//                    line.add(newOne.getStartMarker());
-//                    //replace old crTcr end to new end
-//                    Point2D p=MathPack.MatrixEqu.findFirst(dotList, this.getEndCrossMarker());
-//                    dotList.get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
-//                    dotList.add(line);
-//
-//                    owner.bindCrosses();
-//                }
-//            });
-//        }
-//
-//        @Override
-//        public void delete(){
-//            //implement
-//            deleteQuiet();
-//            owner.delete();
-//        }
-//
-//        void deleteQuiet(){
-//            super.delete();
-//            for(List<Cross> row:dotList){
-//                row.remove(this.getStartMarker());
-//                row.remove(this.getEndCrossMarker());
-//            }
-//            owner.getContContList().remove(this);
-//            endCrossMarker.delete();
-//        }
-//
-//        @Override
-//        public void setColor(String rgb){
-//            super.setColor(rgb);
-//            getEndCrossMarker().setFill(Paint.valueOf(rgb));
-//        }
-//
-//        /**
-//         * @return the endCrossMarker
-//         */
-//        Cross getEndCrossMarker() {
-//            return endCrossMarker;
-//        }
-//
-//        final void setEndXY(double x,double y){
-//            getEndCrossMarker().setCenterX(x);
-//            getEndCrossMarker().setCenterY(y);
-//        }
-//    }
-
-
 }
 

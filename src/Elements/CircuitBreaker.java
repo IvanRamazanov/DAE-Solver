@@ -35,8 +35,8 @@ import java.util.List;
  * @author Ivan
  */
 public class CircuitBreaker extends SchemeElement {
-    Logic itsLogic;
-    List<Parameter> params=this.parameters;
+    private Logic itsLogic;
+    private List<Parameter> params=this.parameters;
 
     public CircuitBreaker(){
         super();

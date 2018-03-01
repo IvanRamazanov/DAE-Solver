@@ -119,6 +119,12 @@ public class ConnectLine {
         });
     }
 
+    public void toFront(){
+        lines.forEach(lin->{
+            lin.toFront();
+        });
+    }
+
     List<Double> parseLines(){
         List<Double> constraints=new ArrayList();
         for(int i=1;i<this.lines.size()-1;i++){

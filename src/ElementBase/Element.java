@@ -542,6 +542,9 @@ public abstract class Element {
         getView().toBack();
     }
 
+    public void toFront(){
+        getView().toFront();
+    }
     /**
      * @param name the name to set
      */

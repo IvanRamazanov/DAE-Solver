@@ -12,6 +12,13 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
@@ -29,7 +36,7 @@ public abstract class LineMarker{
     protected ConnectLine itsLines;
     protected SimpleBooleanProperty plugged;
     protected EventHandler lineDraggedDetect;
-    protected Shape view;
+    private Shape view;
 
     private Wire itsWire;
     private Pin itsConnectedPin;
@@ -323,5 +330,53 @@ public abstract class LineMarker{
 
     public DoubleProperty getStartY(){
         return this.itsLines.getStartY();
+    }
+
+    protected Shape getView() {
+        return view;
+    }
+
+    protected void setView(Shape vview) {
+        if(view!=null)
+            raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+
+        view = vview;
+
+        EventHandler connDragDetectHandle =(EventHandler<MouseEvent>) (MouseEvent me) -> {
+            if(me.getButton()== MouseButton.PRIMARY){
+                this.pushToBack();
+                startFullDrag();
+            }
+            me.consume();
+        };
+
+        EventHandler enterMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
+            view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
+            //view.toFront();
+            view.setCursor(Cursor.HAND);
+        };
+
+        EventHandler exitMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
+            view.setEffect(null);
+            view.setCursor(Cursor.DEFAULT);
+        };
+
+        view.addEventHandler(MouseDragEvent.DRAG_DETECTED, connDragDetectHandle);
+        view.addEventHandler(MouseEvent.MOUSE_ENTERED, enterMouse);
+        view.addEventHandler(MouseEvent.MOUSE_EXITED, exitMouse);
+
+        raschetkz.RaschetKz.drawBoard.getChildren().add(view);
+    }
+
+    /**
+     * push to front of view
+     */
+    public void toFront(){
+        itsLines.toFront();
+        getView().toFront();
+    }
+
+    public void show(){
+        this.itsLines.show();
     }
 }

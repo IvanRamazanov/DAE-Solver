@@ -91,7 +91,7 @@ public class KZsensor extends OutputElement{
         root.add(evalButton,0,2);
         root.add(pickLbl,1,2);
         evalButton.setOnAction(ae->{
-            Protection prot=Protection.pickOne(maxIVal);
+            Protection prot=new Protection().pickOne(maxIVal);
             pickLbl.setText("Pick result.\nProtection unit name: "+prot.getUnitName()+"\nNominal current: "+prot.getNominalCurrent());
         });
         plotStage.show();

@@ -75,6 +75,8 @@ public class ListOfElements {
                 cat.elements.add(new Voltmeter(true));
                 cat.elements.add(new Ampermeter(true));
                 cat.elements.add(new ThreePhMeasure(true));
+                cat.elements.add(new SpeedSensor(true));
+                cat.elements.add(new TorqueSensor(true));
                 break;
             case "Maths":
                 cat.elements.add(new Scope(true));
@@ -90,6 +92,7 @@ public class ListOfElements {
                 cat.elements.add(new Mux(true));
                 cat.elements.add(new KZsensor(true));
                 cat.elements.add(new SimulationTime(true));
+                cat.elements.add(new Delay(true));
                 break;
             case "Semiconductors":
                 cat.elements.add(new Diode(true));
@@ -99,10 +102,10 @@ public class ListOfElements {
             case "Mechanics":
                 cat.elements.add(new TorqueSource(true));
                 cat.elements.add(new Inertia(true));
-                cat.elements.add(new SpeedSensor(true));
                 cat.elements.add(new RotationalFriction(true));
                 cat.elements.add(new RotationReference(true));
                 cat.elements.add(new ControlledTorqueSource(true));
+                cat.elements.add(new DieselEngine(true));
                 break;
             case "Control systems":
                 cat.elements.add(new PIDRegulator(true));

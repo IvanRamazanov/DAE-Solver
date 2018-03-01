@@ -14,16 +14,18 @@ import ElementBase.ElemSerialization;
 import ElementBase.Element;
 import ElementBase.ListOfElements;
 import ElementBase.MathElement;
+import MathPack.StringFunctionSystem;
 import javafx.application.Application;
+import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,11 +39,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import javafx.util.converter.DoubleStringConverter;
@@ -76,63 +73,11 @@ public class RaschetKz extends Application{
     private static Label Status;
     private Label currentFile=new Label("untitled");
 
+    private Logger myLog=new Logger();
+
     @Override
     public void start(Stage primaryStage) {
-//        double[][] A={{1,	0,	0,	0,	0,	0,	-1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	1,	0,	0,	0,	0,	0,	-1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	-1,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	-1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	-1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	-1,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	-1},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	-1,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	-1,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	-1,	0,	0},
-//                {0,	0,	0,	-1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	-1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	-1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	-1,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0	,0,	0,	0,	0,	0,	0,	1,	-1,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	-1,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1},
-//                {1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-//        double[] b={0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,10,100, 1000,10000,100000,1000000};
-//
-//        double[][] B={{1,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	1,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	1,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	1,	0,	1,	0,	0,	0,	0,	0,	0,	0,	1},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	1,	0,	0},
-//                {0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1},
-//                {1,	1,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	1,	1,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	1,	1,	1,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0,	0,	0},
-//                {0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	1,	1,	0},
-//                {1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0},
-//                {0,	0,	0,	0,	1,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0}};
-//        double[] cb={0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 0,0,0,0,0, 10,100,1000,10000};
-//        MatrixEqu.solveLU(B,cb);
-//        for (double d:cb) {
-//            System.out.println(d);
-//        }
+        System.setErr(new PrintStream(myLog));
 
         state=new ModelState();
         dt=state.getDt();
@@ -213,6 +158,9 @@ public class RaschetKz extends Application{
         bottomBox.add(currentFile, 3, 0);
         Button startBtn=new Button("Start");
         startBtn.setOnAction(ae->{
+            myLog.initLogs();
+
+
             startBtn.setDisable(true);
             //CREATE BACKUP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             Rechatel eval=new Rechatel(state, true);
@@ -244,6 +192,8 @@ public class RaschetKz extends Application{
                 Status.setText("Fatal error");
                 stopBtn.setDisable(true);
                 startBtn.setDisable(false);
+
+                myLog.errorLayout();
             });
 //            MathPackODE.Compiler compiler=new MathPackODE.Compiler();
 //            DAE sys=compiler.evalNumState(state);
@@ -289,11 +239,47 @@ public class RaschetKz extends Application{
         elementStage.initOwner(parentStage);
         HBox root=new HBox(10);
         root.setStyle("-fx-border-style: solid");
-        Scene scene=new Scene(root,400, 500,Color.ANTIQUEWHITE);
+        Scene scene=new Scene(root,400, 400,Color.ANTIQUEWHITE);
         VBox cats=new VBox(0);
         scene.getStylesheets().add("raschetkz/mod.css");
+
         TilePane elems=new TilePane(Orientation.HORIZONTAL, 5, 5);
-        root.getChildren().addAll(cats,elems);
+        elems.getChildren().addListener(new ListChangeListener<Node>() {
+                                            @Override
+                                            public void onChanged(Change<? extends Node> c) {
+                                                if(c.getList().isEmpty())
+                                                    elems.setTranslateY(0);
+                                            }
+                                        }
+        );
+        elems.setOnScroll(se->{
+            double val=elems.getTranslateY(),dy=se.getDeltaY();
+            if(dy>0){
+                val+=dy;
+                if(val<=0)
+                    elems.setTranslateY(val);
+                else
+                    elems.setTranslateY(0);
+            }else{
+                double max=elems.getLayoutBounds().getMaxY(),  // content box
+                        height=root.getHeight(),  //visible
+                        maxTranslate=height-max;
+                val+=dy;
+                if (val > maxTranslate)
+                    elems.setTranslateY(val);
+                else
+                    elems.setTranslateY(maxTranslate);
+            }
+        });
+
+        ScrollBar sc=new ScrollBar();
+        sc.setOrientation(Orientation.VERTICAL);
+//        sc.maxProperty().bind(sc.heightProperty());
+        sc.valueProperty().addListener((t,o,n)->{
+            elems.setTranslateY(-n.doubleValue());
+        });
+
+        root.getChildren().addAll(cats,elems,sc);
         ListOfElements list=new ListOfElements();
         cats.getChildren().addAll(list.getCategories());
         list.setElemPane(elems);
@@ -426,6 +412,10 @@ public class RaschetKz extends Application{
         top.add(solver, 1, 2);
         top.add(jacoL,0,3);
         top.add(jacobEstType,1,3);
+        top.add(new Label("Try to reduce system size"),0,4);
+        CheckBox cb=new CheckBox();
+        StringFunctionSystem.simplyfingFlag.bind(cb.selectedProperty());
+        top.add(cb,1,4);
         root.setTop(top);
         HBox bot=new HBox();
         Button okBtn=new Button("Ok");

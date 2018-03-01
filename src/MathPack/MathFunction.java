@@ -1551,10 +1551,11 @@ class If implements SimpleFunc{
 
     @Override
     public Uzel differ(FuncUzel root,String varName){
-        List<Uzel> inps=root.getInputs();
+        FuncUzel out=root.copy();
+        List<Uzel> inps=out.getInputs();
         inps.set(1, inps.get(1).differ(varName));
         inps.set(2, inps.get(2).differ(varName));
-        return root;
+        return out;
     }
 }
 

@@ -3,6 +3,7 @@ package raschetkz;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -13,12 +14,11 @@ public class Protection {
     private String unitName;
     private double nominalCurrent;
 
-    public Protection(String unitName,double nominalCurrent){
-        this.unitName=unitName;
-        this.nominalCurrent=nominalCurrent;
+    public Protection(){
+
     }
 
-    public static Protection pickOne(double maxCurr){
+    public Protection pickOne(double maxCurr){
         List<String> nameList=new ArrayList<>();
         List<Double> nominalCurr=new ArrayList<>();
         parse(nameList,nominalCurr);
@@ -35,33 +35,32 @@ public class Protection {
             }
         }
 
-        return new Protection(nameList.get(good),nominalCurr.get(good));
+        unitName=nameList.get(good);
+        nominalCurrent=nominalCurr.get(good);
+
+        return this;
     }
 
-    private static void parse(List<String> name,List<Double> curr){
-        try {
-            String filePath = new File("").getAbsolutePath();
-            File f = new File(filePath+"/src/raschetkz/catalog.txt");
-            FileReader fr=new FileReader(f);
-            Scanner scanner=new Scanner(fr);
-            while (scanner.hasNextLine()){
-                String str=scanner.nextLine();
+    private void parse(List<String> name,List<Double> curr){
 
-                //read unit name
-                int nameIndx=str.indexOf(',');
-                String unitname=str.substring(0,nameIndx);
-                str=str.substring(nameIndx+1);
+        InputStream is=getClass().getClassLoader().getResourceAsStream("raschetkz/catalog.txt");
+        Scanner scanner=new Scanner(is);
+        while (scanner.hasNextLine()){
+            String str=scanner.nextLine();
 
-                //read nominal cur
-                String curVal=str.replaceAll(" ","");
+            //read unit name
+            int nameIndx=str.indexOf(',');
+            String unitname=str.substring(0,nameIndx);
+            str=str.substring(nameIndx+1);
 
-                // add to lists
-                name.add(unitname);
-                curr.add(Double.parseDouble(curVal));
-            }
-        }catch (IOException ex){
-            ex.printStackTrace(System.err);
+            //read nominal cur
+            String curVal=str.replaceAll(" ","");
+
+            // add to lists
+            name.add(unitname);
+            curr.add(Double.parseDouble(curVal));
         }
+
     }
 
     public String getUnitName() {

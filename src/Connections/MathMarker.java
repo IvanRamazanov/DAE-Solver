@@ -33,12 +33,12 @@ public class MathMarker extends LineMarker{
     MathMarker(){
         super();
 //            subContacts=new ArrayList();
-        view=new Polygon(0,0,0,8.0,6.0,6.0/2.0);
+        Polygon view=new Polygon(0,0,0,8.0,6.0,6.0/2.0);
         view.setTranslateX(-2.0);
         view.setTranslateY(-3.0);
         view.layoutXProperty().bind(bindX);
         view.layoutYProperty().bind(bindY);
-        raschetkz.RaschetKz.drawBoard.getChildren().add(view);
+        setView(view);
 
 //            startView=new Polygon(0,0,0,8,6,4);
 //            startView.setTranslateX(-2.0);
@@ -58,7 +58,7 @@ public class MathMarker extends LineMarker{
                     }
                 }
             });*/
-        itsLines.setColor(COLOR);
+
         itsLines.setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
             if(me.getButton()== MouseButton.SECONDARY){
                 if(getWire().getWireContacts().size()==1){
@@ -91,43 +91,12 @@ public class MathMarker extends LineMarker{
                     ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
                     ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
                     newCont.startFullDrag();
-                    getWire().addContToCont(this,newCont);
+                    getWire().addContToCont(this.getItsLine().getStartMarker(),newCont.getItsLine().getStartMarker());
                 }
                 me.consume();
             }
         });
 
-//            itsLines.getEndX().bind(bindX);
-//            itsLines.getEndY().bind(bindY);
-
-
-//            startView.setOnMouseEntered(me->{
-//                startView.toFront();
-//                startView.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-//                startView.setCursor(Cursor.HAND);
-//            });
-//            startView.setOnMouseExited(me->{
-//                startView.setEffect(null);
-//                startView.setCursor(Cursor.DEFAULT);
-//                dragSource=null;
-//            });
-//            startView.setOnDragDetected(me->{
-//                activeMathMarker=this;
-//                this.pushToBack();
-//                startView.startFullDrag();
-//                startView.addEventFilter(MouseEvent.MOUSE_DRAGGED, Connections.LineMarker.MC_MOUSE_DRAG);
-//                startView.addEventFilter(MouseDragEvent.MOUSE_RELEASED, Connections.LineMarker.MC_MOUSE_RELEAS);
-//            });
-
-        view.setOnMouseEntered(me->{
-//                view.toFront();
-            view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-            view.setCursor(Cursor.HAND);
-        });
-        view.setOnMouseExited(me->{
-            view.setEffect(null);
-            view.setCursor(Cursor.DEFAULT);
-        });
         view.setOnDragDetected(me->{
             getWire().activeMathMarker=this;
             getWire().setDragSource(view);
@@ -142,6 +111,7 @@ public class MathMarker extends LineMarker{
     MathMarker(Wire owner){
         this();
         setWire(owner);
+        itsLines.setColor(owner.getWireColor());
         getWire().getWireContacts().add(this);
         pushToBack();
     }
@@ -213,17 +183,6 @@ public class MathMarker extends LineMarker{
         return (MathWire) super.getWire();
     }
 
-    public void show(){
-        this.itsLines.show();
-    }
-
-    /**
-     * push to front of view
-     */
-    public void toFront(){
-        this.view.toFront();
-    }
-
     /**
      * Удаление контакта и линии
      */
@@ -237,7 +196,7 @@ public class MathMarker extends LineMarker{
                 setItsConnectedPin(null);
             }
             getWire().getWireContacts().remove(this);
-            raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+            raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
             unbindEndPoint();
             unBindStartPoint();
             itsLines.delete();
@@ -257,7 +216,7 @@ public class MathMarker extends LineMarker{
         if(getWire().getWireContacts().size()<2)
             getWire().delete();
         setWire(null);
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
         unbindEndPoint();
         unBindStartPoint();
         itsLines.delete();
@@ -276,8 +235,8 @@ public class MathMarker extends LineMarker{
         if(getItsConnectedPin() instanceof MathInPin){  //==? this.connectedPin.clearWireContact();
 
             unbindEndPoint();
-            view.setVisible(true);
-            view.toBack();
+            getView().setVisible(true);
+            getView().toBack();
         }else{
             getWire().setSource(null);
 //                if(connectedPin!=null)
@@ -297,7 +256,7 @@ public class MathMarker extends LineMarker{
     @Override
     protected void activate(){
         getItsLine().activate();
-        this.view.setVisible(false);
+        getView().setVisible(false);
 //            this.startView.setVisible(false);
     }
 

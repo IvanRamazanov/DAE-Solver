@@ -239,7 +239,7 @@ public class StringGraph {
     boolean canGet(String varName){
         boolean outFlag=false;
         if(root.numOfContains(varName)==1){
-            if(onlySimpleFuncs(findPath(varName).getFuncs()));
+            if(onlySimpleFuncs(findPath(varName).getFuncs()))
                 outFlag=true;
         }
         return outFlag;
@@ -778,15 +778,24 @@ class Const implements Uzel{
 
 class Variable implements Uzel{
     private String name,shortName;
-    private int order=-1;
-    private int index=-1;
+    private int
+            order=-1,
+            index=-1,
+            secondIndex;
 
     public Variable(String name){
         if(name.contains(".")){
             this.name=name;
             this.shortName=name.substring(0, name.lastIndexOf(".")+1);
-            int lastDot=name.lastIndexOf(".");
-            index=Integer.parseInt(name.substring(lastDot+1));
+            int lastDot=name.lastIndexOf("."),
+            scob;
+            if((scob=name.indexOf('['))!=-1){
+                index=Integer.parseInt(name.substring(lastDot+1,scob));
+                secondIndex=Integer.parseInt(name.substring(scob+1,name.length()-1));
+            }else {
+                index = Integer.parseInt(name.substring(lastDot + 1));
+                secondIndex=0;
+            }
         }else
             this.name=this.shortName=name;
     }
@@ -808,7 +817,7 @@ class Variable implements Uzel{
         }else
         if(shortName.equals("I.")){
 //            int ind=Integer.parseInt(name.substring(name.lastIndexOf('.')+1, name.length()))-1;
-            return extInput.get(index-1).getValue().get(0);
+            return extInput.get(index-1).getValue().get(secondIndex);
         }else{
             return vars.get(name);
         }
@@ -1234,7 +1243,7 @@ class FuncUzel implements Uzel{
     }
 
     @Override
-    public Uzel copy(){
+    public FuncUzel copy(){
         return new FuncUzel(this);
     }
 

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
 import raschetkz.ModelState;
@@ -47,6 +48,9 @@ abstract public class Solver {
     public static SimpleDoubleProperty progress=new SimpleDoubleProperty();
     protected Task cancelFlag;
 
+    private List<Double> valsBkp;
+    private double[] x0Bkp;
+
     abstract public void simpleUpdate(List<Double> x_old,List<Double> dx);
 
     abstract public void evalNextStep();
@@ -75,6 +79,11 @@ abstract public class Solver {
         ind=new int[algSystem.size()];
         //varNames=new ArrayList();
         vector=vars.getVarList();
+
+        valsBkp=new ArrayList<>(vector.size());
+        valsBkp.addAll(vector);
+        x0Bkp=new double[algSystem.size()];
+
         int i=0,j=0;
         for(String var:vars.getVarNameList()){
             if(!var.startsWith("X.")){
@@ -116,7 +125,15 @@ abstract public class Solver {
     }
 
     public void evalSysState(){
-        double maxDiffer;
+        double timeBkp=time;
+
+        for(int i=0;i<vector.size();i++){
+            valsBkp.set(i,vector.get(i));
+        }
+        for(int i=0;i<x0.length;i++){
+            x0Bkp[i]=x0[i];
+        }
+
         int cnt=0;
 
         if(symbJacobian!=null)
@@ -131,8 +148,6 @@ abstract public class Solver {
                     double norm=MathPack.MatrixEqu.norm(vals);
                     if(norm<0.000001)
                         break;
-
-                    maxDiffer=0;
 
                     switch(jacobEstType){
                         case 0: //full symbolic
@@ -155,10 +170,10 @@ abstract public class Solver {
                         //if(Math.abs(val)>maxDiffer) maxDiffer=Math.abs(val);
                         if(Double.isNaN(vals[i])){
                             vals[i]=vars.get(i);
-                            System.err.println(vars.getName(i)+" is not a number!");
+                            throw new Error(vars.getName(i)+" is not a number!");
                         }else if(Double.isInfinite(vals[i])){
                             vals[i]=vars.get(i);
-                            System.err.println(vars.getName(i)+" is not finite!");
+                            throw new Error(vars.getName(i)+" is not finite!");
 
                         }
 
@@ -185,27 +200,44 @@ abstract public class Solver {
                     //                }
                     cnt++;
                     if(cnt>500){
-                        for(double[] row:J){
-                            System.out.println(Arrays.toString(row));
+                        if(false) { // for debug
+                            for (double[] row : J) {
+                                System.out.println(Arrays.toString(row));
+                            }
+                            System.out.println("x:");
+                            System.out.println(Arrays.toString(vals));
+                            System.out.println("F(x):");
+                            MathPack.MatrixEqu.putValuesFromSymbRow(vals, algSystem, vars, inps);
+                            System.out.println(Arrays.toString(vals));
                         }
-                        System.out.println("x:");
-                        System.out.println(Arrays.toString(vals));
-                        System.out.println("F(x):");
-                        MathPack.MatrixEqu.putValuesFromSymbRow(vals,algSystem,vars,inps);
-                        System.out.println(Arrays.toString(vals));
 
                         cnt=0;
-                        if(faultflag) throw new Error("Dead loop!");
-                        faultflag=true;
-                        int ii=0;
-                        for(String var:vars.getVarNameList()){
+                        if(faultflag){
+//
 
-                            if(!var.startsWith("X.")){
-                                vars.setValue(var,0);
-                                x0[ii]=0;
-                                //s[ii]=0;
-                                ii++;
-                            }
+
+
+                        }else {
+                            double newStepSize=dt/2;
+                            time-=newStepSize;
+                            if(newStepSize < 1E-13)
+                                throw new Error("Dead loop!");
+                            for(int j=0;j<vector.size();j++)
+                                vector.set(j,valsBkp.get(j));
+                            for(int j=0;j<x0.length;j++)
+                                x0[j]=x0Bkp[j];
+
+//                            faultflag = true;
+//                            int ii = 0;
+//                            for (String var : vars.getVarNameList()) {
+//
+//                                if (!var.startsWith("X.")) {
+//                                    vars.setValue(var, 0);
+//                                    x0[ii] = 0;
+//                                    //s[ii]=0;
+//                                    ii++;
+//                                }
+//                            }
                         }
                     }
                 }

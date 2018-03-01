@@ -23,18 +23,68 @@
  */
 package raschetkz;
 
+import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.LocalDateTime;
+
 /**
  *
  * @author Иван
  */
-public class Logger {
-    String filePath="C:\\NetBeansLogs\\errLog.txt";
-    public static void errorLayout(){
+public class Logger extends OutputStream {
+    private String filePath="C:\\NetBeansLogs\\errLog.txt";
+    private final Stage messageWindow;
+    private char[] buffer;
+    private Text text;
+    private int iterator;
 
+    Logger(){
+        messageWindow=new Stage();
+        messageWindow.setTitle("Error!");
+        StackPane root=new StackPane();
+        text=new Text();
+
+        root.getChildren().add(text);
+        Scene scene=new Scene(root,400,400);
+        messageWindow.setScene(scene);
+        buffer=new char[1024];
     }
 
-    public static void initLogs(){
+    @Override
+    public void write(int b) throws IOException {
+        buffer[iterator]=(char)b;
+        iterator++;
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath,true))) {
+            bw.write((char)b);
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
 
+    public void errorLayout(){
+        text.setText(String.valueOf(buffer,0,iterator));
+        messageWindow.show();
+        messageWindow.sizeToScene();
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath,true))) {
+            bw.newLine();
+            bw.newLine();
+            bw.write(LocalDateTime.now().toString());
+            bw.newLine();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    public void initLogs(){
+        iterator=0;
     }
 }
 

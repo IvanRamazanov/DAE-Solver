@@ -37,7 +37,6 @@ public class Sum extends MathElement{
 
     public Sum(){
         super();
-        gains=new Parameter("1 - '+', 0 - '-'", 10);
         addMathContact('i');
         addMathContact('i');
         addMathContact('o');
@@ -53,8 +52,14 @@ public class Sum extends MathElement{
         List<Double> sum=new ArrayList(getInputs().get(0).getValue().size());
         for(int i=0;i<rank;i++){
             double val=0;
-            for(int j=0;j<getInputs().size();j++)
-                val+=getInputs().get(j).getValue().get(i);
+//            for(int j=0;j<getInputs().size();j++) {
+//                val += getInputs().get(j).getValue().get(i);
+//            }
+            val+=getInputs().get(0).getValue().get(i);
+            double adder=1;
+            if(gains.getDoubleValue()==0)
+                adder=-1;
+            val+=getInputs().get(1).getValue().get(i)*adder;
             sum.add(val);
         }
         return sum;
@@ -62,6 +67,9 @@ public class Sum extends MathElement{
 
     @Override
     protected void setParams(){
+        gains=new Parameter("1 - '+', 0 - '-'", 0);
+        getParameters().add(gains);
+
         setName("Sum");
     }
 
