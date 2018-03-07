@@ -5,7 +5,6 @@
  */
 package ElementBase;
 
-import MathPack.Rechatel;
 import MathPack.StringFunctionSystem;
 import MathPack.StringGraph;
 import java.io.BufferedWriter;

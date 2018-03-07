@@ -79,23 +79,23 @@ class CrossToCrossLine extends ConnectLine{
 
                 //create new WireMarker
                 if(owner instanceof ElectricWire) {
-                    ElectricWire.activeWireConnect = new WireMarker(owner,x,y);
-                    line.add(ElectricWire.activeWireConnect.getItsLine().getStartMarker());
+                    Wire.activeWireConnect = new WireMarker(owner,x,y);
+                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                    ElectricWire.activeWireConnect.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                 }else if(owner instanceof MechWire){
-                    MechWire.activeWireConnect = new MechMarker(owner,x,y);
-                    line.add(MechWire.activeWireConnect.getItsLine().getStartMarker());
+                    Wire.activeWireConnect = new MechMarker(owner,x,y);
+                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
-                    MechWire.activeWireConnect.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                 }else if(owner instanceof MathWire){
-                    MathWire.activeMathMarker = new MathMarker(owner,x,y);
-                    line.add(MathWire.activeMathMarker.getItsLine().getStartMarker());
+                    Wire.activeWireConnect = new MathMarker(owner,x,y);
+                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-                    MathWire.activeMathMarker.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                 }
 
                 // dotList manipulation
@@ -150,23 +150,23 @@ class CrossToCrossLine extends ConnectLine{
                 List<Cross> line=new ArrayList();
 
                 if(owner instanceof ElectricWire) {
-                    ElectricWire.activeWireConnect = new WireMarker(owner,x,y);
-                    line.add(ElectricWire.activeWireConnect.getItsLine().getStartMarker());
+                    Wire.activeWireConnect = new WireMarker(owner,x,y);
+                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                    ElectricWire.activeWireConnect.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                 }else if(owner instanceof MechWire){
-                    MechWire.activeWireConnect = new MechMarker(owner,x,y);
-                    line.add(MechWire.activeWireConnect.getItsLine().getStartMarker());
+                    Wire.activeWireConnect = new MechMarker(owner,x,y);
+                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
-                    MechWire.activeWireConnect.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                 }else if(owner instanceof MathWire){
-                    MathWire.activeMathMarker = new MathMarker(owner,x,y);
-                    line.add(MathWire.activeMathMarker.getItsLine().getStartMarker());
+                    Wire.activeWireConnect = new MathMarker(owner,x,y);
+                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
                     ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-                    MathWire.activeMathMarker.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                 }
 
                 // dotList manipulation

@@ -5,10 +5,7 @@
  */
 package MathPack;
 
-import Connections.ElectricWire;
-import Connections.MechMarker;
-import Connections.MechWire;
-import Connections.WireMarker;
+import Connections.*;
 import ElementBase.*;
 
 import java.lang.reflect.Array;
@@ -945,6 +942,20 @@ public class MatrixEqu {
         return out;
     }
 
+    public static double[][] transpose(double[][] input){
+        int m=input.length;
+        if(m<1) throw new Error("Empty Matrix(NxM)! N must be greater than 0");
+        int n=input[0].length;
+        if(n<1) throw new Error("Empty Matrix(NxM)! M must be greater than 0");
+        double[][] out=new double[n][m];
+        for(int i=0;i<n;i++){
+            for(int j=0;j<m;j++){
+                out[i][j]=input[j][i];
+            }
+        }
+        return out;
+    }
+
     public static List<List<StringGraph>> transpose_s(List<List<StringGraph>> input){
         int m=input.size();
         if(m<1) throw new Error("Empty Matrix(NxM)! N must be greater than 0");
@@ -1122,7 +1133,7 @@ public class MatrixEqu {
 
         //Сумма узловых токов
         for(ElectricWire wire:Wires.subList(0, Wires.size()-1)){
-            for(WireMarker wc:wire.getWireContacts()){
+            for(LineMarker wc:wire.getWireContacts()){
                 Pin papa=wc.getItsConnectedPin();
                 out[row][conts.indexOf(papa)]=1;
             }
@@ -1176,7 +1187,7 @@ public class MatrixEqu {
 
         //Сумма узловых токов
         for(MechWire wire:Wires.subList(0, Wires.size()-1)){
-            for(MechMarker wc:wire.getWireContacts()){
+            for(LineMarker wc:wire.getWireContacts()){
                 Pin papa=wc.getItsConnectedPin();
                 out[row][conts.indexOf(papa)]=1;
             }

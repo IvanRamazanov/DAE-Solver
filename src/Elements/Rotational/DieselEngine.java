@@ -6,7 +6,7 @@ import ElementBase.SchemeElement;
 import java.util.List;
 
 public class DieselEngine extends SchemeElement{
-    Parameter Pn,wn,Tde;
+    ScalarParameter Pn,wn,Tde;
 
     public DieselEngine(){
         super();
@@ -21,7 +21,7 @@ public class DieselEngine extends SchemeElement{
 
     @Override
     public String[] getStringFunction() {
-        double tn=Pn.getDoubleValue()*1000/(wn.getDoubleValue()*2*Math.PI/60);
+        double tn=Pn.getValue()*1000/(wn.getValue()*2*Math.PI/60);
         return new String[]{
                 "d.X.1=(I.1*"+tn+"-X.1)/"+Tde,
                 "X.1=T.1",
@@ -36,9 +36,9 @@ public class DieselEngine extends SchemeElement{
 
     @Override
     protected void setParams() {
-        Pn=new Parameter("Nominal power, kW",50);
-        wn=new Parameter("Rated speed, rpm",1500);
-        Tde=new Parameter("Engine time constant, 1/sec",20);
+        Pn=new ScalarParameter("Nominal power, kW",50);
+        wn=new ScalarParameter("Rated speed, rpm",1500);
+        Tde=new ScalarParameter("Engine time constant, 1/sec",20);
         getParameters().addAll(List.of(Pn,wn,Tde));
 
         getInitials().add(new InitParam("Initial torque",0));

@@ -133,10 +133,11 @@ public class ConnectLine {
         return constraints;
     }
 
-    void rearrange(int numOfLines,boolean isHorizontal,List<Double> constrList){
+    void rearrange(boolean isHorizontal,double[] constrList){
         setEasyDraw(false);
         raschetkz.RaschetKz.drawBoard.getChildren().removeAll(lines);
         lines.clear();
+        int numOfLines=constrList.length+2;
         if(numOfLines==2){
             ExtLine line1=new ExtLine(startX.doubleValue(),startY.doubleValue(),endX.doubleValue(),endY.doubleValue(),isHorizontal);
             line1.startXProperty().bind(startX);
@@ -150,7 +151,7 @@ public class ConnectLine {
             lines.add(line1);
             lines.add(line2);
         }else{
-            ExtLine line1=new ExtLine(startX.doubleValue(),startY.doubleValue(),constrList.get(0),constrList.get(0),isHorizontal);
+            ExtLine line1=new ExtLine(startX.doubleValue(),startY.doubleValue(),constrList[0],constrList[0],isHorizontal);
             line1.startXProperty().bind(startX);
             line1.startYProperty().bind(startY);
             lines.add(line1);
@@ -158,11 +159,11 @@ public class ConnectLine {
             isHorizontal=!isHorizontal;
             for(int i=1;i<numOfLines-1;i++){
                 ExtLine line2;
-                if(i!=constrList.size())
-                    line2=new ExtLine(line1.endXProperty().doubleValue(),line1.endYProperty().doubleValue(),constrList.get(i),constrList.get(i),isHorizontal);
+                if(i!=constrList.length)
+                    line2=new ExtLine(line1.endXProperty().doubleValue(),line1.endYProperty().doubleValue(),constrList[i],constrList[i],isHorizontal);
                 else
                     line2=new ExtLine(line1.endXProperty().doubleValue(),line1.endYProperty().doubleValue(),endX.doubleValue(),endY.doubleValue(),isHorizontal);
-                line2.setConstraint(constrList.get(i-1));
+                line2.setConstraint(constrList[i-1]);
                 line2.startXProperty().bindBidirectional(line1.endXProperty());
                 line2.startYProperty().bindBidirectional(line1.endYProperty());
                 lines.add(line2);

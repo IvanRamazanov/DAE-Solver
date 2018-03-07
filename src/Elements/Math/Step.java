@@ -33,7 +33,7 @@ import java.util.List;
  * @author Ivan
  */
 public class Step extends MathElement{
-    private Parameter moment,amplitudeOff,amplitudeOn;
+    private ScalarParameter moment,amplitudeOff,amplitudeOn;
 
     public Step(){
         super();
@@ -47,20 +47,20 @@ public class Step extends MathElement{
     @Override
     protected List<Double> getValue(int outIndex) {
         double t=Solver.time,
-                t0=moment.getDoubleValue();
+                t0=moment.getValue();
         List<Double> out=new ArrayList();
-        if(t>t0) out.add(amplitudeOn.getDoubleValue());
-        else  out.add(amplitudeOff.getDoubleValue());
+        if(t>t0) out.add(amplitudeOn.getValue());
+        else  out.add(amplitudeOff.getValue());
         return out;
     }
 
     @Override
     protected void setParams(){
-        amplitudeOn=new Parameter("level on",1);
+        amplitudeOn=new ScalarParameter("level on",1);
         parameters.add(amplitudeOn);
-        amplitudeOff=new Parameter("level off",0);
+        amplitudeOff=new ScalarParameter("level off",0);
         parameters.add(amplitudeOff);
-        moment=new Parameter("Switch time",0.5);
+        moment=new ScalarParameter("Switch time",0.5);
         parameters.add(moment);
         setName("Step");
     }

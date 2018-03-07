@@ -5,10 +5,7 @@
  */
 package MathPackODE;
 
-import ElementBase.DynamMathElem;
-import ElementBase.MathInPin;
-import ElementBase.OutputElement;
-import ElementBase.SchemeElement;
+import ElementBase.*;
 import MathPack.*;
 
 import java.io.BufferedWriter;
@@ -18,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javafx.application.Platform;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.concurrent.Task;
 import raschetkz.ModelState;
@@ -36,27 +32,22 @@ abstract public class Solver {
     protected WorkSpace vars;
     protected DAE dae;
     protected List<MathInPin> inps;
-    //protected List<String> varNames;
-    protected ArrayList<Double> vector;
+    protected ArrayList<WorkSpace.Variable> commonVarsVector,Xvector,dXvector;
     protected int jacobEstType,diffRank;
     protected double[]
             //s,
-            x0,vals;
+            vals;
     private double[][] J;
-    private int[] ind;
-    public static double dt, time;
+    protected int[] ind;
+    public static double dt, time, tEnd, absTol, relTol;
     public static SimpleDoubleProperty progress=new SimpleDoubleProperty();
     protected Task cancelFlag;
-
-    private List<Double> valsBkp;
-    private double[] x0Bkp;
-
-    abstract public void simpleUpdate(List<Double> x_old,List<Double> dx);
 
     abstract public void evalNextStep();
 
     public void init(DAE daeSys,ModelState state, Task tsk){
         time=0;
+        tEnd=state.getTend().doubleValue();
         progress.setValue(0.0);
         dae=daeSys;
         vars=daeSys.getVars();
@@ -70,70 +61,79 @@ abstract public class Solver {
         cancelFlag=tsk;
 
         dt=state.getDt().doubleValue();
-        //s=new double[algSystem.size()];
-        x0=new double[algSystem.size()];
+        absTol=state.getAbsTol().doubleValue();
+        relTol=state.getRelTol().doubleValue();
 
         vals=new double[algSystem.size()];
         J=new double[algSystem.size()][algSystem.size()];
 
         ind=new int[algSystem.size()];
-        //varNames=new ArrayList();
-        vector=vars.getVarList();
+        commonVarsVector=new ArrayList<>();
+        dXvector=new ArrayList<>();
+        Xvector=new ArrayList<>();
 
-        valsBkp=new ArrayList<>(vector.size());
-        valsBkp.addAll(vector);
-        x0Bkp=new double[algSystem.size()];
-
-        int i=0,j=0;
-        for(String var:vars.getVarNameList()){
-            if(!var.startsWith("X.")){
-                //varNames.add(var);
-                x0[i]=vars.get(var);
-                ind[i]=j;
-                //s[i]=vars.get(var);
-                i++;
-                if(var.startsWith("d.X."))
-                    diffRank++;
+        for(WorkSpace.Variable var:vars.getVarList()){
+            if(!var.getName().startsWith("X.")){
+                commonVarsVector.add(var);
+                if(var.getName().startsWith("d.X."))
+                    dXvector.add(var);
+            }else{
+                Xvector.add(var);
             }
-            j++;
         }
+        diffRank=dae.getSymbDiffRank();
 
-        for(SchemeElement elem:state.getElems()){
+        for(SchemeElement elem:state.getSchemeElements()){
             elem.init();
+        }
+        for(Updatable elem:dae.getUpdatableElements()){
+            ((MathElement)elem).init();
         }
         for(DynamMathElem del:mathDynamics){
             del.init();
+//            mathDiffRank+=del.getRank();
+//            for(int i=0;i<del.getX0().size();i++){
+                Element.VectorParameter vp=del.getX0();
+                int i=0;
+                for(double v:vp.getValue()) {
+                    WorkSpace.Variable xvar = vars.add("mX." + diffRank, v),
+                            dxvar = vars.add("md.X." + diffRank, v);
+                    del.setWorkSpaceLink(i, xvar, dxvar);
+                    Xvector.add(xvar);
+                    dXvector.add(dxvar);
+                    diffRank++;
+                    i++;
+                }
+//            }
         }
-        for(OutputElement elem:mathOuts){
-            elem.init();
-        }
+
         jacobEstType=state.getJacobianEstimationType();
+
         evalSysState(); //zerotime init
+
+//        postEvaluate();
+
         for(OutputElement elem:mathOuts){
-            elem.updateData(time);
+//            elem.updateData(time);
+            elem.init();
         }
         selfInit();
     }
 
-    public void solve(double tEnd){
-        for(time=dt;time<=tEnd;time=time+dt){
+    public void solve(){
+        //for(time=dt;time<=tEnd;time=time+dt){
+        while(time<=tEnd){
             if(cancelFlag.isCancelled())
                 break;
+            preEvaluate();
             evalNextStep();
+            postEvaluate();
+            updateOutputs();
             progress.set(time);
         }
     }
 
     public void evalSysState(){
-        double timeBkp=time;
-
-        for(int i=0;i<vector.size();i++){
-            valsBkp.set(i,vector.get(i));
-        }
-        for(int i=0;i<x0.length;i++){
-            x0Bkp[i]=x0[i];
-        }
-
         int cnt=0;
 
         if(symbJacobian!=null)
@@ -158,46 +158,23 @@ abstract public class Solver {
                             vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
                             break;
                         case 2: //only jacob symb
-//                            invJ=MathPack.MatrixEqu.invMatr(MathPack.MatrixEqu.evalSymbMatr(Jacob,vars, inps));
-//                            vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
                             MathPack.MatrixEqu.putValuesFromSymbMatr(J,symbJacobian,vars, inps);
                             MatrixEqu.solveLU(J,vals); // first 'vals' contains F(x)
                             break;
                         default:
                             vals=null;
                     }
-                    for(int i=0;i<x0.length;i++){
-                        //if(Math.abs(val)>maxDiffer) maxDiffer=Math.abs(val);
+                    for(int i=0;i<ind.length;i++){
                         if(Double.isNaN(vals[i])){
-                            vals[i]=vars.get(i);
                             throw new Error(vars.getName(i)+" is not a number!");
                         }else if(Double.isInfinite(vals[i])){
-                            vals[i]=vars.get(i);
                             throw new Error(vars.getName(i)+" is not finite!");
-
                         }
-
-                        double y=x0[i]-vals[i];
-                        vector.set(ind[i], y);
-                        x0[i]=y;
+//                        double y=vector.get(ind[i])-vals[i];
+//                        vector.set(ind[i], y);
+                        double newval=commonVarsVector.get(i).getValue()-vals[i];
+                        commonVarsVector.get(i).set(newval);
                     }
-//                    for(int i=0;i<x0.length;i++){
-//                        vars.setValue(i, s[i]);
-//                    }
-                    //                if(MathPack.MatrixEqu.normOfDiffer(x0, x)<0.0001){
-
-
-                    //System.arraycopy(s, 0, x0, 0, x0.length);
-
-                    //                if(maxDiffer<0.000001){
-                    //                    //exit
-                    ////                            for(int j=0;j<diffSystem.size();j++){ //update Xes
-                    ////                                vars.setValue("X."+(j+1), diffSystem.get(j).evaluate(vars, inps));
-                    ////                            }
-                    //                    break;
-                    //                }else{
-                    //                    System.arraycopy(s, 0, s0, 0, s0.length);
-                    //                }
                     cnt++;
                     if(cnt>500){
                         if(false) { // for debug
@@ -213,21 +190,10 @@ abstract public class Solver {
 
                         cnt=0;
                         if(faultflag){
-//
-
-
-
+                            throw new Error("Dead loop!");
                         }else {
-                            double newStepSize=dt/2;
-                            time-=newStepSize;
-                            if(newStepSize < 1E-13)
-                                throw new Error("Dead loop!");
-                            for(int j=0;j<vector.size();j++)
-                                vector.set(j,valsBkp.get(j));
-                            for(int j=0;j<x0.length;j++)
-                                x0[j]=x0Bkp[j];
 
-//                            faultflag = true;
+                            faultflag = true;
 //                            int ii = 0;
 //                            for (String var : vars.getVarNameList()) {
 //
@@ -242,14 +208,17 @@ abstract public class Solver {
                     }
                 }
             }
+
+        evalMathDX();
+
         //for logout
         if(Rechatel.IS_LOGGING) {
             if (time == 0) {
                 try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt"))) {
                     bw.write("t ");
-                    for (String entry : vars.getVarNameList()) {
+                    for (WorkSpace.Variable entry : vars.getVarList()) {
                         //if(entry.getKey().startsWith("X.")){
-                        bw.write(entry + " ");
+                        bw.write(entry.getName() + " ");
                         //}
                     }
                     bw.write(" numOfJac");
@@ -260,8 +229,8 @@ abstract public class Solver {
             }
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt", true))) {
                 bw.write(Double.toString(time) + " ");
-                for (Double entry : vars.getVarList()) {
-                    bw.write(entry + " ");
+                for (WorkSpace.Variable entry : vars.getVarList()) {
+                    bw.write(entry.getValue() + " ");
                 }
                 bw.write(Integer.toString(cnt));
                 bw.newLine();
@@ -272,8 +241,39 @@ abstract public class Solver {
 
     }
 
+    protected void evalMathDX(){
+        for(DynamMathElem el:mathDynamics){
+            el.evalDerivatives();
+        }
+    }
+
+    private void preEvaluate(){
+        for(Updatable el:dae.getUpdatableElements())
+            el.preEvaluate(time);
+    }
+
+    private void postEvaluate(){
+        for(Updatable el:dae.getUpdatableElements())
+            el.postEvaluate(time);
+    }
+
+    private void updateOutputs() {
+        for (OutputElement el : mathOuts)
+            el.updateData(time);
+    }
+
     protected void selfInit(){}
 
 
+//    public void Save(BufferedWriter bw) throws IOException{
+//        bw.write("<Solver>");bw.newLine();
+//
+//        bw.write("<Name>");
+//        bw.write(getClass().getName());
+//        bw.write("</Name>");bw.newLine();
+//
+//        bw.write("</Solver>");bw.newLine();
+//
+//    }
 }
 

@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package MathPack;
+package MathPackODE;
 
 import Connections.MathWire;
-import ElementBase.DynamMathElem;
-import ElementBase.MathOutPin;
-import ElementBase.MathInPin;
-import ElementBase.OutputElement;
-import MathPackODE.Solver;
+import ElementBase.*;
+import MathPack.StringFunctionSystem;
+import MathPack.StringGraph;
+import MathPack.WorkSpace;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -52,9 +52,11 @@ public class DAE {
     private List<List<Double>> logdata;
     private List<OutputElement> mathOuts;
     private List<DynamMathElem> dynMaths;
+    private List<Updatable> updatableElements;
     private boolean couchyFlag;
+    private int symbDiffRank;
 
-    DAE(){
+    public DAE(){
         algSystem=new ArrayList();
         outSystem=new ArrayList();
         vars=new WorkSpace();
@@ -62,16 +64,40 @@ public class DAE {
         inps=new ArrayList();
         logtime=new ArrayList();
         logdata=new ArrayList();
+
+        updatableElements=new ArrayList<>();
     }
 
-    public void addVariable(String name,Double value){
-        getVars().add(name, value);
+    public WorkSpace.Variable addVariable(String name,Double value){
+        return getVars().add(name, value);
     }
 
     public void initXes(List<Double> x0){
         for(int i=0;i<x0.size();i++){
             double x=x0.get(i);
-            getVars().add("X."+(i+1),x);
+            String name="X."+(i+1);
+            WorkSpace.Variable link=getVars().add(name,x);
+
+            for(StringGraph sg:getAlgSystem()){
+                sg.linkVariableToWorkSpace(name,link);
+            }
+
+            for(List<StringGraph> sgl:getOutSystem()){
+                for(StringGraph sg:sgl)
+                    sg.linkVariableToWorkSpace(name,link);
+            }
+
+            name="d.X."+(i+1);
+            link=getVars().add(name,x);
+
+            for(StringGraph sg:getAlgSystem()){
+                sg.linkVariableToWorkSpace(name,link);
+            }
+
+            for(List<StringGraph> sgl:getOutSystem()){
+                for(StringGraph sg:sgl)
+                    sg.linkVariableToWorkSpace(name,link);
+            }
         }
     }
 
@@ -107,35 +133,9 @@ public class DAE {
         algSystem.add(right);
     }
 
-    /**
-     * @return the outs
-     */
-    public List<MathOutPin> getOuts() {
-        return outs;
-    }
-
     public void setCouchyFlag(boolean val){
         couchyFlag=val;
     }
-
-
-//    /**
-//     * Newton method...
-//     * @param time
-//     */
-//    public void evalDerivatives(double time){
-//        //estimate p.1... i.1...(Newton...)
-//        for(int i=0;i<diffSystem.size();i++){
-//            dX.set(i, diffSystem.get(i).evaluate(time,vars,inps));
-//        }
-//        for(int i=0;i<diffSystem.size();i++){
-//            vars.setValue("X."+(i+1), dX.get(i)*raschetkz.RaschetKz.dt+vars.get("X."+(i+1)));
-//        }
-//        init(time);
-//    }
-
-//    double[] x,x0;
-//    List<String> name;
 
     public void initOutputs(StringFunctionSystem sfs){
         List<MathOutPin> oldOuts=sfs.getOutputs();
@@ -204,16 +204,6 @@ public class DAE {
             }
             i++;
         }
-
-//        for(StringGraph func:diffSystem){
-//            Jacob.add(new ArrayList());
-//            for(String var:getVars().getVarList()){
-//                if(var.startsWith("d.X.")){
-//                    Jacob.get(i).add(func.getDiffer(var));
-//                }
-//            }
-//            i++;
-//        }
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\MyLog.txt",true))) {
             bw.newLine();
             bw.write("Jacobian: "+varsLayout+" out of "+getVars().getVarNameList().toString());
@@ -345,6 +335,23 @@ public class DAE {
      */
     public List<List<Double>> getLogdata() {
         return logdata;
+    }
+
+    public int getSymbDiffRank() {
+        return symbDiffRank;
+    }
+
+    public void setSymbDiffRank(int symbDiffRank) {
+        this.symbDiffRank = symbDiffRank;
+    }
+
+    public List<Updatable> getUpdatableElements() {
+        return updatableElements;
+    }
+
+    public void setUpdatableElements(List<Updatable> updatableElements) {
+        this.updatableElements =new ArrayList<>();
+        this.updatableElements.addAll(updatableElements);
     }
 
     class DaeToMatOut extends MathOutPin{

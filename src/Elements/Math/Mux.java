@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class Mux extends MathElement{
 
-    Parameter inpValue;
+    ScalarParameter inpValue;
 
     public Mux(){
         super();
@@ -50,14 +50,15 @@ public class Mux extends MathElement{
     @Override
     protected List<Double> getValue(int outIndex) {
         List<Double> out=new ArrayList();
-        out.addAll(getInputs().get(0).getValue());
-        out.addAll(getInputs().get(1).getValue());
+        for(int i=0;i<getInputs().size();i++){
+            out.addAll(getInputs().get(i).getValue());
+        }
         return out;
     }
 
     @Override
     protected void setParams(){
-        inpValue=new Parameter("Number of inputs", 2);
+        inpValue=new ScalarParameter("Number of inputs", 2);
         parameters.add(inpValue);
         setName("Mux");
     }

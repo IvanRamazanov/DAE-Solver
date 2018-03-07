@@ -10,6 +10,7 @@ import Connections.MathMarker;
 import Connections.MathWire;
 //import static ElementBase.MathElement.mathCont;
 
+import Connections.Wire;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -55,21 +56,21 @@ abstract public class MathPin extends Pin{
         };
         getView().addEventHandler(MouseDragEvent.MOUSE_DRAG_ENTERED, e->{
             if(getItsConnection()==null){
-                if(Connections.MathWire.activeMathMarker.getWire().setEnd(this)){ // check if was connected
-                    setItsConnection(Connections.MathWire.activeMathMarker);
+                if(Wire.activeWireConnect instanceof MathMarker)
+                    if(((MathMarker)Wire.activeWireConnect).getWire().setEnd(this)){ // check if was connected
+                        setItsConnection(Wire.activeWireConnect);
 //                view.setOpacity(0);
-                    getView().toFront();
-                }
-
+                        getView().toFront();
+                    }
             }
         });
         getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()==MouseButton.PRIMARY){
                 if(getItsConnection()==null){
                     getView().setOpacity(0);
-                    raschetkz.RaschetKz.mathContsList.add(new MathWire(this,
+                    raschetkz.RaschetKz.wireList.add(new MathWire(this,
                             me.getSceneX(),me.getSceneY()));
-                    MathWire.activeMathMarker.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                     getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
                     getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
 
@@ -78,7 +79,7 @@ abstract public class MathPin extends Pin{
 //                    Wire.activeWireConnect=wireCont;
                     getItsConnection().unPlug();
 //                    this.wireCont=null;
-                    MathWire.activeMathMarker.startFullDrag();
+                    Wire.activeWireConnect.startFullDrag();
                     getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MathWire.MC_MOUSE_DRAG);
                     getView().addEventFilter(MouseDragEvent.MOUSE_RELEASED, MathWire.MC_MOUSE_RELEAS);
                 }

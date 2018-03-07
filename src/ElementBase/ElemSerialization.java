@@ -28,6 +28,8 @@ import ElementBase.Element.InitParam;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -37,24 +39,29 @@ import java.util.logging.Logger;
  */
 public class ElemSerialization implements Serializable{
     private final String elemName;
-    private final double[] initValue,paramValue;
+    private final List<double[][]> paramValue;
+    private final double[] initValue;
     private final boolean[] priorities;
     private final double rotation;
 
     ElemSerialization(Element she){
         this.elemName=she.getClass().getName();
         initValue=new double[she.getInitials().size()];
-        paramValue=new double[she.getParameters().size()];
-        priorities=new boolean[paramValue.length];
+//        paramValue=new double[she.getParameters().size()];
+        paramValue=new ArrayList<>();
+
+        priorities=new boolean[initValue.length];
         rotation=she.getRotation();
 
         int i=0;
         for(Parameter p:she.getParameters()){
-            paramValue[i++]=p.getDoubleValue();
+//            paramValue[i++]=p.getDoubleValue();
+
+            paramValue.add(p.getDoubleValue());
         }
         i=0;
         for(InitParam p:she.getInitials()){
-            initValue[i]=p.getDoubleValue();
+            initValue[i]=p.getValue();
             priorities[i++]=p.getPriority();
         }
 
@@ -66,10 +73,13 @@ public class ElemSerialization implements Serializable{
             Class<?> clas=Class.forName(elemName);
             Constructor<?> ctor=clas.getConstructor();
             out=(Element)ctor.newInstance(new Object[] {});
+            out.setRotation(rotation);
 
             int i=0;
             for(Parameter p:out.getParameters()){
-                p.setValue(paramValue[i++]);
+//                p.setValue(paramValue[i++]);
+
+                p.setValue(paramValue.get(i++));
             }
             i=0;
             for(InitParam p:out.getInitials()){

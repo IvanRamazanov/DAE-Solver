@@ -38,17 +38,6 @@ public class Pin {
     private LineMarker itsConnection;
     private Element owner;
 
-
-
-//    /**
-//     * Удаляет следы
-//     */
-//    void clear(){
-////        this.owner=null;
-//        if(itsConnection!=null)
-//            itsConnection.setIsPlugged(false);
-//    }
-
     /**
      * Удаляет следы
      */
@@ -114,6 +103,5 @@ public class Pin {
     public void toFront(){
         getOwner().toFront();
         getView().toFront();
-
     }
 }

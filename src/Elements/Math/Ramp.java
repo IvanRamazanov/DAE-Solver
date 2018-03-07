@@ -33,7 +33,7 @@ import java.util.List;
  * @author Ivan
  */
 public class Ramp extends MathElement{
-    Parameter slope,ton;
+    ScalarParameter slope,ton;
 
     public Ramp(){
         super();
@@ -46,8 +46,8 @@ public class Ramp extends MathElement{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        double ampl=slope.getDoubleValue(),
-                t=ton.getDoubleValue();
+        double ampl=slope.getValue(),
+                t=ton.getValue();
 
         List<Double> out=new ArrayList();
         if(Solver.time<t){
@@ -61,9 +61,9 @@ public class Ramp extends MathElement{
 
     @Override
     protected void setParams(){
-        slope=new Parameter("Slope",1);
+        slope=new ScalarParameter("Slope",1);
         parameters.add(slope);
-        ton=new Parameter("ON time",0);
+        ton=new ScalarParameter("ON time",0);
         parameters.add(ton);
         setName("Ramp");
     }

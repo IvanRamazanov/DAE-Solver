@@ -7,7 +7,7 @@ import java.util.List;
 
 public class ThreePhaseFault extends SchemeElement{
 
-    Parameter fTime,ron;
+    ScalarParameter fTime,ron;
 
     public ThreePhaseFault(){
         super();
@@ -38,8 +38,8 @@ public class ThreePhaseFault extends SchemeElement{
 
     @Override
     protected void setParams() {
-        fTime=new Parameter("Fault time",1);
-        ron=new Parameter("Short circuit resistance",0.001);
+        fTime=new ScalarParameter("Fault time",1);
+        ron=new ScalarParameter("Short circuit resistance",0.001);
         getParameters().addAll(List.of(fTime,ron));
 
         setName("Three phase fault");

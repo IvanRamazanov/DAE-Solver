@@ -5,12 +5,19 @@
  */
 package ElementBase;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import MathPack.MatrixEqu;
+import MathPack.Parser;
+import MathPack.StringGraph;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -18,11 +25,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -38,9 +40,9 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
-import javafx.util.converter.DoubleStringConverter;
-import static raschetkz.RaschetKz.drawBoard;
+import raschetkz.RaschetKz;
 
+import static raschetkz.RaschetKz.drawBoard;
 
 /**
  *
@@ -56,7 +58,11 @@ public abstract class Element {
     protected Label name;
     protected List<MathInPin> mathInputs=new ArrayList();
     protected List<MathOutPin> mathOutputs=new ArrayList();
+    protected List<ElemPin> electricContacts =new ArrayList();
+    protected List<ElemMechPin> mechContacts=new ArrayList();
     private static double HEIGHT_FIT=5;
+
+    protected double contStep=15,maxX,mathContOffset;
 
     public final static DataFormat CUSTOM_FORMAT = new DataFormat("ivan.ramazanov");
     protected List<Parameter> parameters=new ArrayList();
@@ -106,7 +112,6 @@ public abstract class Element {
         cm.getItems().addAll(deleteMenu,paramMenu,rotate);
         imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
 
-
         drawBoard.getChildren().add(this.getView());
         setParams();
 
@@ -138,8 +143,6 @@ public abstract class Element {
                 }
             });
         }
-
-
     }
 
     private void initDND(){
@@ -161,8 +164,11 @@ public abstract class Element {
             elem.getView().setLayoutX(x);
             double y=0;
             elem.getView().setLayoutY(y);
-            if(elem instanceof SchemeElement)    raschetkz.RaschetKz.ElementList.add((SchemeElement)elem);
-            if(elem instanceof MathElement) raschetkz.RaschetKz.MathElemList.add((MathElement)elem);
+
+            RaschetKz.elementList.add(elem);
+
+//            if(elem instanceof SchemeElement)    raschetkz.RaschetKz.ElementList.add((SchemeElement)elem);
+//            if(elem instanceof MathElement) raschetkz.RaschetKz.MathElemList.add((MathElement)elem);
         }catch(NoSuchMethodException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException ex){
             Logger.getLogger(Element.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
@@ -174,7 +180,6 @@ public abstract class Element {
 
             layout=new VBox();
             layout.setAlignment(Pos.TOP_CENTER);
-            //viewPane.setStyle("-fx-border-color: #ff0000");
 
             View view=new View(imagePath,0,0);
             viewPane.setPrefSize(Region.USE_COMPUTED_SIZE,Region.USE_COMPUTED_SIZE);
@@ -182,9 +187,7 @@ public abstract class Element {
             viewPane.focusedProperty().addListener((type,oldVal,newVal)->{
                 if(newVal){
                     view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 1.0, 1.0, 0, 0));
-//                    view.setStyle("-fx-border-color: #ff0000");
                 }else{
-//                    view.setStyle("-fx-border-color: null");
                     view.setEffect(null);
                 }
             });
@@ -192,7 +195,6 @@ public abstract class Element {
             name=new Label();
             name.setTextAlignment(TextAlignment.CENTER);
             layout.getChildren().addAll(viewPane,name);
-//            viewPane.setMaxSize(view.getLayoutBounds().getWidth(), view.getLayoutBounds().getHeight());
             if(catalogFlag){
                 viewPane.setOnMouseClicked(catHandler);
             }
@@ -218,8 +220,6 @@ public abstract class Element {
                             x=0;
                         if(y<0)
                             y=0;
-//                        viewPane.setLayoutX(x);
-//                        viewPane.setLayoutY(y);
                         layout.setLayoutX(x);
                         layout.setLayoutY(y);
                         me.consume();
@@ -249,17 +249,231 @@ public abstract class Element {
                 }
             });
         }
-
-//        lbl.setTextAlignment(TextAlignment.CENTER);
-//        VBox out=new VBox(viewPane,lbl);
-//        out.setAlignment(Pos.CENTER);
-//        out.setLayoutX(100);
-//        out.setLayoutY(100);
         return layout;
-//        return(viewPane);
     }
 
     abstract protected void init();
+
+    /**
+     * Find element by its name
+     * @param name
+     * @return
+     */
+    public static Element findElement(String name){
+        for(Element elem:RaschetKz.elementList){
+            if(elem.getName().equals(name))
+                return elem;
+        }
+        return null;
+    }
+
+    public final int findPin(Pin pin){
+        int index=-1;
+        if(pin instanceof MathInPin)
+            index=mathInputs.indexOf(pin);
+        else if(pin instanceof MathOutPin)
+            index=mathOutputs.indexOf(pin);
+        else  if(pin instanceof ElemPin)
+            index=electricContacts.indexOf(pin);
+        else if(pin instanceof ElemMechPin)
+            index=mechContacts.indexOf(pin);
+        return index;
+    }
+
+
+    /**
+     * Pin name format: ClassSimpleName.index
+     * @param pin
+     * @return
+     */
+    public Pin getPin(String pin){
+        Pin out=null;
+        int index=Integer.valueOf(pin.substring(pin.indexOf('.')+1));
+        if(pin.startsWith("MathInPin"))
+            out=mathInputs.get(index);
+        else if(pin.startsWith("MathOutPin"))
+            out=mathOutputs.get(index);
+        else if(pin.startsWith("ElemPin"))
+            out=electricContacts.get(index);
+        else if(pin.startsWith("ElemMechPin"))
+            out=mechContacts.get(index);
+        return out;
+    }
+
+    final protected void addHiddenMathContact(char ch){
+        if(ch=='i'){
+            if(mathInputs==null) mathInputs=new ArrayList();
+            MathInPin ic=new MathInPin();
+            mathInputs.add(ic);
+        }else{
+            if(mathOutputs==null) mathOutputs=new ArrayList();
+            MathOutPin oc=new MathOutPin();
+            mathOutputs.add(oc);
+        }
+    }
+
+    /**
+     *
+     * @param type 'i' or 'o'
+     */
+    protected Pin addMathContact(char type){
+        Pin out;
+        if(type=='i'){
+            if(mathInputs==null) mathInputs=new ArrayList();
+            int num=mathInputs.size();
+            out=new MathInPin(this,0,num*contStep+mathContOffset);
+            mathInputs.add((MathInPin)out);
+            viewPane.getChildren().add(out.getView());
+        }else{
+            if(mathOutputs==null) mathOutputs=new ArrayList();
+            int num=mathOutputs.size();
+            out=new MathOutPin(this,maxX,num*contStep+mathContOffset);
+            mathOutputs.add((MathOutPin)out);
+            viewPane.getChildren().add(out.getView());
+        }
+        return out;
+    }
+
+    public void configurate(String elemName,String elemInfo){
+        setName(elemName);
+
+        String[] lines = elemInfo.split(System.getProperty("line.separator"));
+        double[] layout= Parser.parseRow(Parser.getKeyValue(lines,"<Layout>"));
+        double x=layout[0],
+                y=layout[1],
+                rotate=layout[2];
+        getView().setLayoutX(x);
+        getView().setLayoutY(y);
+        setRotation(rotate);
+
+        //parameter cycle
+        Integer pSt=null,pEn=null;
+        for(int i=0;i<lines.length;i++){
+            String l=lines[i];
+            if(l.equals("<Parameters>")){
+                pSt=Integer.valueOf(i+1);
+            }else if(l.equals("</Parameters>")){
+                pEn=Integer.valueOf(i);
+                break;
+            }
+        }
+        String[] pLines=Arrays.copyOfRange(lines,pSt,pEn);
+        for(Parameter param:getParameters()){
+            String pName=param.getName();
+
+            pSt=null;
+            pEn=null;
+            for(int i=0;i<pLines.length;i++){
+                String l=pLines[i];
+                if(l.equals("<Param."+pName+">")){
+                    pSt=Integer.valueOf(i+1);
+                }else if(l.equals("</Param."+pName+">")){
+                    pEn=Integer.valueOf(i);
+                    break;
+                }
+            }
+
+            if(pSt!=null&&pEn!=null){
+                String[] pInfo=Arrays.copyOfRange(pLines,pSt,pEn);
+
+                String type=Parser.getKeyValue(pInfo,"<Type>");
+
+                param.setValue(Parser.getKeyValue(pInfo,"<Value>"));
+            }
+        }
+
+        pSt=null;pEn=null;
+        for(int i=0;i<lines.length;i++){
+            String l=lines[i];
+            if(l.equals("<InitParameters>")){
+                pSt=Integer.valueOf(i+1);
+            }else if(l.equals("</InitParameters>")){
+                pEn=Integer.valueOf(i);
+                break;
+            }
+        }
+        pLines=Arrays.copyOfRange(lines,pSt,pEn);
+        for(InitParam param:getInitials()){
+            String pName=param.getName();
+
+            pSt=null;
+            pEn=null;
+            for(int i=0;i<pLines.length;i++){
+                String l=pLines[i];
+                if(l.equals("<Param."+pName+">")){
+                    pSt=Integer.valueOf(i+1);
+                }else if(l.equals("</Param."+pName+">")){
+                    pEn=Integer.valueOf(i);
+                    break;
+                }
+            }
+
+            if(pSt!=null&&pEn!=null){
+                String[] pInfo=Arrays.copyOfRange(pLines,pSt,pEn);
+
+                String type=Parser.getKeyValue(pInfo,"<Type>");
+
+                param.setValue(Parser.getKeyValue(pInfo,"<Value>"));
+            }
+        }
+    }
+
+    public final void save(BufferedWriter bw) throws IOException{
+        bw.write("<"+getName()+">");bw.newLine();
+
+        bw.write("<ClassName>");
+        bw.write(getClass().getName());
+        bw.write("</ClassName>");bw.newLine();
+
+        bw.write("<Layout>");
+        String str="["+getView().getLayoutX()+" "+getView().getLayoutY()+" "+getRotation()+"]";
+        bw.write(str);
+        bw.write("</Layout>");bw.newLine();
+
+        bw.write("<Parameters>");bw.newLine();
+        int cnt=0;
+        for(Element.Parameter param:getParameters()){
+            bw.write("<Param."+param.getName()+">");bw.newLine();
+
+            bw.write("<Type>");
+            bw.write(param.getClass().getSimpleName());
+            bw.write("</Type>");bw.newLine();
+
+            bw.write("<Name>");
+            bw.write(param.getName());
+            bw.write("</Name>");bw.newLine();
+
+            bw.write("<Value>");
+            bw.write(param.getStringValue());
+            bw.write("</Value>");bw.newLine();
+
+            bw.write("</Param."+param.getName()+">");bw.newLine();
+
+            cnt++;
+        }
+        bw.write("</Parameters>");bw.newLine();
+
+        bw.write("<InitParameters>");bw.newLine();
+        cnt=0;
+        for(Element.InitParam param:getInitials()){
+            bw.write("<Param."+param.getName()+">");bw.newLine();
+
+            bw.write("<Name>");
+            bw.write(param.getName());
+            bw.write("</Name>");bw.newLine();
+
+            bw.write("<Value>");
+            bw.write(param.getStringValue());
+            bw.write("</Value>");bw.newLine();
+
+            bw.write("</Param."+param.getName()+">");bw.newLine();
+
+            cnt++;
+        }
+        bw.write("</InitParameters>");bw.newLine();
+
+        bw.write("</"+getName()+">");bw.newLine();
+    }
 
     private void rotate(){
         double angle=this.viewPane.getRotate();
@@ -275,16 +489,24 @@ public abstract class Element {
         return viewPane.getRotate();
     }
 
-    abstract protected void delete();
+    final protected void addElemCont(ElemPin input){
+        this.electricContacts.add(input);
+        this.viewPane.getChildren().add(input.getView());
+    }
+
+    final protected void addMechCont(ElemMechPin input){
+        this.mechContacts.add(input);
+        this.viewPane.getChildren().add(input.getView());
+    }
+
+    abstract public void delete();
 
     protected void openDialogStage() {
-        double maxnamelenght=0;
         Stage subWind=new Stage();
         subWind.setTitle("Параметры: "+this.getName());
         VBox root=new VBox();
         Scene scene=new Scene(root,300,200,Color.DARKCYAN);
         subWind.setScene(scene);
-//        subWind.
 
         Text header=new Text(getName()+"\n\n");
         header.setFont(Font.font("Times New Roman", FontWeight.BOLD, 12));
@@ -296,11 +518,7 @@ public abstract class Element {
         }
         Tab params=new Tab("Параметры элемента");
         ScrollPane asd=new ScrollPane(top);
-//        asd.setPannable(true);
-        //asd.setFitToWidth(true);
         asd.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        //asd.setPrefViewportHeight(150);
-        //asd.setHvalue(0.5);
         params.setContent(asd);
 
         TabPane pane;
@@ -326,7 +544,6 @@ public abstract class Element {
             ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
             ttop.setHgap(2);
             inits.setContent(ttop);
-//            ttop.getChildren().f
             pane=new TabPane(params,inits);
             pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
             root.getChildren().add(pane);
@@ -352,10 +569,7 @@ public abstract class Element {
         bot.setAlignment(Pos.CENTER_RIGHT);
         bot.getChildren().add(btn);
         root.getChildren().add(bot);
-        //
-        //subWind.sizeToScene();
         subWind.show();
-        //subWind.setMaxHeight(root.getLayoutBounds().getHeight()+bot.getHeight()+pane.getHeight());
         scene.setOnKeyReleased(ke->{
             if(ke.getCode()==KeyCode.ENTER){
                 this.getParameters().forEach(data->{
@@ -404,13 +618,13 @@ public abstract class Element {
         return initials;
     }
 
-    public List<Double> getInitialVals() {
-        List<Double> out=new ArrayList();
-        initials.forEach(v->{
-            out.add(v.getDoubleValue());
-        });
-        return out;
-    }
+//    public List<Double> getInitialVals() {
+//        List<Double> out=new ArrayList();
+//        initials.forEach(v->{
+//            out.add(v.getDoubleValue());
+//        });
+//        return out;
+//    }
 
     /**
      * @param initials the initials to set
@@ -419,36 +633,72 @@ public abstract class Element {
         this.initials = initials;
     }
 
+    public void toBack(){
+        getView().toBack();
+    }
+
+    public void toFront(){
+        getView().toFront();
+    }
+    /**
+     * @param name the name to set
+     */
+    protected final void setName(String name) {
+        int cnt=1;
+        String nameTmp=name;
+        for(int i=0;i<RaschetKz.elementList.size();i++){
+            String elemName=RaschetKz.elementList.get(i).getName();
+            if(elemName.equals(nameTmp)){
+                nameTmp=name+cnt;
+                cnt++;
+                i=-1;
+            }
+        }
+
+        this.name.setText(nameTmp);
+    }
+
 
     public class Parameter{
-        double initVal=0;
-        String name="";
-        VBox layout;
-        TextField text;
+        protected double[][] value;
+        protected String name="";
+        private VBox layout;
+        protected TextField text;
+        protected boolean isScalar=false,isVector=false;
 
         protected Parameter(){
         }
 
-        public Parameter(String name,double initVal){
+        private Parameter(String name,double initVal){
             this.name=name;
-            this.initVal=initVal;
+            value=new double[1][1];
+            value[0][0]=initVal;
             this.layout=new VBox();
             this.text=new TextField(Double.toString(initVal));
             layout.getChildren().add(new Label(name));
             layout.getChildren().add(text);
         }
 
+        public Parameter(String name,String initVal){
+            this.name=name;
+            value=parse(initVal);
+            layout=new VBox();
+            text=new TextField(initVal);
+            layout.getChildren().add(new Label(name));
+            layout.getChildren().add(text);
+        }
+
         void update(){
-            DoubleStringConverter conv=new DoubleStringConverter();
-            this.initVal=conv.fromString(this.text.getText());
+//            DoubleStringConverter conv=new DoubleStringConverter();
+            value=parse(text.getText());
         }
 
         /**
          * Value at t=0.
          * @return
          */
-        public double getDoubleValue(){
-            return(this.initVal);
+        public double[][] getDoubleValue(){
+            return(value);
         }
 
         protected void requestFocus(){
@@ -460,48 +710,212 @@ public abstract class Element {
             return text.getText();
         }
 
-        public void setValue(double val){
-            this.initVal=val;
-            this.text.setText(Double.toString(val));
+        public String getStringValue(){
+            return text.getText();
+        }
+
+        public void setValue(String val){
+            value=parse(val);
+            this.text.setText(val);
+        }
+
+        public void setValue(double[][] val){
+            value=val;
+            this.text.setText(parse(val));
+        }
+
+        private String parse(double[][] arr){
+            String out="";
+            if(arr.length==1){
+                if(arr[0].length==1){
+                    out= Double.toString(arr[0][0]);
+                }else
+                    out= Arrays.toString(arr[0]);
+            }else{
+                out+='[';
+                for(double[] row:arr){
+                    out+=Arrays.toString(row);
+                }
+                out+=']';
+            }
+            return out;
+        }
+
+        protected double[][] parse(String str){
+            double[][] out=null;
+            List<String> lines=new ArrayList<>();
+            if(str.charAt(0)=='['){
+                if(str.charAt(str.length()-1)==']'){
+                    str=str.substring(1,str.length()-1);
+                    String temp="";
+                    for(int i=0;i<str.length();i++){
+                        char c=str.charAt(i);
+                        if(c!=';')
+                            temp+=c;
+                        else {
+                            lines.add(temp);
+                            temp="";
+                        }
+                    }
+                    if(!temp.isEmpty())
+                        lines.add(temp);
+                }else{
+                    throw new Error("Corrupted parameter! "+this.name+" = "+str);
+                }
+                int numberOfRows=lines.size();
+
+                // now we have row of lines
+                int i=0;
+                Integer numberOfCols=null;
+                for(String row:lines){
+                    String temp="";
+                    List<String> cols=new ArrayList<>();
+                    for(int j=0;j<row.length();j++){
+                        char c=row.charAt(j);
+                        if(c!=','&&c!=' '){
+                            temp+=c;
+                        }else{
+                            if(!temp.isEmpty()) {
+                                cols.add(temp);
+                                temp = "";
+                            }
+                        }
+                    }
+                    if(!temp.isEmpty())
+                        cols.add(temp);
+
+                    if(numberOfCols!=null){
+                        if(!numberOfCols.equals(cols.size()))
+                            throw new Error("Dimensions mismatch!\n Parameter: "+this.name+" line: "+cols.toString()+"\n in "+str);
+                    }else{
+                        numberOfCols=Integer.valueOf(cols.size());
+                        out=new double[numberOfRows][numberOfCols];
+                    }
+
+                    // cast to array
+                    int j=0;
+                    for(String col:cols){
+                        out[i][j]= StringGraph.doubleValue(col);
+                        j++;
+                    }
+                    i++;
+                }
+
+            }else{
+                // scalar case
+                out=new double[1][1];
+                out[0][0]=StringGraph.doubleValue(str);
+            }
+            if(this instanceof ScalarParameter){
+                if(out.length!=1&&out[0].length!=1)
+                    throw new Error("Dimensions mismatch in "+name+". Must be a scalar.");
+            }else if(this instanceof VectorParameter){
+                if(out.length>1&&out[0].length>1) {
+                    throw new Error("Dimensions mismatch in "+name+". Must be a vector (but matrix).");
+                }else {
+                    if(out.length>1){
+                        // transpose
+                        out=MatrixEqu.transpose(out);
+                    }
+                }
+//                    if(out[0].length!=1)
+//                        throw new Error("Dimensions mismatch in "+name+". Must be a vector.");
+            }
+            return out;
         }
 
         public Pane getLayout(){
             return layout;
         }
 
-//        public List<Node> getLayout(){
-//            return layout;
-//        }
+        public String getName(){
+            return name;
+        }
     }
 
-    public class InitParam extends Parameter{
-        boolean priority;
-        ComboBox box;
-        List<Node> layout;
+    public class ScalarParameter extends Parameter{
+        ScalarParameter(){}
+
+        public ScalarParameter(String name,double value){
+            super(name, value);
+            isScalar=true;
+        }
+
+        public double getValue(){
+            return value[0][0];
+        }
+
+        public void setValue(double val){
+            value[0][0]=0;
+            this.text.setText(Double.toString(val));
+        }
+    }
+
+    public class VectorParameter extends Parameter{
+        VectorParameter(){
+            isVector=true;
+        }
+
+
+        public VectorParameter(String name,String value){
+            super(name, value);
+            isVector=true;
+        }
+
+        public VectorParameter(String name,double val){
+            super(name,val);
+            isVector=true;
+        }
+
+        public double[] getValue(){
+            return value[0];
+        }
+    }
+
+    public class InitParam extends ScalarParameter{
+        private boolean priority;
+        private ComboBox box;
+        private List<Node> layout;
 
         /**
          *
          * @param name
          * @param initVal
          */
-        public InitParam(String name, double initVal){
+        public InitParam(String name, String initVal){
             this.name=name;
-            this.initVal=initVal;
+            value=parse(initVal);
             this.layout=new ArrayList();
-            this.text=new TextField(Double.toString(initVal));
+            this.text=new TextField(initVal);
             layout.add(new Label(name));
             box=new ComboBox();
             box.getItems().addAll("High","Low");
             box.setValue("Low");
-            //box.setMinWidth(box.getc);
             layout.add(box);
             layout.add(text);
+
+            isScalar=true;
+        }
+
+        public InitParam(String name, double val){
+            this.name=name;
+            value=new double[1][1];
+            value[0][0]=val;
+            this.layout=new ArrayList();
+            this.text=new TextField(Double.toString(val));
+            layout.add(new Label(name));
+            box=new ComboBox();
+            box.getItems().addAll("High","Low");
+            box.setValue("Low");
+            layout.add(box);
+            layout.add(text);
+
+            isScalar=true;
         }
 
         @Override
         void update(){
-            DoubleStringConverter conv=new DoubleStringConverter();
-            this.initVal=conv.fromString(this.text.getText());
+            value=parse(this.text.getText());
             this.priority = box.getValue().equals("High");
         }
 
@@ -517,7 +931,6 @@ public abstract class Element {
                 box.setValue("Low");
         }
 
-        //        @Override
         public List<Node> getLayouts(){
             return this.layout;
         }
@@ -526,8 +939,6 @@ public abstract class Element {
     class View extends ImageView{
 
         View(String root,double x,double y){
-
-
             this.setImage(new Image(root));
             this.setSmooth(true);
             this.setPreserveRatio(true);
@@ -536,19 +947,5 @@ public abstract class Element {
             this.setTranslateX(x);
             this.setTranslateY(y);
         }
-    }
-
-    public void toBack(){
-        getView().toBack();
-    }
-
-    public void toFront(){
-        getView().toFront();
-    }
-    /**
-     * @param name the name to set
-     */
-    protected final void setName(String name) {
-        this.name.setText(name);
     }
 }

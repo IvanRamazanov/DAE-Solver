@@ -6,6 +6,7 @@
 package ElementBase;
 
 import Connections.ElectricWire;
+import Connections.Wire;
 import Connections.WireMarker;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
@@ -52,38 +53,41 @@ public class ElemPin extends Pin{
             getView().setCursor(Cursor.DEFAULT);
         };
         EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            if(ElectricWire.activeWireConnect!=null&&getItsConnection()==null){
-                System.out.println("Drag enter to ElemPin. Will plug");
-                ElectricWire.activeWireConnect.getWire().setEnd(this);
-                getView().toFront();
+            if(Wire.activeWireConnect!=null&&getItsConnection()==null){
+                if(Wire.activeWireConnect instanceof WireMarker) {
+                    System.out.println("Drag enter to ElemPin. Will plug");
+                    ((WireMarker)Wire.activeWireConnect).getWire().setEnd(this);
+                    getView().toFront();
+                }
             }
 
         };
         EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            if(ElectricWire.activeWireConnect!=null &&
-                    ElectricWire.activeWireConnect.getItsConnectedPin().equals(this)) {
-                if(ElectricWire.activeWireConnect.getWire().getRank()!=1) {
-                    System.out.println("Drag exit from ElemPin. Source: " + me.getGestureSource());
-                    //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
-                    switch (me.getButton()) {
-                        case PRIMARY:
-                            if (me.isPrimaryButtonDown()) {
+            if(Wire.activeWireConnect!=null &&
+                    Wire.activeWireConnect.getItsConnectedPin().equals(this)) {
+                if(Wire.activeWireConnect instanceof WireMarker)
+                    if(ElectricWire.activeWireConnect.getWire().getRank()!=1) {
+                        System.out.println("Drag exit from ElemPin. Source: " + me.getGestureSource());
+                        //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
+                        switch (me.getButton()) {
+                            case PRIMARY:
+                                if (me.isPrimaryButtonDown()) {
 //                                    this.wireCont=null;
-                                ElectricWire.activeWireConnect.unPlug();
-                                getView().setOpacity(1);
-                                toFront();
-                            }
-                            break;
-                        case SECONDARY:
-                            if (me.isSecondaryButtonDown()) {
+                                    ElectricWire.activeWireConnect.unPlug();
+                                    getView().setOpacity(1);
+                                    toFront();
+                                }
+                                break;
+                            case SECONDARY:
+                                if (me.isSecondaryButtonDown()) {
 //                                    this.wireCont=null;
-                                ElectricWire.activeWireConnect.unPlug();
-                                getView().setOpacity(1);
-                                toFront();
-                            }
-                            break;
+                                    ElectricWire.activeWireConnect.unPlug();
+                                    getView().setOpacity(1);
+                                    toFront();
+                                }
+                                break;
+                        }
                     }
-                }
             }
         };
         getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
@@ -91,7 +95,7 @@ public class ElemPin extends Pin{
                 if(getItsConnection()==null){
                     System.out.println("Drag from ElemPin detected! ItsConnection is Null");
 //                    this.setOpacity(0);
-                    RaschetKz.BranchList.add(new ElectricWire(this,
+                    RaschetKz.wireList.add(new ElectricWire(this,
                             me.getSceneX(),me.getSceneY()));
                     ElectricWire.activeWireConnect.startFullDrag();
                     getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, ElectricWire.WC_MOUSE_DRAG);

@@ -37,9 +37,10 @@ public class MechMarker extends LineMarker{
 
         itsLines.setLineDragOver(de->{
             if(activeWireConnect!=null){
-                if(activeWireConnect.getWire()!=this.getWire()){
-                    getWire().consumeWire(this,(MouseDragEvent)de);
-                }
+                if(activeWireConnect instanceof MechMarker)
+                    if(activeWireConnect.getWire()!=this.getWire()){
+                        getWire().consumeWire(this,(MouseDragEvent)de);
+                    }
             }
         });
 
@@ -132,12 +133,12 @@ public class MechMarker extends LineMarker{
         setItsConnectedPin(ec);
     }
 
-    MechMarker(MechWire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
+    MechMarker(Wire thisWire,double startX,double startY,double endX,double endY,boolean isHorizontal,double[] constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
         bindY.set(endY);
-        itsLines.rearrange(numOfLines,isHorizontal,constrList);
+        itsLines.rearrange(isHorizontal,constrList);
     }
 
     /**
@@ -157,7 +158,7 @@ public class MechMarker extends LineMarker{
             if(getWire().getWireContacts().isEmpty()){
                 getWire().delete();
             }else{
-                MechMarker wm=getWire().getWireContacts().get(0);
+                LineMarker wm=getWire().getWireContacts().get(0);
                 if(wm.isPlugged()){
                     getWire().delete();
                 }
@@ -190,7 +191,7 @@ public class MechMarker extends LineMarker{
                 this.hide();
                 break;
             case 2:
-                MechMarker loser;
+                LineMarker loser;
                 if(getWire().getWireContacts().get(0)==this){
                     loser=getWire().getWireContacts().get(1);
                 }else{

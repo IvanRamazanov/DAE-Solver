@@ -34,9 +34,10 @@ public class WireMarker extends LineMarker{
 
         itsLines.setLineDragOver(de->{
             if(activeWireConnect!=null){
-                if(activeWireConnect.getWire()!=this.getWire()){
-                    getWire().consumeWire(this,(MouseDragEvent)de);
-                }
+                if(activeWireConnect instanceof WireMarker)
+                    if(activeWireConnect.getWire()!=this.getWire()){
+                        getWire().consumeWire(this,(MouseDragEvent)de);
+                    }
             }
         });
 
@@ -134,12 +135,12 @@ public class WireMarker extends LineMarker{
         setItsConnectedPin(ec);
     }
 
-    WireMarker(ElectricWire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
+    WireMarker(Wire thisWire,double startX,double startY,double endX,double endY,boolean isHorizontal,double[] constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
         bindY.set(endY);
-        itsLines.rearrange(numOfLines,isHorizontal,constrList);
+        itsLines.rearrange(isHorizontal,constrList);
     }
 
     /**
@@ -159,7 +160,7 @@ public class WireMarker extends LineMarker{
             if(getWire().getWireContacts().isEmpty()){
                 getWire().delete();
             }else{
-                WireMarker wm=getWire().getWireContacts().get(0);
+                LineMarker wm=getWire().getWireContacts().get(0);
                 if(wm.isPlugged()){
                     getWire().delete();
                 }
@@ -212,7 +213,7 @@ public class WireMarker extends LineMarker{
                 break;
             case 2:
                 System.out.println("Unplug in WireMarker case 2");
-                WireMarker loser;
+                LineMarker loser;
                 if(getWire().getWireContacts().get(0)==this){
                     loser=getWire().getWireContacts().get(1);
                 }else{
@@ -243,11 +244,11 @@ public class WireMarker extends LineMarker{
 //        itsWire=wire;
 //    }
 
-    public DoubleProperty getStartX(){
-        return this.itsLines.getStartX();
-    }
-
-    public DoubleProperty getStartY(){
-        return this.itsLines.getStartY();
-    }
+//    public DoubleProperty getStartX(){
+//        return this.itsLines.getStartX();
+//    }
+//
+//    public DoubleProperty getStartY(){
+//        return this.itsLines.getStartY();
+//    }
 }

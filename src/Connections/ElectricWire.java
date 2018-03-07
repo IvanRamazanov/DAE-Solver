@@ -25,15 +25,15 @@ import javafx.scene.input.MouseEvent;
  * @author Ivan
  */
 public class ElectricWire extends Wire{
-    public static WireMarker activeWireConnect;
-    private List<WireMarker> wireContList =new ArrayList<>();
+//    public static WireMarker activeWireConnect;
+
 
     public static final EventHandler WC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
         public void handle(MouseEvent me) {
-            if(ElectricWire.activeWireConnect!=null)
-                if(!ElectricWire.activeWireConnect.getIsPlugged().get()){
-                    ElectricWire.activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
+            if(activeWireConnect!=null)
+                if(!activeWireConnect.getIsPlugged().get()){
+                    activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
                 }
             me.consume();
         }
@@ -41,8 +41,8 @@ public class ElectricWire extends Wire{
     public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent me){
-            ElectricWire.activeWireConnect.toFront();
-            ElectricWire.activeWireConnect=null;
+            activeWireConnect.toFront();
+            activeWireConnect=null;
             ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
             ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
             me.consume();
@@ -53,174 +53,174 @@ public class ElectricWire extends Wire{
         setWireColor("#b87333");
     }
 
-    public ElectricWire(FileInputStream fis, List<ElemPin> ECList) throws IOException{
-        this();
-        ByteBuffer temp=ByteBuffer.allocate(8);
-        //num of SubWires
-        fis.read(temp.array(),0,4);
-        int subNum=temp.getInt(0);
-        //num of CrToCrWires
-        fis.read(temp.array(),0,4);
-        int CrToCrNum=temp.getInt(0);
-        for(int j=0;j<subNum;j++){ //num of subMarkers
-            //index of EC
-            fis.read(temp.array(),0,4);
-            int indx=temp.getInt(0);
-            //anchor's x
-            fis.read(temp.array(),0,8);
-            double ax=temp.getDouble(0);
-            //anchor's y
-            fis.read(temp.array(),0,8);
-            double ay=temp.getDouble(0);
-            //end's x
-            fis.read(temp.array(),0,8);
-            double ex=temp.getDouble(0);
-            //end's y
-            fis.read(temp.array(),0,8);
-            double ey=temp.getDouble(0);
-            //redflag
-            fis.read(temp.array(),0,2);
-            short redFlag=temp.getShort(0);
-            // read point in dotList
-
-            WireMarker wm;
-            //easyDraw ?
-            fis.read(temp.array(),0,4);
-            boolean easyDraw = temp.getInt(0)==1;
-
-            if(!easyDraw){
-                //read num of lines
-                fis.read(temp.array(),0,4);
-                int numOfLines=temp.getInt(0);
-                fis.read(temp.array(),0,4);
-                boolean isHorizontal=temp.getInt(0)==1;
-                List<Double> constraints=new ArrayList();
-                for(int i=1;i<numOfLines-1;i++){
-                    fis.read(temp.array(),0,8);
-                    constraints.add(temp.getDouble(0));
-                }
-                wm=new WireMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
-            }else{
-                wm=new WireMarker(this);
-            }
-            wm.setEndProp(ex, ey);
-            wm.setStartPoint(ax, ay);
-            if(subNum>2){  //then exist Cross in dotList
-                fis.read(temp.array(),0,4);
-                int ii=temp.getInt(0);
-                fis.read(temp.array(),0,4);
-                int jj=temp.getInt(0);
-                for(int k=ii-(getDotList().size()-1);k>0;k--)
-                    getDotList().add(new ArrayList());
-                for(int k=jj-(getDotList().get(ii).size()-1);k>0;k--)
-                    getDotList().get(ii).add(null);
-                getDotList().get(ii).set(jj,wm.getItsLine().getStartMarker());
-            }
-            //set up wireCont
-            if(indx!=-1){
-                ElemPin ECofWC=ECList.get(indx);
-                wm.bindElemContact(ECofWC);
-                ECofWC.setWirePointer(wm);
-                if(redFlag==1){ //?????????? must be no EC
-                    wm.setIsPlugged(false);
-                }else{
-                    //create cont
-                    if(subNum==2){
-                        // create second one
-                        fis.read(temp.array(),0,4);   //index of EC
-                        indx=temp.getInt(0);
-
-                        ElemPin ECofWM1=ECList.get(indx);
-                        wm.bindStartTo(ECofWM1.getBindX(), ECofWM1.getBindY());
-
-                        fis.read(temp.array(),0,8);   //anchor's x
-                        ax=temp.getDouble(0);
-                        fis.read(temp.array(),0,8);   //anchor's y
-                        ay=temp.getDouble(0);
-                        fis.read(temp.array(),0,8);   //end's x
-                        fis.read(temp.array(),0,8);   //end's y
-                        fis.read(temp.array(),0,2);     //redflag
-                        fis.read(temp.array(),0,4);
-                        easyDraw = temp.getInt(0)==1;
-                        if(!easyDraw){
-                            //read num of lines
-                            fis.read(temp.array(),0,4);
-                            int numOfLines=temp.getInt(0);
-                            fis.read(temp.array(),0,4);
-                            boolean isHorizontal=temp.getInt(0)==1;
-                            List<Double> constraints=new ArrayList();
-                            for(int i=1;i<numOfLines-1;i++){
-                                fis.read(temp.array(),0,8);
-                                constraints.add(temp.getDouble(0));
-                            }
-                            wm=new WireMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
-                        }else{
-                            wm=new WireMarker(this);
-                        }
-                        wm.hide();
-                        wm.bindElemContact(ECofWM1);
-                        ECofWM1.setWirePointer(wm);
-                        wm.bindStartTo(ECofWC.getBindX(), ECofWC.getBindY());
-                        break;
-                    }
-                }
-            }else{
-                //case of O----O
-                wm.getItsLine().getStartX().set(ax);
-                wm.getItsLine().getStartY().set(ay);
-                wm.getBindX().set(ex);
-                wm.getBindY().set(ey);
-                wm.setIsPlugged(false);
-            }
-        }
-
-        for(int j=0;j<CrToCrNum;j++){
-            fis.read(temp.array(),0,8);   //anchor's x
-            double ax=temp.getDouble(0);
-            fis.read(temp.array(),0,8);   //anchor's y
-            double ay=temp.getDouble(0);
-            fis.read(temp.array(),0,8);   //end's x
-            double ex=temp.getDouble(0);
-            fis.read(temp.array(),0,8);   //end's y
-            double ey=temp.getDouble(0);
-            fis.read(temp.array(),0,4);
-            boolean easyDraw=temp.getInt(0)==1;
-            CrossToCrossLine line=addContToCont(ax,ay,ex,ey);
-            if(!easyDraw){
-                fis.read(temp.array(),0,4);
-                int numOfLines=temp.getInt(0);
-                fis.read(temp.array(),0,4);
-                boolean isHrizon=temp.getInt(0)==1;
-                List<Double> constraints=new ArrayList();
-                for(int i=1;i<numOfLines-1;i++){
-                    fis.read(temp.array(),0,8);
-                    constraints.add(temp.getDouble(0));
-                }
-                line.rearrange(numOfLines, isHrizon, constraints);
-            }
-            // indexes in dotList
-            fis.read(temp.array(),0,4);
-            int sti=temp.getInt(0);
-            fis.read(temp.array(),0,4);
-            int stj=temp.getInt(0);
-            fis.read(temp.array(),0,4);
-            int eni=temp.getInt(0);
-            fis.read(temp.array(),0,4);
-            int enj=temp.getInt(0);
-            // add Crosses in dotList
-            for(int k=sti-(getDotList().size()-1);k>0;k--)
-                getDotList().add(new ArrayList());
-            for(int k=stj-(getDotList().get(sti).size()-1);k>0;k--)
-                getDotList().get(sti).add(null);
-            getDotList().get(sti).set(stj,line.getStartMarker());
-            for(int k=eni-(getDotList().size()-1);k>0;k--)
-                getDotList().add(new ArrayList());
-            for(int k=enj-(getDotList().get(eni).size()-1);k>0;k--)
-                getDotList().get(eni).add(null);
-            getDotList().get(eni).set(enj, line.getEndCrossMarker());
-        }
-        bindCrosses();
-    }
+//    public ElectricWire(FileInputStream fis, List<ElemPin> ECList) throws IOException{
+//        this();
+//        ByteBuffer temp=ByteBuffer.allocate(8);
+//        //num of SubWires
+//        fis.read(temp.array(),0,4);
+//        int subNum=temp.getInt(0);
+//        //num of CrToCrWires
+//        fis.read(temp.array(),0,4);
+//        int CrToCrNum=temp.getInt(0);
+//        for(int j=0;j<subNum;j++){ //num of subMarkers
+//            //index of EC
+//            fis.read(temp.array(),0,4);
+//            int indx=temp.getInt(0);
+//            //anchor's x
+//            fis.read(temp.array(),0,8);
+//            double ax=temp.getDouble(0);
+//            //anchor's y
+//            fis.read(temp.array(),0,8);
+//            double ay=temp.getDouble(0);
+//            //end's x
+//            fis.read(temp.array(),0,8);
+//            double ex=temp.getDouble(0);
+//            //end's y
+//            fis.read(temp.array(),0,8);
+//            double ey=temp.getDouble(0);
+//            //redflag
+//            fis.read(temp.array(),0,2);
+//            short redFlag=temp.getShort(0);
+//            // read point in dotList
+//
+//            WireMarker wm;
+//            //easyDraw ?
+//            fis.read(temp.array(),0,4);
+//            boolean easyDraw = temp.getInt(0)==1;
+//
+//            if(!easyDraw){
+//                //read num of lines
+//                fis.read(temp.array(),0,4);
+//                int numOfLines=temp.getInt(0);
+//                fis.read(temp.array(),0,4);
+//                boolean isHorizontal=temp.getInt(0)==1;
+//                List<Double> constraints=new ArrayList();
+//                for(int i=1;i<numOfLines-1;i++){
+//                    fis.read(temp.array(),0,8);
+//                    constraints.add(temp.getDouble(0));
+//                }
+//                wm=new WireMarker(this,ax,ay,ex,ey,isHorizontal,constraints);
+//            }else{
+//                wm=new WireMarker(this);
+//            }
+//            wm.setEndProp(ex, ey);
+//            wm.setStartPoint(ax, ay);
+//            if(subNum>2){  //then exist Cross in dotList
+//                fis.read(temp.array(),0,4);
+//                int ii=temp.getInt(0);
+//                fis.read(temp.array(),0,4);
+//                int jj=temp.getInt(0);
+//                for(int k=ii-(getDotList().size()-1);k>0;k--)
+//                    getDotList().add(new ArrayList());
+//                for(int k=jj-(getDotList().get(ii).size()-1);k>0;k--)
+//                    getDotList().get(ii).add(null);
+//                getDotList().get(ii).set(jj,wm.getItsLine().getStartMarker());
+//            }
+//            //set up wireCont
+//            if(indx!=-1){
+//                ElemPin ECofWC=ECList.get(indx);
+//                wm.bindElemContact(ECofWC);
+//                ECofWC.setWirePointer(wm);
+//                if(redFlag==1){ //?????????? must be no EC
+//                    wm.setIsPlugged(false);
+//                }else{
+//                    //create cont
+//                    if(subNum==2){
+//                        // create second one
+//                        fis.read(temp.array(),0,4);   //index of EC
+//                        indx=temp.getInt(0);
+//
+//                        ElemPin ECofWM1=ECList.get(indx);
+//                        wm.bindStartTo(ECofWM1.getBindX(), ECofWM1.getBindY());
+//
+//                        fis.read(temp.array(),0,8);   //anchor's x
+//                        ax=temp.getDouble(0);
+//                        fis.read(temp.array(),0,8);   //anchor's y
+//                        ay=temp.getDouble(0);
+//                        fis.read(temp.array(),0,8);   //end's x
+//                        fis.read(temp.array(),0,8);   //end's y
+//                        fis.read(temp.array(),0,2);     //redflag
+//                        fis.read(temp.array(),0,4);
+//                        easyDraw = temp.getInt(0)==1;
+//                        if(!easyDraw){
+//                            //read num of lines
+//                            fis.read(temp.array(),0,4);
+//                            int numOfLines=temp.getInt(0);
+//                            fis.read(temp.array(),0,4);
+//                            boolean isHorizontal=temp.getInt(0)==1;
+//                            List<Double> constraints=new ArrayList();
+//                            for(int i=1;i<numOfLines-1;i++){
+//                                fis.read(temp.array(),0,8);
+//                                constraints.add(temp.getDouble(0));
+//                            }
+//                            wm=new WireMarker(this,ax,ay,ex,ey,numOfLines,isHorizontal,constraints);
+//                        }else{
+//                            wm=new WireMarker(this);
+//                        }
+//                        wm.hide();
+//                        wm.bindElemContact(ECofWM1);
+//                        ECofWM1.setWirePointer(wm);
+//                        wm.bindStartTo(ECofWC.getBindX(), ECofWC.getBindY());
+//                        break;
+//                    }
+//                }
+//            }else{
+//                //case of O----O
+//                wm.getItsLine().getStartX().set(ax);
+//                wm.getItsLine().getStartY().set(ay);
+//                wm.getBindX().set(ex);
+//                wm.getBindY().set(ey);
+//                wm.setIsPlugged(false);
+//            }
+//        }
+//
+//        for(int j=0;j<CrToCrNum;j++){
+//            fis.read(temp.array(),0,8);   //anchor's x
+//            double ax=temp.getDouble(0);
+//            fis.read(temp.array(),0,8);   //anchor's y
+//            double ay=temp.getDouble(0);
+//            fis.read(temp.array(),0,8);   //end's x
+//            double ex=temp.getDouble(0);
+//            fis.read(temp.array(),0,8);   //end's y
+//            double ey=temp.getDouble(0);
+//            fis.read(temp.array(),0,4);
+//            boolean easyDraw=temp.getInt(0)==1;
+//            CrossToCrossLine line=addContToCont(ax,ay,ex,ey);
+//            if(!easyDraw){
+//                fis.read(temp.array(),0,4);
+//                int numOfLines=temp.getInt(0);
+//                fis.read(temp.array(),0,4);
+//                boolean isHrizon=temp.getInt(0)==1;
+//                List<Double> constraints=new ArrayList();
+//                for(int i=1;i<numOfLines-1;i++){
+//                    fis.read(temp.array(),0,8);
+//                    constraints.add(temp.getDouble(0));
+//                }
+//                line.rearrange(numOfLines, isHrizon, constraints);
+//            }
+//            // indexes in dotList
+//            fis.read(temp.array(),0,4);
+//            int sti=temp.getInt(0);
+//            fis.read(temp.array(),0,4);
+//            int stj=temp.getInt(0);
+//            fis.read(temp.array(),0,4);
+//            int eni=temp.getInt(0);
+//            fis.read(temp.array(),0,4);
+//            int enj=temp.getInt(0);
+//            // add Crosses in dotList
+//            for(int k=sti-(getDotList().size()-1);k>0;k--)
+//                getDotList().add(new ArrayList());
+//            for(int k=stj-(getDotList().get(sti).size()-1);k>0;k--)
+//                getDotList().get(sti).add(null);
+//            getDotList().get(sti).set(stj,line.getStartMarker());
+//            for(int k=eni-(getDotList().size()-1);k>0;k--)
+//                getDotList().add(new ArrayList());
+//            for(int k=enj-(getDotList().get(eni).size()-1);k>0;k--)
+//                getDotList().get(eni).add(null);
+//            getDotList().get(eni).set(enj, line.getEndCrossMarker());
+//        }
+//        bindCrosses();
+//    }
 
     /**
      * Создает провод и цепляет старт к контакту
@@ -240,7 +240,7 @@ public class ElectricWire extends Wire{
      * @param elemCont контакт элемента
      */
     public void setEnd(ElemPin elemCont){
-        switch(wireContList.size()){
+        switch(getWireContacts().size()){
             case 1:
                 System.out.println("Set end case 1");
                 Pin oldEc=activeWireConnect.getItsConnectedPin();   // начальный O--->
@@ -252,12 +252,12 @@ public class ElectricWire extends Wire{
                 break;
             case 2:
                 System.out.println("Set end case 2");
-                if(!wireContList.get(0).isPlugged()&&!wireContList.get(1).isPlugged()) {   // free floating wire case
-                    WireMarker loser;
-                    if(wireContList.get(0).equals(activeWireConnect))
-                        loser=wireContList.get(1);
+                if(!getWireContacts().get(0).isPlugged()&&!getWireContacts().get(1).isPlugged()) {   // free floating wire case
+                    LineMarker loser;
+                    if(getWireContacts().get(0).equals(activeWireConnect))
+                        loser=getWireContacts().get(1);
                     else
-                        loser=wireContList.get(0);
+                        loser=getWireContacts().get(0);
                     activeWireConnect.setEndProp(loser.getBindX().get(),loser.getBindY().get());
                     activeWireConnect.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
                     elemCont.setWirePointer(activeWireConnect);
@@ -273,17 +273,9 @@ public class ElectricWire extends Wire{
         }
     }
 
-    /**
-     * Возвращяет число контактов
-     * @return
-     */
-    public int getRank(){
-        return(this.wireContList.size());
-    }
-
     void consumeWire(WireMarker eventSource,MouseDragEvent mde){
         double x=mde.getX(),y=mde.getY();
-        ElectricWire consumedWire=activeWireConnect.getWire();
+        Wire consumedWire=activeWireConnect.getWire();
 
 
         switch(consumedWire.getRank()){
@@ -374,9 +366,9 @@ public class ElectricWire extends Wire{
         }
     }
 
-    public List<WireMarker> getWireContacts(){
-        return(wireContList);
-    };
+//    public List<WireMarker> getWireContacts(){
+//        return(wireContList);
+//    };
 
     void showAll(){
         getWireContacts().forEach(wc->{
@@ -396,7 +388,7 @@ public class ElectricWire extends Wire{
         baos.write(temp.array(), 0, 4);
 
         // describe each WireMarker
-        for(WireMarker wc:getWireContacts()){
+        for(LineMarker wc:getWireContacts()){
             int indx;
             short redFlag;
             Pin ec=wc.getItsConnectedPin();
@@ -517,21 +509,14 @@ public class ElectricWire extends Wire{
 
     }
 
-    public void delete(){
-        raschetkz.RaschetKz.BranchList.remove(this);
-        if(!wireContList.isEmpty()){
-            activeWireConnect=wireContList.get(0);// for prevent dead loop
-            int i=wireContList.size()-1;
-            for(;i>=0;i--){
-                if(!wireContList.isEmpty())
-                    wireContList.get(i).delete();
-            }
-            activeWireConnect=null;
-        }
-        for(int i=getContContList().size()-1;i>=0;i--){
-            if(!getContContList().isEmpty())
-                getContContList().get(i).delete();
-        }
-        getDotList().clear();
+
+    @Override
+    protected LineMarker addLineMarker(Wire wire, double ax, double ay, double ex, double ey, boolean isHorizontal, double[] constraints) {
+        return new WireMarker(wire,ax,ay,ex,ey,isHorizontal,constraints);
+    }
+
+    @Override
+    protected LineMarker addLineMarker(Wire wire) {
+        return new WireMarker(wire);
     }
 }

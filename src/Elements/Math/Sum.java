@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class Sum extends MathElement{
 
-    Parameter gains;
+    ScalarParameter gains;
 
     public Sum(){
         super();
@@ -57,7 +57,7 @@ public class Sum extends MathElement{
 //            }
             val+=getInputs().get(0).getValue().get(i);
             double adder=1;
-            if(gains.getDoubleValue()==0)
+            if(gains.getValue()==0)
                 adder=-1;
             val+=getInputs().get(1).getValue().get(i)*adder;
             sum.add(val);
@@ -67,7 +67,7 @@ public class Sum extends MathElement{
 
     @Override
     protected void setParams(){
-        gains=new Parameter("1 - '+', 0 - '-'", 0);
+        gains=new ScalarParameter("1 - '+', 0 - '-'", 0);
         getParameters().add(gains);
 
         setName("Sum");

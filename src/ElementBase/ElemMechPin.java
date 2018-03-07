@@ -2,6 +2,7 @@ package ElementBase;
 
 import Connections.MechMarker;
 import Connections.MechWire;
+import Connections.Wire;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -42,16 +43,19 @@ public class ElemMechPin extends Pin{
             getView().setCursor(Cursor.DEFAULT);
         };
         EventHandler dragEnterHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
-            if(MechWire.activeWireConnect!=null&&getItsConnection()==null){
-                System.out.println("You are plugged");
-                MechWire.activeWireConnect.getWire().setEnd(this);
-                getView().toFront();
+            if(Wire.activeWireConnect!=null&&getItsConnection()==null){
+                if(Wire.activeWireConnect instanceof MechMarker) {
+                    System.out.println("You are plugged");
+                    ((MechMarker)Wire.activeWireConnect).getWire().setEnd(this);
+                    getView().toFront();
+                }
             }
 
         };
         EventHandler dragExitHndl =(EventHandler<MouseDragEvent>)(MouseDragEvent me) -> {
             System.out.println("Hello from drag exit (in ElemMechPin)! Source: "+me.getGestureSource());
-            if(MechWire.activeWireConnect!=null)
+            if(Wire.activeWireConnect!=null)
+                if(Wire.activeWireConnect instanceof MechMarker)
                 //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
                 switch(me.getButton()){
                     case PRIMARY:
@@ -84,7 +88,7 @@ public class ElemMechPin extends Pin{
         getView().addEventHandler(MouseEvent.DRAG_DETECTED, me -> {
             if(me.getButton()== MouseButton.PRIMARY){
                 if(getItsConnection()==null){
-                    RaschetKz.MechWireList.add(new MechWire(this,
+                    RaschetKz.wireList.add(new MechWire(this,
                             me.getSceneX(),me.getSceneY()));
                     MechWire.activeWireConnect.startFullDrag();
                     getView().addEventFilter(MouseEvent.MOUSE_DRAGGED, MechWire.MeC_MOUSE_DRAG);

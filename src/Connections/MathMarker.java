@@ -67,7 +67,7 @@ public class MathMarker extends LineMarker{
                 }
                 if(getWire().getWireContacts().size()==2){
                     MathMarker newCont=new MathMarker(getWire(),me.getX(), me.getY());
-                    activeMathMarker=newCont;
+                    Wire.activeWireConnect=newCont;
                     adjustCrosses(newCont,
                             getWire().getWireContacts().get(0),
                             getWire().getWireContacts().get(1));
@@ -87,7 +87,7 @@ public class MathMarker extends LineMarker{
                 }
                 else{
                     MathMarker newCont=new MathMarker(getWire(),me.getX(), me.getY());
-                    activeMathMarker=newCont;
+                    Wire.activeWireConnect=newCont;
                     ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
                     ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
                     newCont.startFullDrag();
@@ -98,7 +98,7 @@ public class MathMarker extends LineMarker{
         });
 
         view.setOnDragDetected(me->{
-            getWire().activeMathMarker=this;
+            Wire.activeWireConnect=this;
             getWire().setDragSource(view);
             this.pushToBack();
             view.startFullDrag();
@@ -158,12 +158,12 @@ public class MathMarker extends LineMarker{
 
     }
 
-    MathMarker(Wire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
+    MathMarker(Wire thisWire,double startX,double startY,double endX,double endY,boolean isHorizontal,double[] constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
         bindY.set(endY);
-        itsLines.rearrange(numOfLines,isHorizontal,constrList);
+        itsLines.rearrange(isHorizontal,constrList);
     }
 
     public List<Double> getValue(){
@@ -206,7 +206,7 @@ public class MathMarker extends LineMarker{
             return;
         }
 
-        dotReduction(activeMathMarker);
+        dotReduction(Wire.activeWireConnect);
 
         if(getItsConnectedPin()!=null){
             getItsConnectedPin().clear();
@@ -225,7 +225,7 @@ public class MathMarker extends LineMarker{
 
     @Override
     public void unPlug(){
-        activeMathMarker=this;
+        Wire.activeWireConnect=this;
         setIsPlugged(false);
         this.bindX.unbind();
         this.bindY.unbind();
@@ -238,7 +238,7 @@ public class MathMarker extends LineMarker{
             getView().setVisible(true);
             getView().toBack();
         }else{
-            getWire().setSource(null);
+            getWire().setSource(null); //TODO IMPLEMENT THIS!!!
 //                if(connectedPin!=null)
 //                    itsWire.setSource(null);
 //                startView.layoutXProperty().unbind();

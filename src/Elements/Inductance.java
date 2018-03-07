@@ -35,7 +35,7 @@ public class Inductance extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Parameter("Inductance", 0.01));
+        this.parameters.add(new ScalarParameter("Inductance", 0.01));
 
         this.initials.add(new InitParam("Current", 0));
         setName("Inductance");

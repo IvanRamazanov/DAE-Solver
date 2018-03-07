@@ -24,24 +24,22 @@
 package MathPack;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  *
  * @author Ivan
  */
 public class WorkSpace {
-    private ArrayList<Double> varValues;
-    private List<String> varnames;
+    private ArrayList<Variable> variableList;
 
     public WorkSpace(){
-        varValues=new ArrayList();
-        varnames=new ArrayList();
+        variableList=new ArrayList<>();
+
     }
 
-    public double get(String name){
-        return varValues.get(varnames.indexOf(name));
-    }
+//    public double get(String name){
+//        return varValues.get(varnames.indexOf(name));
+//    }
 
     public double get(int indx){
 //        try{
@@ -50,55 +48,78 @@ public class WorkSpace {
 //            System.err.println("No such variable: "+name);
 //            return 0.0;
 //        }
-        return varValues.get(indx);
+        return variableList.get(indx).getValue();
     }
 
     public static boolean isRealVariable(String name){
-        if(!name.startsWith("X.")&&!name.startsWith("I.")&&!name.startsWith("time")){
+        if(!name.startsWith("I.")&&!name.startsWith("time")){
             return true;
         }else{
             return false;
         }
     }
 
-    public List<String> getVarNameList(){
-//        List<String> out=new ArrayList();
-//        out.addAll(varList.keySet());
-//        return out;
-        return varnames;
+    public ArrayList<String> getVarNameList(){
+        ArrayList<String> out=new ArrayList();
+        for(int i=0;i<variableList.size();i++)
+            out.add(variableList.get(i).name);
+        return out;
     }
 
     public String getName(int i){
-        return varnames.get(i);
+        return variableList.get(i).name;
     }
 
-    public void setValue(int indx,double value){
-//        if(getVarList().containsKey(name)){
-//            getVarList().replace(name, value);
-//        }else{
-//            System.err.println("No such variable!: "+name);
-//        }
-        varValues.set(indx, value);
-    }
+//    public void setValue(String name,double value){
+//        varValues.set(varnames.indexOf(name), value);
+//    }
 
-    public void setValue(String name,double value){
-        varValues.set(varnames.indexOf(name), value);
-    }
-
-    public void add(String name,Double value){
-        if(varnames.contains(name)){
+    public Variable add(String name,Double value){
+        Variable newVar=null;
+        if(contains(name)){
             //System.err.println("Variable "+name+" is alredy contains in workspace!");
         }else{
-            getVarList().add(value);
-            varnames.add(name);
+            newVar=new Variable(name,value);
+            getVarList().add(newVar);
         }
+        return newVar;
     }
 
     /**
      * @return the varList
      */
-    public ArrayList<Double> getVarList() {
-        return varValues;
+    public ArrayList<Variable> getVarList() {
+        return variableList;
+    }
+
+    private boolean contains(String name){
+        for(Variable var:variableList){
+            if(var.name.equals(name))
+                return true;
+        }
+        return false;
+    }
+
+    public class Variable{
+        String name;
+        double value;
+
+        private Variable(String name,double value){
+            this.name=name;
+            this.value=value;
+        }
+
+        public void set(double val){
+            value=val;
+        }
+
+        public double getValue(){
+            return value;
+        }
+
+        public String getName() {
+            return name;
+        }
     }
 }
 

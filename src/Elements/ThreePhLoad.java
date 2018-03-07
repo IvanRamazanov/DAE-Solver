@@ -6,7 +6,7 @@ import ElementBase.SchemeElement;
 import java.util.List;
 
 public class ThreePhLoad extends SchemeElement{
-    Parameter Ra,Rb,Rc;
+    ScalarParameter Ra,Rb,Rc;
 
     public ThreePhLoad(){
         super();
@@ -38,9 +38,9 @@ public class ThreePhLoad extends SchemeElement{
 
     @Override
     protected void setParams() {
-        Ra=new Parameter("Ra",10);
-        Rb=new Parameter("Rb",10);
-        Rc=new Parameter("Rc",10);
+        Ra=new ScalarParameter("Ra",10);
+        Rb=new ScalarParameter("Rb",10);
+        Rc=new ScalarParameter("Rc",10);
         getParameters().addAll(List.of(Ra,Rb,Rc));
 
         setName("Three-phase load");

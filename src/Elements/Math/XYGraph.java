@@ -23,8 +23,11 @@
  */
 package Elements.Math;
 
+import ElementBase.MathElement;
 import ElementBase.OutputElement;
 import java.util.ArrayList;
+import java.util.List;
+
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -37,12 +40,16 @@ import javafx.stage.Stage;
  * @author Ivan
  */
 public class XYGraph extends OutputElement{
+    List<List<Double>> data;
+
     public XYGraph(){
         super();
         data.add(new ArrayList());
         data.add(new ArrayList());
         addMathContact('i');
         addMathContact('i');
+
+        data=new ArrayList<>();
     }
 
     public XYGraph(boolean inp){
@@ -87,6 +94,7 @@ public class XYGraph extends OutputElement{
 
     @Override
     public void init(){
+        super.init();
         this.data.clear();
     }
 
@@ -98,6 +106,11 @@ public class XYGraph extends OutputElement{
     @Override
     protected String getDescription(){
         return "";
+    }
+
+    @Override
+    protected List<Double> getValue(int i){
+        return null;
     }
 
 }

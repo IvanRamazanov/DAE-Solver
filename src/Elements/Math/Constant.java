@@ -32,7 +32,7 @@ import java.util.List;
  * @author Ivan
  */
 public class Constant extends MathElement{
-    private Parameter apmlitude;
+    private ScalarParameter apmlitude;
 
     public Constant(){
         super();
@@ -46,13 +46,15 @@ public class Constant extends MathElement{
     @Override
     protected List<Double> getValue(int outIndex) {
         List<Double> out=new ArrayList();
-        out.add(apmlitude.getDoubleValue());
+        double[][] arr=apmlitude.getDoubleValue();
+        for(double[] line:arr)
+            out.add(line[0]);
         return out;
     }
 
     @Override
     protected void setParams(){
-        apmlitude=new Parameter("Aplitude",1);
+        apmlitude=new ScalarParameter("Aplitude",1);
         parameters.add(apmlitude);
         setName("Constant");
     }

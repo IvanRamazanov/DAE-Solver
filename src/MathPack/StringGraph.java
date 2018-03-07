@@ -110,6 +110,10 @@ public class StringGraph {
         return out;
     }
 
+    public void linkVariableToWorkSpace(String name, WorkSpace.Variable link){
+        root.setVariableLink(name,link);
+    }
+
     @Override
     public String toString(){
         return root.toString();
@@ -208,6 +212,17 @@ public class StringGraph {
             }
         }
         return false;
+    }
+
+    static public double doubleValue(String str){
+        str=str.replaceAll(" ","");
+        str=str.replaceAll("\\[","");
+        str=str.replaceAll("]","");
+        StringGraph sg=new StringGraph(str);
+        if(sg.getRoot() instanceof Const){
+            return ((Const)sg.getRoot()).getValue();
+        }else
+            throw new Error("Can't cast double from: "+str);
     }
 
     /**
@@ -685,6 +700,8 @@ interface Uzel{
 
     boolean containInstance(String varName);
 
+    void setVariableLink(String name, WorkSpace.Variable link);
+
     int getOrder();
 
     Uzel differ(String varName);
@@ -753,7 +770,14 @@ class Const implements Uzel{
     }
 
     @Override
-    public void getVariables(Set inp){};
+    public void getVariables(Set inp){
+
+    }
+
+    @Override
+    public void setVariableLink(String name, WorkSpace.Variable link){
+
+    }
 
     @Override
     public int numOfContains(String varName){
@@ -782,6 +806,7 @@ class Variable implements Uzel{
             order=-1,
             index=-1,
             secondIndex;
+    private WorkSpace.Variable workSpaceLink;
 
     public Variable(String name){
         if(name.contains(".")){
@@ -809,17 +834,23 @@ class Variable implements Uzel{
     }
 
     @Override
+    public void setVariableLink(String name,WorkSpace.Variable wslink){
+        if(this.name.equals(name))
+            workSpaceLink=wslink;
+    }
+
+    @Override
     public double getValue(WorkSpace vars,List<MathInPin> extInput){
         if(shortName.equals("time")){
             return Solver.time;
-        }else if(shortName.equals("dt")){
-            return Solver.dt;
         }else
         if(shortName.equals("I.")){
-//            int ind=Integer.parseInt(name.substring(name.lastIndexOf('.')+1, name.length()))-1;
             return extInput.get(index-1).getValue().get(secondIndex);
         }else{
-            return vars.get(name);
+//            return vars.get(name);
+            if(workSpaceLink==null)
+                throw new Error(name+" is null");
+            return workSpaceLink.getValue();
         }
     }
 
@@ -872,7 +903,9 @@ class Variable implements Uzel{
 
     @Override
     public Uzel copy(){
-        return new Variable(this.getName());
+        Variable n=new Variable(this.getName());
+        n.workSpaceLink=this.workSpaceLink;
+        return n;
     }
 
     @Override
@@ -1088,6 +1121,13 @@ class FuncUzel implements Uzel{
             i++;
         }
         return false;
+    }
+
+    @Override
+    public void setVariableLink(String name,WorkSpace.Variable link){
+        for(Uzel uz:getInputs()){
+            uz.setVariableLink(name, link);
+        }
     }
 
     @Override

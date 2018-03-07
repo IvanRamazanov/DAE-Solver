@@ -24,7 +24,6 @@
 package Elements;
 
 import ElementBase.ElemPin;
-import ElementBase.Element;
 import ElementBase.SchemeElement;
 
 /**
@@ -32,7 +31,7 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class PNPtrans extends SchemeElement {
-    Element.Parameter Is,bf,br,Vt;
+    ScalarParameter Is,bf,br,Vt;
     public PNPtrans(){
         super();
         addElemCont(new ElemPin(this, 32, 9)); //C
@@ -47,8 +46,8 @@ public class PNPtrans extends SchemeElement {
     @Override
     public String[] getStringFunction() {
         String is=Is.toString(),
-                Bf=Double.toString(bf.getDoubleValue()),
-                Br=Double.toString(br.getDoubleValue()),
+                Bf=Double.toString(bf.getValue()),
+                Br=Double.toString(br.getValue()),
                 vt=Vt.toString();
 
         double q=1.602176*Math.pow(10,-19),k=1.3806503*Math.pow(10,-23);
@@ -69,13 +68,13 @@ public class PNPtrans extends SchemeElement {
 
     @Override
     protected void setParams(){
-        Is=new Element.Parameter("Satiration current",1e-14);
+        Is=new ScalarParameter("Satiration current",1e-14);
         parameters.add(Is);
-        bf=new Element.Parameter("Forward common emitter current gain",100);
+        bf=new ScalarParameter("Forward common emitter current gain",100);
         parameters.add(bf);
-        br=new Element.Parameter("Reverse common emitter current gain",1);
+        br=new ScalarParameter("Reverse common emitter current gain",1);
         parameters.add(br);
-        Vt=new Element.Parameter("Thermal voltage",25.0+273.15);
+        Vt=new ScalarParameter("Thermal voltage",25.0+273.15);
         parameters.add(Vt);
         setName("Bipolar transistor\nPNP");
     }

@@ -7,6 +7,7 @@ package ElementBase;
 
 import Connections.MathMarker;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import raschetkz.RaschetKz;
@@ -16,68 +17,33 @@ import raschetkz.RaschetKz;
  * @author Ivan
  */
 public abstract class MathElement extends Element{
-    public static MathMarker itsMathConnect;
-    private final double contStep=15;
-    private double maxX;
+    //protected List<List<Double>> presentIn;
+//    private final double contStep=15;
+//    private double maxX;
 
     public MathElement(){
         super();
-        //        parameters=new ArrayList();
+
         maxX=viewPane.getBoundsInLocal().getMaxX();
+
+        mathContOffset=15;
     }
 
     public MathElement(boolean catalog) {
         super(catalog);
     }
 
-//    @Override
-//    protected void openDialogStage(){
-//        Stage subWind=new Stage();
-//        BorderPane root=new BorderPane();
-//        Scene scene=new Scene(root,300,200,Color.DARKCYAN);
-//        subWind.setScene(scene);
-//
-//        VBox top=new VBox();
-//        for(Parameter p:getParameters()){
-//            top.getChildren().add(p.layout);
+//    final protected void addHiddenMathContact(char ch){
+//        if(ch=='i'){
+//            //if(mathInputs==null) inputs=new ArrayList();
+//            MathInPin ic=new MathInPin();
+//            getInputs().add(ic);
+//        }else{
+//            //if(outputs==null) outputs=new ArrayList();
+//            MathOutPin oc=new MathOutPin(this);
+//            getOutputs().add(oc);
 //        }
-//        Tab params=new Tab("Параметры элемента");
-//        params.setContent(top);
-//        TabPane pane=new TabPane(params);
-//        pane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
-//        root.setTop(pane);
-//
-//        //---buttns
-//        Button btn=new Button("Ок");
-//        btn.setOnAction((ActionEvent ae)->{
-//            getParameters().forEach(data->{
-//                data.update();
-//            });
-//            subWind.close();
-//        });
-//        HBox bot=new HBox();
-//        bot.setAlignment(Pos.CENTER_RIGHT);
-//        bot.getChildren().add(btn);
-//        btn=new Button("Отмена");
-//        btn.setOnAction((ActionEvent ae)->{
-//            subWind.close();
-//        });
-//        bot.getChildren().add(btn);
-//        root.setBottom(bot);
-//        subWind.show();
 //    }
-
-    final protected void addHideMathContact(char ch){
-        if(ch=='i'){
-            //if(mathInputs==null) inputs=new ArrayList();
-            MathInPin ic=new MathInPin();
-            getInputs().add(ic);
-        }else{
-            //if(outputs==null) outputs=new ArrayList();
-            MathOutPin oc=new MathOutPin(this);
-            getOutputs().add(oc);
-        }
-    }
 
     @Override
     public void delete(){
@@ -86,41 +52,39 @@ public abstract class MathElement extends Element{
             if(pin.getItsConnection()!=null)
                 pin.getItsConnection().unPlug();
         });
-        RaschetKz.MathElemList.remove(this);
+        RaschetKz.elementList.remove(this);
         RaschetKz.drawBoard.getChildren().remove(this.getView());
     }
 
-    /**
-     *
-     * @param ch 'i' or 'o'
-     */
-    final protected void addMathContact(char ch){
-        if(ch=='i'){
-            int num=getInputs().size();
-            MathInPin ic=new MathInPin(0,num*contStep+10);
-            getInputs().add(ic);
-            viewPane.getChildren().add(ic.getView());
-        }else{
-            int num=getOutputs().size();
-            MathOutPin oc=new MathOutPin(this,maxX,num*contStep+10);
-            getOutputs().add(oc);
-            viewPane.getChildren().add(oc.getView());
-        }
-    }
+//    /**
+//     *
+//     * @param ch 'i' or 'o'
+//     */
+//    final protected Pin addMathContact(char ch){
+//        Pin p=super.addMathContact(ch);
+//        if(ch=='o')
+//            p.setOwner(this);
+//        return p;
+//    }
 
     abstract protected List<Double> getValue(int outIndex);
 
     @Override
-    protected void init(){
+    public void init(){
         // check dimensions
-    };
-
-    /**
-     * @return the parameters
-     */
-    public List<Parameter> getParameters() {
-        return parameters;
+//        presentIn=new ArrayList<>();
+//        for(MathInPin mip:getInputs()){
+//            List<Double> in=mip.getValue();
+//            presentIn.add(in);
+//        }
     }
+
+//    /**
+//     * @return the parameters
+//     */
+//    public List<Parameter> getParameters() {
+//        return parameters;
+//    }
 
     /**
      * @return the inputs

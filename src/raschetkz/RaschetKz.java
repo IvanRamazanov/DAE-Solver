@@ -5,10 +5,9 @@
  */
 package raschetkz;
 
-import Connections.MathWire;
+import Connections.Wire;
 import Connections.MechWire;
-import MathPack.MatrixEqu;
-import MathPack.Rechatel;
+import MathPackODE.Rechatel;
 import Connections.ElectricWire;
 import ElementBase.ElemSerialization;
 import ElementBase.Element;
@@ -29,7 +28,6 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.List;
 import javafx.scene.input.MouseEvent;
 import ElementBase.SchemeElement;
@@ -57,16 +55,19 @@ public class RaschetKz extends Application{
     Button stopBtn;
 
     public SimpleStringProperty solverType;
-    public static List<SchemeElement> ElementList;
-    public static List<MathElement> MathElemList;
-    public static List<ElectricWire> BranchList;
-    public static List<MechWire> MechWireList;
 
-    public static List<MathWire> mathContsList;//!!!!!!!!!!!!
+    public static List<Element> elementList;
+
+//    public static List<SchemeElement> ElementList;
+//    public static List<MathElement> MathElemList;
+//    public static List<ElectricWire> BranchList;
+//    public static List<MechWire> MechWireList;
+    public static List<Wire> wireList;
+//    public static List<MathWire> mathContsList;//!!!!!!!!!!!!
 
     public static Pane drawBoard;
     public static ProgressBar progBar=new ProgressBar(0);
-    public SimpleDoubleProperty dt,t_end;//????????
+    public SimpleDoubleProperty dt,t_end,absTol,relTol;//????????
     ModelState state;
     boolean isSaveNeeded;
     Stage parentStage;
@@ -84,19 +85,20 @@ public class RaschetKz extends Application{
         dt.set(1e-4);
         t_end=state.getTend();
         t_end.set(1);
+        absTol=state.getAbsTol();
+        absTol.set(1e-5);
+        relTol=state.getRelTol();
+        relTol.set(1e-3);
         solverType=state.getSolver();
         parentStage=primaryStage;
         drawBoard=state.getDrawBoard();
-        BranchList=state.getElectroWires();
-        ElementList=state.getElems();
-        MathElemList=state.getMathElems();
-        MechWireList=state.getMechWires();
-        mathContsList=state.getMathConnList();
+        elementList=state.getElementList();
+        wireList=state.getWireList();
         switch(arguments.length) {
             case 2:
                 if (arguments[0].equals("-o")) {
                     File f = new File(arguments[1]);
-                    state.Load(arguments[1]);
+                    state.LoadString(arguments[1]);
                     currentFile.setText(f.getName());
                 }
                 break;
@@ -104,7 +106,7 @@ public class RaschetKz extends Application{
                 String arg=arguments[0];
                 Path uri= Paths.get(arg);
                 if(Files.exists(uri)){
-                    state.Load(arg);
+                    state.LoadString(arg);
                     currentFile.setText(uri.getFileName().toString());
                 }
         }
@@ -219,12 +221,8 @@ public class RaschetKz extends Application{
             Element obj=content.deserialize();
             obj.getView().setLayoutX(de.getX());
             obj.getView().setLayoutY(de.getY());
-            if(obj instanceof SchemeElement)
-                ElementList.add((SchemeElement)obj);
-            else if(obj instanceof MathElement)
-                MathElemList.add((MathElement)obj);
-            else
-                throw new Error("error: incompatible types!");
+
+            elementList.add(obj);
 
             de.setDropCompleted(true);
             de.consume();
@@ -274,7 +272,6 @@ public class RaschetKz extends Application{
 
         ScrollBar sc=new ScrollBar();
         sc.setOrientation(Orientation.VERTICAL);
-//        sc.maxProperty().bind(sc.heightProperty());
         sc.valueProperty().addListener((t,o,n)->{
             elems.setTranslateY(-n.doubleValue());
         });
@@ -296,9 +293,7 @@ public class RaschetKz extends Application{
             if(isSaveNeeded){
 
             }else{
-                //MUST BE List.forEach(delete)!!!!!!!!!!!!!!!!!1
                 state.clearState();
-
                 currentFile.setText("Untitled.rim");
             }
         });
@@ -310,7 +305,7 @@ public class RaschetKz extends Application{
             filechoose.setTitle("Choose a file");
             File file=filechoose.showOpenDialog(parentStage);
             if(file!=null){
-                state.Load(file.toString());
+                state.LoadString(file.toString());
                 currentFile.setText(file.getName());
             }
         });
@@ -327,7 +322,7 @@ public class RaschetKz extends Application{
                     currentFile.setText(file.getName());
                 }
             }else{
-                state.Save();
+                state.SaveString();
             }
         });
         MenuItem menuSaveAsFile = new MenuItem("Save as...");
@@ -349,7 +344,6 @@ public class RaschetKz extends Application{
         });
         fileMenu.getItems().addAll(newFile,menuOpenFile,menuSaveFile,menuSaveAsFile,menuExit);
         Menu evalMenu = new Menu("Simulation");
-        //MenuItem run=new MenuItem("Start");
 
         MenuItem config=new MenuItem("Solver configuration");
         config.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+g"));
@@ -378,9 +372,13 @@ public class RaschetKz extends Application{
         scene.getStylesheets().add("raschetkz/mod.css");
         TextField delta=new TextField(Double.toString(dt.doubleValue()));
         TextField endTime=new TextField(Double.toString(t_end.doubleValue()));
+        TextField abst=new TextField(Double.toString(absTol.doubleValue()));
+        TextField relt=new TextField(Double.toString(relTol.doubleValue()));
         ComboBox solver=new ComboBox();
         solver.getItems().add("Euler");
         solver.getItems().add("Adams4");
+        solver.getItems().add("RungeKuttaFehlberg");
+        solver.getItems().add("RK4");
         solver.setValue(solverType.get());
         ComboBox jacobEstType=new ComboBox();
         jacobEstType.getItems().add("Full symbolic");
@@ -397,25 +395,25 @@ public class RaschetKz extends Application{
                 jacobEstType.setValue("Symbolic only Jacobian");
                 break;
         }
-        Label deltaL=new Label("Fixed step size:");
-        Label endL=new Label("Simulation time:");
-        Label solvL=new Label("Solver type:");
-        Label jacoL=new Label("Jacobian type:");
         GridPane top=new GridPane();
         top.setVgap(5);
         top.setHgap(5);
-        top.add(deltaL,0,0);
+        top.add(new Label("Fixed step size:"),0,0);
         top.add(delta,1,0);
-        top.add(endL,0,1);
+        top.add(new Label("Simulation time:"),0,1);
         top.add(endTime,1,1);
-        top.add(solvL,0,2);
-        top.add(solver, 1, 2);
-        top.add(jacoL,0,3);
-        top.add(jacobEstType,1,3);
-        top.add(new Label("Try to reduce system size"),0,4);
+        top.add(new Label("Absolute tolerance:"),0,2);
+        top.add(abst,1,2);
+        top.add(new Label("Relative tolerance:"),0,3);
+        top.add(relt,1,3);
+        top.add(new Label("Solver type:"),0,4);
+        top.add(solver, 1, 4);
+        top.add(new Label("Jacobian type:"),0,5);
+        top.add(jacobEstType,1,5);
+        top.add(new Label("Try to reduce system size"),0,6);
         CheckBox cb=new CheckBox();
         StringFunctionSystem.simplyfingFlag.bind(cb.selectedProperty());
-        top.add(cb,1,4);
+        top.add(cb,1,6);
         root.setTop(top);
         HBox bot=new HBox();
         Button okBtn=new Button("Ok");
@@ -428,8 +426,10 @@ public class RaschetKz extends Application{
                     t_end.set(conv.fromString(endTime.getText()));
                     solverType.set((String)solver.getValue());
                     state.setJacobianEstimationType(jacobEstType.getItems().indexOf(jacobEstType.getValue()));
+                    absTol.set(conv.fromString(abst.getText()));
+                    relTol.set(conv.fromString(relt.getText()));
                 } catch (Exception e) {
-                    layoutString(e.getCause().toString());
+                    layoutString(e.getMessage());
                 }
                 subWind.close();
             };

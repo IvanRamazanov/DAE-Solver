@@ -32,7 +32,7 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class SDPM extends SchemeElement {
-    Parameter Rs,Ls,J,KsiM,Zp,Fc;
+    ScalarParameter Rs,Ls,J,KsiM,Zp,Fc;
 
     public SDPM(){
         super();
@@ -77,17 +77,17 @@ public class SDPM extends SchemeElement {
 
     @Override
     protected void setParams(){
-        Rs=new Parameter("Stator resistance per phase, Rs", 0.18);
+        Rs=new ScalarParameter("Stator resistance per phase, Rs", 0.18);
         this.parameters.add(Rs);
-        Ls=new Parameter("Stator phase inductance, Ls", 8.5e-3);
+        Ls=new ScalarParameter("Stator phase inductance, Ls", 8.5e-3);
         this.parameters.add(Ls);
-        KsiM=new Parameter("Flux linkage established by magnets", 0.07145);
+        KsiM=new ScalarParameter("Flux linkage established by magnets", 0.07145);
         this.parameters.add(KsiM);
-        J=new Parameter("Inertia", 0.00062);
+        J=new ScalarParameter("Inertia", 0.00062);
         this.parameters.add(J);
-        Zp=new Parameter("Number of permanent magnet pole pairs on the rotor", 4);
+        Zp=new ScalarParameter("Number of permanent magnet pole pairs on the rotor", 4);
         this.parameters.add(Zp);
-        Fc=new Parameter("Friction", 0.0);
+        Fc=new ScalarParameter("Friction", 0.0);
         this.parameters.add(Fc);
 
         this.initials.add(new InitParam("Stator current A", 0));

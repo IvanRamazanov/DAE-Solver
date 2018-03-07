@@ -49,7 +49,7 @@ public class VoltageSource extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Parameter("Voltage", 15.0));
+        this.parameters.add(new ScalarParameter("Voltage", 15.0));
         setName("DC voltage source");
     }
 

@@ -1,20 +1,19 @@
 package Elements.Math;
 
-import ElementBase.DynamMathElem;
-import MathPackODE.Solver;
+import ElementBase.MathElement;
+import ElementBase.Updatable;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Delay extends DynamMathElem{
-    List<Double> tmp=new ArrayList<>();
+public class Delay extends MathElement implements Updatable{
+    private List<Double> tmp=new ArrayList<>(),
+                        out=new ArrayList<>();;
 
     public Delay(){
         super();
         addMathContact('i');
         addMathContact('o');
-
-        tmp.add(0.0);
     }
 
     public Delay(boolean val){
@@ -23,7 +22,7 @@ public class Delay extends DynamMathElem{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        return tmp;
+        return out;
     }
 
     @Override
@@ -37,7 +36,18 @@ public class Delay extends DynamMathElem{
     }
 
     @Override
-    public void updateOutputs(Solver solver){
+    public void init(){
+        out.clear();
+        out.add(0.0);
+    }
+
+    @Override
+    public void preEvaluate(double time) {
         tmp=getInputs().get(0).getValue();
+    }
+
+    @Override
+    public void postEvaluate(double time) {
+        out=tmp;
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Gain extends MathElement{
 
-    Parameter gainValue;
+    ScalarParameter gainValue;
 
     public Gain(){
         super();
@@ -32,14 +32,14 @@ public class Gain extends MathElement{
         List<Double> in=getInputs().get(0).getValue();
         List<Double> out=new ArrayList();
         for(int i=0;i<in.size();i++){
-            out.add(gainValue.getDoubleValue()*in.get(i));
+            out.add(gainValue.getValue()*in.get(i));
         }
         return out;
     }
 
     @Override
     protected void setParams(){
-        gainValue=new Parameter("Gain", 2);
+        gainValue=new ScalarParameter("Gain", 2);
         parameters.add(gainValue);
         setName("Gain");
     }
