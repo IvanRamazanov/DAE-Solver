@@ -47,9 +47,6 @@ import raschetkz.RaschetKz;
  * @author Ivan
  */
 public class MathWire extends Wire{
-//    public static MathMarker activeMathMarker;
-//    private List<MathMarker> mathMarkList =new ArrayList<>();
-
     private MathMarker sourceMarker;
     private static Shape dragSource;
     private MathOutPin source;
@@ -85,18 +82,18 @@ public class MathWire extends Wire{
      * @param meSceneX
      * @param meSceneY
      */
-    public MathWire(MathPin mathPin,double meSceneX,double meSceneY){
+    public MathWire(Pin mathPin,double meSceneX,double meSceneY){
         this();
         sourceMarker=new MathMarker(this);
         MathMarker wc=new MathMarker(this);
         if(mathPin instanceof MathOutPin){
-            getSourceMarker().setConnectedPin(mathPin);  // link and bind end
+            getSourceMarker().setItsConnectedPin(mathPin);  // link and bind end
             getSourceMarker().bindStartTo(mathPin.getBindX(), mathPin.getBindY()); // zeroLength
             wc.bindStartTo(mathPin.getBindX(), mathPin.getBindY()); // same point
             wc.setEndProp(meSceneX,meSceneY);
             activeWireConnect=wc; // for mouse_drag event
         }else{
-            wc.setConnectedPin(mathPin); // link and bind end
+            wc.setItsConnectedPin(mathPin); // link and bind end
             wc.bindStartTo(mathPin.getBindX(), mathPin.getBindY());
             getSourceMarker().bindStartTo(mathPin.getBindX(), mathPin.getBindY());
             getSourceMarker().setEndProp(meSceneX,meSceneY);
@@ -112,13 +109,13 @@ public class MathWire extends Wire{
         dragSource=shape;
     }
 
-    public boolean setEnd(MathPin cont){
+    public boolean setEnd(Pin cont){
         boolean success=false;
         if(getSourceMarker().equals(activeWireConnect)&&cont instanceof MathOutPin){
-            ((MathMarker)activeWireConnect).setConnectedPin(cont);
+            activeWireConnect.setItsConnectedPin(cont);
             success=true;
         }else if(!getSourceMarker().equals(activeWireConnect)&&cont instanceof MathInPin){
-            ((MathMarker)activeWireConnect).setConnectedPin(cont);
+            activeWireConnect.setItsConnectedPin(cont);
             success=true;
         }
         return success;
@@ -141,9 +138,10 @@ public class MathWire extends Wire{
         return new MathMarker(wire);
     }
 
-//    public List<MathMarker> getWireContacts(){
-//        return(mathMarkList);
-//    };
+    @Override
+    protected LineMarker addLineMarker(Wire wire,double x,double y) {
+        return new MathMarker(wire,x,y);
+    }
 
     /**
      * Разбиндивает все узлы
@@ -189,7 +187,12 @@ public class MathWire extends Wire{
             if(!getContContList().isEmpty())
                 getContContList().get(i).delete();
         }
+    }
 
+    @Override
+    public void setStaticEventFilters(Node source) {
+        source.addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
+        source.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
     }
 
     public MathMarker getSourceMarker() {

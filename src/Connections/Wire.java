@@ -25,6 +25,7 @@ package Connections;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,12 @@ import ElementBase.ElemPin;
 import ElementBase.Element;
 import ElementBase.Pin;
 import MathPack.Parser;
+import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.input.MouseDragEvent;
+import javafx.scene.input.MouseEvent;
+import raschetkz.RaschetKz;
 
 /**
  *
@@ -45,6 +51,7 @@ public abstract class Wire{
     private List<CrossToCrossLine> ContContList =new ArrayList<>();
     private List<List<Cross>> dotList=new ArrayList<>();
     public static LineMarker activeWireConnect;
+    private static String[] wireConsumptionBackup=new String[4];
 
     public List<CrossToCrossLine> getContContList() {
         return ContContList;
@@ -252,7 +259,11 @@ public abstract class Wire{
 
     abstract protected LineMarker addLineMarker(Wire wire,double ax,double ay,double ex,double ey,boolean isHorizontal, double[] constraints);
 
+    abstract protected LineMarker addLineMarker(Wire wire,double x,double y);
+
     abstract protected LineMarker addLineMarker(Wire wire);
+
+    abstract public boolean setEnd(Pin pin);
 
     protected String getWireColor(){
         return wireColor;
@@ -280,14 +291,17 @@ public abstract class Wire{
         getDotList().clear();
     }
 
-    public void save(BufferedWriter bw) throws IOException{
-        bw.write("<ClassName>");
-        bw.write(getClass().getName());
-        bw.write("</ClassName>");bw.newLine();
+    public String save(){
+        StringBuilder bw=new StringBuilder();
+        String eol=System.lineSeparator();
+
+        bw.append("<ClassName>");
+        bw.append(getClass().getName());
+        bw.append("</ClassName>");bw.append(eol);
 
         int i=0;
         for(LineMarker lm:getWireContacts()){
-            bw.write("<SubWire"+i+">");bw.newLine();
+            bw.append("<SubWire"+i+">");bw.append(eol);
 
             Pin p=lm.getItsConnectedPin();
             Element elem=null;
@@ -297,59 +311,55 @@ public abstract class Wire{
                  pinIndex = elem.findPin(p);
             }
 
-            bw.write("<ConnectTo>");
+            bw.append("<ConnectTo>");
             if(elem==null) {
-                bw.write("null");
-                bw.write("</ConnectTo>");
-                bw.newLine();
+                bw.append("null");
+                bw.append("</ConnectTo>");
+                bw.append(eol);
             }else{
-                bw.write(elem.getName());
-                bw.write("</ConnectTo>");bw.newLine();
+                bw.append(elem.getName());
+                bw.append("</ConnectTo>");bw.append(eol);
 
-                bw.write("<PinIndex>");
+                bw.append("<PinIndex>");
                 String pinType=p.getClass().getSimpleName();
-                bw.write(pinType+"."+Integer.toString(pinIndex));
-                bw.write("</PinIndex>");bw.newLine();
+                bw.append(pinType+"."+Integer.toString(pinIndex));
+                bw.append("</PinIndex>");bw.append(eol);
             }
 
-            bw.write("<StartEnd>");
+            bw.append("<StartEnd>");
             String se="["+lm.getStartX().getValue().toString()+" "+
                     lm.getStartY().getValue().toString()+" "+
                     lm.getBindX().getValue().toString()+" "+
                     lm.getBindY().getValue().toString()+"]";
-            bw.write(se);
-            bw.write("</StartEnd>");bw.newLine();
+            bw.append(se);
+            bw.append("</StartEnd>");bw.append(eol);
 
-            bw.write("<DotListIndex>");
+            bw.append("<DotListIndex>");
             Point2D dp=MathPack.MatrixEqu.findFirst(getDotList(), lm.getItsLine().getStartMarker());
             if(dp==null)
-                bw.write("null");
+                bw.append("null");
             else
-                bw.write("["+dp.getX()+" "+dp.getY()+"]");
-            bw.write("</DotListIndex>");bw.newLine();
+                bw.append("["+dp.getX()+" "+dp.getY()+"]");
+            bw.append("</DotListIndex>");bw.append(eol);
 
-            bw.write("<EasyDraw>");
+            bw.append("<EasyDraw>");
             boolean easyDraw=lm.getItsLine().isEasyDraw();
-            bw.write(Boolean.toString(easyDraw));
-            bw.write("</EasyDraw>");bw.newLine();
+            bw.append(Boolean.toString(easyDraw));
+            bw.append("</EasyDraw>");bw.append(eol);
 
             if(!easyDraw){
-                bw.write("<Horizontal>");
-                bw.write(Boolean.toString(lm.getItsLine().getLines().get(0).isHorizontal()));
-                bw.write("</Horizontal>");bw.newLine();
+                bw.append("<Horizontal>");
+                bw.append(Boolean.toString(lm.getItsLine().getLines().get(0).isHorizontal()));
+                bw.append("</Horizontal>");bw.append(eol);
 
                 // array of constraints
                 List<Double> constraints=lm.getItsLine().parseLines();
-                bw.write("<Constraints>");
-                bw.write(constraints.toString());
-                bw.write("</Constraints>");bw.newLine();
+                bw.append("<Constraints>");
+                bw.append(constraints.toString());
+                bw.append("</Constraints>");bw.append(eol);
             }
 
-//            //get num of lines
-//            temp.putInt(0,wc.getItsLine().getLines().size());
-//            baos.write(temp.array(), 0, 4);
-
-            bw.write("</SubWire"+i+">");bw.newLine();
+            bw.append("</SubWire"+i+">");bw.append(eol);
 
             i++;
         }
@@ -358,46 +368,200 @@ public abstract class Wire{
 
         i=0;
         for(CrossToCrossLine lm:getContContList()){
-            bw.write("<CrossToCrossLine"+i+">");bw.newLine();
+            bw.append("<CrossToCrossLine"+i+">");bw.append(eol);
 
-            bw.write("<StartEnd>");
+            bw.append("<StartEnd>");
             String se="["+lm.getStartX().getValue().toString()+" "+
                     lm.getStartY().getValue().toString()+" "+
                     lm.getEndCrossMarker().getCenterX()+" "+
                     lm.getEndCrossMarker().getCenterX()+"]";
-            bw.write(se);
-            bw.write("</StartEnd>");bw.newLine();
+            bw.append(se);
+            bw.append("</StartEnd>");bw.append(eol);
 
-            bw.write("<EasyDraw>");
+            bw.append("<EasyDraw>");
             boolean easyDraw=lm.isEasyDraw();
-            bw.write(Boolean.toString(easyDraw));
-            bw.write("</EasyDraw>");bw.newLine();
+            bw.append(Boolean.toString(easyDraw));
+            bw.append("</EasyDraw>");bw.append(eol);
 
             if(!easyDraw){
-                bw.write("<Horizontal>");
-                bw.write(Boolean.toString(lm.getLines().get(0).isHorizontal()));
-                bw.write("</Horizontal>");bw.newLine();
+                bw.append("<Horizontal>");
+                bw.append(Boolean.toString(lm.getLines().get(0).isHorizontal()));
+                bw.append("</Horizontal>");bw.append(eol);
 
                 // array of constraints
                 List<Double> constraints=lm.parseLines();
-                bw.write("<Constraints>");
-                bw.write(constraints.toString());
-                bw.write("</Constraints>");bw.newLine();
+                bw.append("<Constraints>");
+                bw.append(constraints.toString());
+                bw.append("</Constraints>");bw.append(eol);
             }
 
-            bw.write("<DotListIndex>");
+            bw.append("<DotListIndex>");
             Point2D st=MathPack.MatrixEqu.findFirst(getDotList(), lm.getStartMarker());
             Point2D en=MathPack.MatrixEqu.findFirst(getDotList(), lm.getEndCrossMarker());
-            bw.write("["+st.getX()+" "+st.getY()+" "+en.getX()+" "+en.getY()+"]");
-            bw.write("</DotListIndex>");bw.newLine();
+            bw.append("["+st.getX()+" "+st.getY()+" "+en.getX()+" "+en.getY()+"]");
+            bw.append("</DotListIndex>");bw.append(eol);
 
-            bw.write("</CrossToCrossLine"+i+">");bw.newLine();
+            bw.append("</CrossToCrossLine"+i+">");bw.append(eol);
             i++;
         }
+        return bw.toString();
     }
+
+    void consumeWire(LineMarker eventSource,MouseDragEvent mde){
+        double x=mde.getX(),y=mde.getY();
+        Wire consumedWire=activeWireConnect.getWire();
+
+        wireConsumptionBackup[0]=Integer.toString(activeWireConnect.getWire().getWireContacts().indexOf(activeWireConnect));
+        wireConsumptionBackup[1]=getClass().getName();
+        wireConsumptionBackup[2]=consumedWire.save();
+        wireConsumptionBackup[3]=this.save();
+
+        switch(consumedWire.getRank()){
+            case 1:
+                activeWireConnect.setWire(this);
+
+                // add to this wire
+                this.getWireContacts().add(activeWireConnect);
+
+                consumedWire.getWireContacts().remove(0);
+                consumedWire.delete();  // remove empty wire
+                //flip
+                activeWireConnect.getItsLine().getStartMarker().unbind();
+                activeWireConnect.setStartPoint(x,y);
+                activeWireConnect.bindElemContact(activeWireConnect.getItsConnectedPin());
+
+                switch(this.getRank()) {
+                    case 1+1:
+
+
+                        LineMarker wm = addLineMarker(this, x, y);
+                        // adjustment
+                        List<Cross> row = new ArrayList();
+                        row.add(activeWireConnect.getItsLine().getStartMarker());
+                        row.add(eventSource.getItsLine().getStartMarker());
+                        row.add(wm.getItsLine().getStartMarker());
+                        this.getDotList().add(row);
+                        bindCrosses();
+
+                        // move before rebind
+                        wm.setEndProp(eventSource.getBindX().doubleValue(), eventSource.getBindY().doubleValue());
+                        eventSource.bindElemContact(eventSource.getItsConnectedPin());
+                        break;
+                    case 2+1:
+                        // adjustment
+                        row = new ArrayList();
+                        row.add(activeWireConnect.getItsLine().getStartMarker());
+                        row.add(this.getWireContacts().get(0).getItsLine().getStartMarker());
+                        row.add(this.getWireContacts().get(1).getItsLine().getStartMarker());
+                        this.getDotList().add(row);
+                        bindCrosses();
+                        this.showAll();
+                        break;
+                    default:
+                        addContToCont(eventSource.getItsLine().getStartMarker(),activeWireConnect.getItsLine().getStartMarker());
+                        break;
+                }
+                break;
+            case 2:
+                System.out.println("Hi, you there!"); // TODO This case is present, when fully unplugged wire connects. Also MathWire case.
+                if(consumedWire.getWireContacts().get(0).getItsConnectedPin()==null&&
+                        consumedWire.getWireContacts().get(1).getItsConnectedPin()==null) {
+                    // fully disconnected case
+                }else{
+                    // MathWire case?
+                    if(consumedWire.getWireContacts().get(1).getItsConnectedPin()!=null){ //make sure that is mathwire case
+
+                    }
+                }
+
+                break;
+            default:
+                double sx=activeWireConnect.getStartX().get(),
+                        sy=activeWireConnect.getStartY().get();
+                int rank=this.getRank();
+                // merge lists
+                Point2D p=MathPack.MatrixEqu.findFirst(consumedWire.getDotList(),activeWireConnect.getItsLine().getStartMarker());
+                p=p.add(getDotList().size(),0);
+                getDotList().addAll(consumedWire.getDotList());
+                consumedWire.getWireContacts().remove(activeWireConnect);
+                this.getWireContacts().addAll(getWireContacts());
+                consumedWire.getWireContacts().clear();
+                this.getContContList().addAll(consumedWire.getContContList());
+                consumedWire.getContContList().clear();
+                consumedWire.delete();
+
+                // replace with crosToCros
+                CrossToCrossLine replacementLine = this.addContToCont(sx,sy,x,y);
+                getDotList().get((int) p.getX()).set((int)p.getY(),replacementLine.getStartMarker());
+                activeWireConnect.delete();
+
+                switch(rank){
+                    case 1:
+                        //TODO u know what to do
+                        break;
+                    case 2:
+                        List<Cross> row=new ArrayList();
+                        row.add(replacementLine.getEndCrossMarker());
+                        row.add(this.getWireContacts().get(0).getItsLine().getStartMarker());
+                        row.add(this.getWireContacts().get(1).getItsLine().getStartMarker());
+                        this.getDotList().add(row);
+                        this.bindCrosses();
+                        showAll();
+                        break;
+                    default:
+                        this.addContToCont(eventSource.getItsLine().getStartMarker(),replacementLine.getEndCrossMarker());
+                }
+        }
+        //final EventHandler<MouseEvent> mouseReleased=null;
+        final EventHandler<MouseDragEvent> mouseExit=new EventHandler<MouseDragEvent>() {
+            @Override
+            public void handle(MouseDragEvent event) {
+                //restore wires
+                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,this);
+//                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseEvent.MOUSE_RELEASED,mouseReleased);
+                activeWireConnect.getWire().delete();
+                String className=wireConsumptionBackup[1];
+                Class<?> clas= null;
+                try {
+                    clas = Class.forName(className);
+                    Constructor<?> ctor=clas.getConstructor();
+                    Wire w1=(Wire)ctor.newInstance(new Object[] {});
+                    RaschetKz.wireList.add(w1);
+                    w1.configure(wireConsumptionBackup[2]);
+                    Wire w2=(Wire)ctor.newInstance(new Object[] {});
+                    RaschetKz.wireList.add(w2);
+                    w2.configure(wireConsumptionBackup[3]);
+
+                    activeWireConnect=w1.getWireContacts().get(Integer.valueOf(wireConsumptionBackup[0]));
+                    activeWireConnect.pushToBack();
+
+                } catch (Exception e) {
+                    e.printStackTrace(System.err);
+                }
+            }
+        };
+        final EventHandler<MouseDragEvent> mouseReleased=new EventHandler<MouseDragEvent>() {
+            @Override
+            public void handle(MouseDragEvent event) {
+                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
+                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,this);
+            }
+        };
+        activeWireConnect.getItsLine().getStartMarker().addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
+        activeWireConnect.getItsLine().getStartMarker().addEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,mouseReleased);
+
+    }
+
+    abstract public void setStaticEventFilters(Node source);
 
     public List<LineMarker> getWireContacts(){
         return wireContList;
+    }
+
+    void showAll(){
+        getWireContacts().forEach(wc->{
+            wc.show();
+        });
     }
 
     /**

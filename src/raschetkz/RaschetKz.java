@@ -6,13 +6,10 @@
 package raschetkz;
 
 import Connections.Wire;
-import Connections.MechWire;
 import MathPackODE.Rechatel;
-import Connections.ElectricWire;
 import ElementBase.ElemSerialization;
 import ElementBase.Element;
 import ElementBase.ListOfElements;
-import ElementBase.MathElement;
 import MathPack.StringFunctionSystem;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
@@ -98,7 +95,7 @@ public class RaschetKz extends Application{
             case 2:
                 if (arguments[0].equals("-o")) {
                     File f = new File(arguments[1]);
-                    state.LoadString(arguments[1]);
+                    state.load(arguments[1]);
                     currentFile.setText(f.getName());
                 }
                 break;
@@ -106,7 +103,7 @@ public class RaschetKz extends Application{
                 String arg=arguments[0];
                 Path uri= Paths.get(arg);
                 if(Files.exists(uri)){
-                    state.LoadString(arg);
+                    state.load(arg);
                     currentFile.setText(uri.getFileName().toString());
                 }
         }
@@ -204,6 +201,9 @@ public class RaschetKz extends Application{
         stopBtn=new Button("Stop");
         stopBtn.setDisable(true);
         bottomBox.add(stopBtn,5,0);
+        Button errBtn=new Button();
+        myLog.setButton(errBtn);
+        bottomBox.add(errBtn,6,0);
         rootBp.setBottom(bottomBox);
         ScrollPane scrllPane = new ScrollPane(drawBoard);
         scrllPane.setPannable(true);
@@ -305,7 +305,7 @@ public class RaschetKz extends Application{
             filechoose.setTitle("Choose a file");
             File file=filechoose.showOpenDialog(parentStage);
             if(file!=null){
-                state.LoadString(file.toString());
+                state.load(file.toString());
                 currentFile.setText(file.getName());
             }
         });
@@ -322,7 +322,7 @@ public class RaschetKz extends Application{
                     currentFile.setText(file.getName());
                 }
             }else{
-                state.SaveString();
+                state.save();
             }
         });
         MenuItem menuSaveAsFile = new MenuItem("Save as...");
