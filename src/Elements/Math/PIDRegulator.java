@@ -1,13 +1,14 @@
 package Elements.Math;
 
 import ElementBase.DynamMathElem;
+import ElementBase.Updatable;
 import MathPackODE.Solver;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PIDRegulator extends DynamMathElem{
-    private Parameter Ki,Kp,Kd;
+public class PIDRegulator extends DynamMathElem implements Updatable{
+    private ScalarParameter Ki,Kp,Kd;
     private Double x_diff,time_old;
     private double input;
 
@@ -25,13 +26,9 @@ public class PIDRegulator extends DynamMathElem{
     protected List<Double> getValue(int outIndex) {
         input=getInputs().get(0).getValue().get(0);
         List<Double> out=new ArrayList<>();
-        if(x_diff==null){ // first step
-            x_diff=Double.valueOf(input);
-            time_old=Double.valueOf(Solver.time+1);
-        }
-        double kp=Kp.getDoubleValue()*input,
-                kd=Kd.getDoubleValue()*(input-x_diff)/(Solver.time-time_old),
-                ki=Ki.getDoubleValue()*X_old.get(0);
+        double kp=Kp.getValue()*input,
+                kd=Kd.getValue()*(input-x_diff)/(Solver.time-time_old),
+                ki=Ki.getValue()*wsX.get(0).getValue();
         out.add(kp+ki+kd);
         return out;
     }
@@ -44,26 +41,43 @@ public class PIDRegulator extends DynamMathElem{
     @Override
     public void init(){
         super.init();
-        x_diff=null;
-        time_old=null;
-    }
-
-    @Override
-    public void updateOutputs(Solver solver){
-        super.updateOutputs(solver);
-        x_diff=input;
-        time_old=solver.time;
+//        x_diff=null;
+//        time_old=null;
+        x_diff=Double.valueOf(input);
+        time_old=Double.valueOf(Solver.time+1);
     }
 
     @Override
     protected void setParams() {
-        Kp=new Parameter("Proportional coefficient",1);
-        Ki=new Parameter("Integration coefficient",1);
-        Kd=new Parameter("Differentiation coefficient",0);
+        Kp=new ScalarParameter("Proportional coefficient",1);
+        Ki=new ScalarParameter("Integration coefficient",1);
+        Kd=new ScalarParameter("Differentiation coefficient",0);
         getParameters().add(Kp);
         getParameters().add(Ki);
         getParameters().add(Kd);
 
         setName("PID regulator");
+    }
+
+    @Override
+    public void preEvaluate(double time) {
+//        x_diff=input;
+//        time_old=Solver.time;
+        x_diff=input;
+        time_old=time;
+    }
+
+    @Override
+    public void postEvaluate(double time) {
+//        x_diff=input;
+//        time_old=time;
+    }
+
+    @Override
+    public void evalDerivatives(){
+        List<Double> res=getInputs().get(0).getValue();
+        for(int i=0;i<res.size();i++){
+            wsDX.get(i).set(res.get(i));
+        }
     }
 }

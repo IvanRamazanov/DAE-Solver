@@ -4,7 +4,7 @@ import ElementBase.ElemMechPin;
 import ElementBase.SchemeElement;
 
 public class RotationalFriction extends SchemeElement{
-    Parameter f;
+    ScalarParameter f;
 
     public RotationalFriction(){
         super();
@@ -28,7 +28,7 @@ public class RotationalFriction extends SchemeElement{
 
     @Override
     protected void setParams() {
-        f=new Parameter("Viscous friction factor",3);
+        f=new ScalarParameter("Viscous friction factor",3);
         getParameters().add(f);
         setName("Rotational viscous\nfriction");
     }

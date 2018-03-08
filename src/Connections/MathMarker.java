@@ -3,6 +3,7 @@ package Connections;
 import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
 import ElementBase.MathPin;
+import ElementBase.Pin;
 import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -22,17 +23,9 @@ import java.util.List;
 import static Connections.MathWire.*;
 
 public class MathMarker extends LineMarker{
-    //List<MathMarker> subContacts;
-    //private MathWire itsWire;
-
-    //private MathPin connectedPin;
-    //private Polygon startView;
-
-
 
     MathMarker(){
         super();
-//            subContacts=new ArrayList();
         Polygon view=new Polygon(0,0,0,8.0,6.0,6.0/2.0);
         view.setTranslateX(-2.0);
         view.setTranslateY(-3.0);
@@ -40,72 +33,14 @@ public class MathMarker extends LineMarker{
         view.layoutYProperty().bind(bindY);
         setView(view);
 
-//            startView=new Polygon(0,0,0,8,6,4);
-//            startView.setTranslateX(-2.0);
-//            startView.setTranslateY(-3.0);
-//            this.itsLines.getStartMarker().centerXProperty().bind(startView.layoutXProperty());
-//            this.itsLines.getStartMarker().centerYProperty().bind(startView.layoutYProperty());
-//            raschetkz.RaschetKz.drawBoard.getChildren().add(startView);
-
-            /*itsLines.setLineDragDetect(new EventHandler<MouseEvent>(){
-                @Override
-                public void handle(MouseEvent mde){
-                    if(mde.getButton()==MouseButton.SECONDARY){
-                        MathMarker mc=new MathMarker(itsWire,mde.getX(), mde.getY());
-                        activeMathMarker=mc;
-//                        subContacts.add(mc);
-                        mc.view.startFullDrag();
-                    }
-                }
-            });*/
-
-        itsLines.setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-            if(me.getButton()== MouseButton.SECONDARY){
-                if(getWire().getWireContacts().size()==1){
-                    me.consume();
-                    return;
-                }
-                if(getWire().getWireContacts().size()==2){
-                    MathMarker newCont=new MathMarker(getWire(),me.getX(), me.getY());
-                    activeMathMarker=newCont;
-                    adjustCrosses(newCont,
-                            getWire().getWireContacts().get(0),
-                            getWire().getWireContacts().get(1));
-                    List<Cross> list=new ArrayList();
-                    list.add(newCont.getItsLine().getStartMarker());
-                    list.add(getWire().getWireContacts().get(0).getItsLine().getStartMarker());
-                    list.add(getWire().getWireContacts().get(1).getItsLine().getStartMarker());
-                    getWire().getDotList().add(list);
-
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-                    newCont.startFullDrag();
-                    getWire().getWireContacts().forEach(wc->{
-                        wc.show();
-                    });
-                    me.consume();
-                }
-                else{
-                    MathMarker newCont=new MathMarker(getWire(),me.getX(), me.getY());
-                    activeMathMarker=newCont;
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-                    newCont.startFullDrag();
-                    getWire().addContToCont(this.getItsLine().getStartMarker(),newCont.getItsLine().getStartMarker());
-                }
-                me.consume();
-            }
-        });
-
         view.setOnDragDetected(me->{
-            getWire().activeMathMarker=this;
+            Wire.activeWireConnect=this;
             getWire().setDragSource(view);
             this.pushToBack();
             view.startFullDrag();
             view.addEventFilter(MouseEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
             view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
         });
-
     }
 
     MathMarker(Wire owner){
@@ -116,54 +51,20 @@ public class MathMarker extends LineMarker{
         pushToBack();
     }
 
-    MathMarker(Wire owner,MathPin inp){
-        this(owner);
-        bindEndTo(inp.getBindX(), inp.getBindY());
-        inp.setWirePointer(this);
-        setConnectedPin(inp);
-        pushToBack();
-        if(inp instanceof MathOutPin){
-            getWire().setSource((MathOutPin)inp);
-            //connectedPin=(MathInPin)inp;
-        }
-    }
-
-    MathMarker(Wire owner,MathOutPin start,MathInPin end){
-        this(owner);
-        getWire().setSourcePointer(start);
-        setItsConnectedPin(end);
-//            source=start;
-        bindX.bind(end.getBindX());
-        bindY.bind(end.getBindY());
-
-        /*?????????*/itsLines.bindStart(start.getBindX(), start.getBindY());
-
-
-        plugged.set(true);
-        //        destin.hide();
-//            source.hide();
-        end.setMathConnLink(this);
-        start.setWirePointer(this);
-        //majorConnect=this;
-    }
-
     MathMarker(Wire owner,double x,double y){
         this(owner);
         itsLines.setStartXY(x, y);
         bindX.set(x);
         bindY.set(y);
         this.setIsPlugged(false);
-
-        //itsLines.bindStart(majorConnect.getItsLine().getStartMarker()); ?
-
     }
 
-    MathMarker(Wire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
+    MathMarker(Wire thisWire,double startX,double startY,double endX,double endY,boolean isHorizontal,double[] constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
         bindY.set(endY);
-        itsLines.rearrange(numOfLines,isHorizontal,constrList);
+        itsLines.rearrange(isHorizontal,constrList);
     }
 
     public List<Double> getValue(){
@@ -206,7 +107,7 @@ public class MathMarker extends LineMarker{
             return;
         }
 
-        dotReduction(activeMathMarker);
+        dotReduction(Wire.activeWireConnect);
 
         if(getItsConnectedPin()!=null){
             getItsConnectedPin().clear();
@@ -225,7 +126,7 @@ public class MathMarker extends LineMarker{
 
     @Override
     public void unPlug(){
-        activeMathMarker=this;
+        Wire.activeWireConnect=this;
         setIsPlugged(false);
         this.bindX.unbind();
         this.bindY.unbind();
@@ -238,7 +139,7 @@ public class MathMarker extends LineMarker{
             getView().setVisible(true);
             getView().toBack();
         }else{
-            getWire().setSource(null);
+            getWire().setSource(null); //TODO IMPLEMENT THIS!!!
 //                if(connectedPin!=null)
 //                    itsWire.setSource(null);
 //                startView.layoutXProperty().unbind();
@@ -275,8 +176,9 @@ public class MathMarker extends LineMarker{
      * Links and binds end propetry of line
      * @param pin the destin to set
      */
-    final public void setConnectedPin(MathPin pin) {
-        setItsConnectedPin(pin);
+    @Override
+    final public void setItsConnectedPin(Pin pin) {
+        super.setItsConnectedPin(pin);
         bindEndTo(pin.getBindX(), pin.getBindY());
         pin.setWirePointer(this);
         setIsPlugged(true);
@@ -286,6 +188,11 @@ public class MathMarker extends LineMarker{
 
 
 //            itsWire.getSource().setSource(destin);
+    }
+
+    @Override
+    protected boolean isProperInstance(LineMarker lm) {
+        return lm instanceof MathMarker && lm.getWire().getWireContacts().indexOf(lm)==0; // only for source marker
     }
 
 
@@ -298,23 +205,6 @@ public class MathMarker extends LineMarker{
     public void setEndProp(double x,double y){
         Point2D a=new Point2D(x, y);
         a=raschetkz.RaschetKz.drawBoard.sceneToLocal(a);
-//            if(dragSource==null)
-//                if(!bindX.isBound()){
-//                    bindX.set(a.getX());
-//                    bindY.set(a.getY());
-//                }else{
-//                    startView.setLayoutX(a.getX());
-//                    startView.setLayoutY(a.getY());
-//                }
-//            else
-//                if(dragSource==view){
-//                    bindX.set(a.getX());
-//                    bindY.set(a.getY());
-//                }else{
-//                    startView.setLayoutX(a.getX());
-//                    startView.setLayoutY(a.getY());
-//                }
-
         bindX.set(a.getX());
         bindY.set(a.getY());
     }

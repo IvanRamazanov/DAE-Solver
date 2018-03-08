@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class Saturation extends MathElement {
 
-    private Parameter levelUp,levelDown;
+    private ScalarParameter levelUp,levelDown;
 
     public Saturation(){
         super();
@@ -28,8 +28,8 @@ public class Saturation extends MathElement {
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        double up=levelUp.getDoubleValue();
-        double down=levelDown.getDoubleValue();
+        double up=levelUp.getValue();
+        double down=levelDown.getValue();
         List<Double> out=getInputs().get(0).getValue();
         for(int i=0;i<out.size();i++){
             if(out.get(i)>up){
@@ -43,8 +43,8 @@ public class Saturation extends MathElement {
 
     @Override
     protected void setParams(){
-        levelUp=new Parameter("Upper limit", 1);
-        levelDown=new Parameter("Lower limit", -1);
+        levelUp=new ScalarParameter("Upper limit", 1);
+        levelDown=new ScalarParameter("Lower limit", -1);
         parameters.add(levelUp);
         parameters.add(levelDown);
         setName("Saturation");

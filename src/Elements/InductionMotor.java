@@ -32,7 +32,7 @@ import ElementBase.SchemeElement;
  * @author ramazanov_im
  */
 public class InductionMotor extends SchemeElement {
-    Parameter Rs,Ls,J,Rr,Lr,Lm,Zp,Fc;
+    ScalarParameter Rs,Ls,J,Rr,Lr,Lm,Zp,Fc;
 
     public InductionMotor(){
         super();
@@ -51,13 +51,13 @@ public class InductionMotor extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        double  rs=Rs.getDoubleValue(),
-                rr=Rr.getDoubleValue(),
-                lm=Lm.getDoubleValue(),
-                ls=Ls.getDoubleValue()+lm,
-                lr=Lr.getDoubleValue()+lm,
-                jm=J.getDoubleValue(),
-                zp=Zp.getDoubleValue();
+        double  rs=Rs.getValue(),
+                rr=Rr.getValue(),
+                lm=Lm.getValue(),
+                ls=Ls.getValue()+lm,
+                lr=Lr.getValue()+lm,
+                jm=J.getValue(),
+                zp=Zp.getValue();
         double M12=2.0/3.0*lm,M3=4.0*ls*lr-9.0*M12*M12;
         String  Kuac=Double.toString(8.0*lr/3.0/M3),
                 Kubc=Double.toString(4.0*lr/3.0/M3),
@@ -148,21 +148,21 @@ public class InductionMotor extends SchemeElement {
 
     @Override
     protected void setParams(){
-        Rs=new Parameter("Stator reluctance", 1.405);
+        Rs=new ScalarParameter("Stator reluctance", 1.405);
         this.parameters.add(Rs);
-        Rr=new Parameter("Rotor reluctance", 1.395);
+        Rr=new ScalarParameter("Rotor reluctance", 1.395);
         this.parameters.add(Rr);
-        Ls=new Parameter("Stator leakage inductance", 0.005839);
+        Ls=new ScalarParameter("Stator leakage inductance", 0.005839);
         this.parameters.add(Ls);
-        Lr=new Parameter("Rotor leakage inductance", 0.005839);
+        Lr=new ScalarParameter("Rotor leakage inductance", 0.005839);
         this.parameters.add(Lr);
-        Lm=new Parameter("Magnetizing inductance", 0.1722);
+        Lm=new ScalarParameter("Magnetizing inductance", 0.1722);
         this.parameters.add(Lm);
-        J=new Parameter("Inertia", 0.0131);
+        J=new ScalarParameter("Inertia", 0.0131);
         this.parameters.add(J);
-        Zp=new Parameter("Pole pairs", 2);
+        Zp=new ScalarParameter("Pole pairs", 2);
         this.parameters.add(Zp);
-        Fc=new Parameter("Friction", 0.002985);
+        Fc=new ScalarParameter("Friction", 0.002985);
         this.parameters.add(Fc);
 
         this.initials.add(new InitParam("Stator A phase current", 0));

@@ -54,7 +54,7 @@ public class CurrentSource extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Element.Parameter("Amplitude", 15.0));
+        this.parameters.add(new Element.ScalarParameter("Amplitude", 15.0));
         setName("DC current source");
     }
 

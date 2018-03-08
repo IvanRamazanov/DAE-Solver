@@ -13,7 +13,7 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class DPTnV extends SchemeElement {
-    private Parameter Rya,Lya,J0,Cm,Cw,F,Rf,Lf;
+    private ScalarParameter Rya,Lya,J0,Cm,Cw,F,Rf,Lf;
 
     public DPTnV(){
         super();
@@ -52,21 +52,21 @@ public class DPTnV extends SchemeElement {
 
     @Override
     protected void setParams(){
-        Rya=new Parameter("Rotor reluctance", 0.1);
+        Rya=new ScalarParameter("Rotor reluctance", 0.1);
         this.parameters.add(Rya);
-        Lya=new Parameter("Rotor inductance", 0.001);
+        Lya=new ScalarParameter("Rotor inductance", 0.001);
         this.parameters.add(Lya);
-        J0=new Parameter("Inertia", 10);
+        J0=new ScalarParameter("Inertia", 10);
         this.parameters.add(J0);
-        Cm=new Parameter("Cm", 10);
+        Cm=new ScalarParameter("Cm", 10);
         this.parameters.add(Cm);
-        Cw=new Parameter("Cw", 10);
+        Cw=new ScalarParameter("Cw", 10);
         this.parameters.add(Cw);
-        F=new Parameter("Flux", 1);
+        F=new ScalarParameter("Flux", 1);
         this.parameters.add(F);
-        Rf=new Parameter("Stator reluctance", 0.1);
+        Rf=new ScalarParameter("Stator reluctance", 0.1);
         this.parameters.add(Rf);
-        Lf=new Parameter("Stator inductance", 0.1);
+        Lf=new ScalarParameter("Stator inductance", 0.1);
         this.parameters.add(Lf);
 
         this.initials.add(new InitParam("Rotor current", 0));

@@ -9,6 +9,7 @@ import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
 import ElementBase.SchemeElement;
 import ElementBase.Element.InitParam;
+import MathPackODE.DAE;
 import javafx.beans.property.SimpleBooleanProperty;
 
 import static MathPack.MatrixEqu.rank;
@@ -62,7 +63,7 @@ public class StringFunctionSystem {
         rightWithDiff=new ArrayList();
         String[] list=element.getStringFunction();
         for(InitParam init:element.getInitials()){
-            initials.add(init.getDoubleValue());
+            initials.add(init.getValue());
             rightWithDiff.add(null);
             if(init.getPriority()) xPryor.add(1);
             else xPryor.add(0);
@@ -149,7 +150,7 @@ public class StringFunctionSystem {
         }
     }
 
-    public static DAE getNumODE(List<StringFunctionSystem> list,int[][] potM,int[][] currM,int[][] speedM,int[][] torqM){
+    public static DAE getNumODE(List<StringFunctionSystem> list, int[][] potM, int[][] currM, int[][] speedM, int[][] torqM){
         List<List<Integer>> pots=new ArrayList();
         List<List<Integer>> currs=new ArrayList();
         List<List<Integer>> speeds=new ArrayList();
@@ -678,7 +679,14 @@ public class StringFunctionSystem {
             for(Object obj:rightSideVars){
                 String name=(String)obj;
                 if(WorkSpace.isRealVariable(name)){
-                    output.addVariable(name, 0.0);  //TODO maybe not 0.0
+                    WorkSpace.Variable wsLink=output.addVariable(name, 0.0);  //TODO maybe not 0.0
+                    if(wsLink!=null) {
+                        for (StringGraph sg : potAlgSys)
+                            sg.linkVariableToWorkSpace(name, wsLink);
+                        for(List<StringGraph> sgl:system.outputFuncs)
+                            for(StringGraph sg:sgl)
+                                sg.linkVariableToWorkSpace(name, wsLink);
+                    }
                 }
             }
         }
@@ -689,12 +697,20 @@ public class StringFunctionSystem {
                 for (Object obj : rightSideVars) {
                     String name = (String) obj;
                     if (WorkSpace.isRealVariable(name)) {
-                        output.addVariable(name, 0.0);
+                        WorkSpace.Variable wsLink=output.addVariable(name, 0.0);
+                        if(wsLink!=null) {
+                            for (StringGraph sg : potAlgSys)
+                                sg.linkVariableToWorkSpace(name, wsLink);
+                            for(List<StringGraph> sgl:system.outputFuncs)
+                                for(StringGraph sg:sgl)
+                                    sg.linkVariableToWorkSpace(name, wsLink);
+                        }
                     }
                 }
             }
         }
 
+        output.setSymbDiffRank(system.initials.size());
         return output;
     }
 

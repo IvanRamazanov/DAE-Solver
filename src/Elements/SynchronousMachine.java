@@ -16,7 +16,7 @@ public class SynchronousMachine extends SchemeElement{
         also assume that zero point potential = 0
      */
 
-    Parameter Lls,Lmd,Lmq,Pp,Rf,Rs,Llf,J,F;
+    ScalarParameter Lls,Lmd,Lmq,Pp,Rf,Rs,Llf,J,F;
 
     public SynchronousMachine(){
         super();
@@ -73,15 +73,15 @@ String[] out={
 
     @Override
     protected void setParams() {
-        Rs=new Parameter("Stator resistance",0.00076);
-        Lmd=new Parameter("d-axis mutual inductance",0.0005246);
-        Lmq=new Parameter("q-axis mutual inductance",0.0003845);
-        Lls=new Parameter("Stator leakage inductanse",1.273e-5);
-        Rf=new Parameter("excitation winding resistance",0.0001576);
-        Llf=new Parameter("rotor leakage inductance",8.703e-5);
-        Pp=new Parameter("pole pairs",2);
-        J=new Parameter("Inertia",49.81);
-        F=new Parameter("Friction",0.8);
+        Rs=new ScalarParameter("Stator resistance",0.00076);
+        Lmd=new ScalarParameter("d-axis mutual inductance",0.0005246);
+        Lmq=new ScalarParameter("q-axis mutual inductance",0.0003845);
+        Lls=new ScalarParameter("Stator leakage inductanse",1.273e-5);
+        Rf=new ScalarParameter("excitation winding resistance",0.0001576);
+        Llf=new ScalarParameter("rotor leakage inductance",8.703e-5);
+        Pp=new ScalarParameter("pole pairs",2);
+        J=new ScalarParameter("Inertia",49.81);
+        F=new ScalarParameter("Friction",0.8);
 
         getParameters().addAll(List.of(Rs,Lmd,Lmq,Lls,Rf,Llf,Pp,J,F));
 

@@ -13,6 +13,7 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
+import javafx.scene.Node;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
@@ -22,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -49,6 +51,52 @@ public abstract class LineMarker{
                 this.activate();
             }else{
                 this.diactivate();
+            }
+        });
+
+        itsLines.setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
+            if(me.getButton()== MouseButton.SECONDARY){
+                if(getWire().getWireContacts().size()==1){
+                    me.consume();
+                    return;
+                }
+                if(getWire().getWireContacts().size()==2){
+                    LineMarker newCont=getWire().addLineMarker(getWire(),me.getX(), me.getY());
+                    Wire.activeWireConnect=newCont;
+                    adjustCrosses(newCont,
+                            getWire().getWireContacts().get(0),
+                            getWire().getWireContacts().get(1));
+                    List<Cross> list=new ArrayList();
+                    list.add(newCont.getItsLine().getStartMarker());
+                    list.add(getWire().getWireContacts().get(0).getItsLine().getStartMarker());
+                    list.add(getWire().getWireContacts().get(1).getItsLine().getStartMarker());
+                    getWire().getDotList().add(list);
+
+                    getWire().setStaticEventFilters((Node)me.getSource());
+
+                    newCont.startFullDrag();
+                    getWire().showAll();
+                    me.consume();
+                }
+                else{
+                    LineMarker newCont=getWire().addLineMarker(getWire(),me.getX(), me.getY());
+                    Wire.activeWireConnect=newCont;
+
+                    getWire().setStaticEventFilters((Node)me.getSource());
+
+                    newCont.startFullDrag();
+                    getWire().addContToCont(this.getItsLine().getStartMarker(),newCont.getItsLine().getStartMarker());
+                }
+                me.consume();
+            }
+        });
+
+        itsLines.setLineDragOver(de->{
+            if(Wire.activeWireConnect!=null){
+                if(isProperInstance(Wire.activeWireConnect))
+                    if(Wire.activeWireConnect.getWire()!=this.getWire()){
+                        getWire().consumeWire(this,(MouseDragEvent)de);
+                    }
             }
         });
     }
@@ -379,4 +427,6 @@ public abstract class LineMarker{
     public void show(){
         this.itsLines.show();
     }
+
+    abstract protected boolean isProperInstance(LineMarker lm);
 }

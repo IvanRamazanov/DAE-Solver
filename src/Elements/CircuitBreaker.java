@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class CircuitBreaker extends SchemeElement {
     private Logic itsLogic;
-    private List<Parameter> params=this.parameters;
+    private ScalarParameter param;
 
     public CircuitBreaker(){
         super();
@@ -78,7 +78,8 @@ public class CircuitBreaker extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Parameter("Max curr, A", 15.0));
+        param=new ScalarParameter("Max curr, A", 15.0);
+        this.parameters.add(param);
         setName("Circuit breaker");
     }
 
@@ -93,8 +94,8 @@ public class CircuitBreaker extends SchemeElement {
 
         public Logic(boolean adf){
             super(adf);
-            addHideMathContact('i');
-            addHideMathContact('o');
+            addHiddenMathContact('i');
+            addHiddenMathContact('o');
 //            raschetkz.RaschetKz.MathElemList.add(this);
         }
 
@@ -103,7 +104,7 @@ public class CircuitBreaker extends SchemeElement {
             if(!flag){
                 double val=getInputs().get(0).getValue().get(0);
                 List<Double> out=new ArrayList();
-                if(Math.abs(val)>params.get(0).getDoubleValue())  {
+                if(Math.abs(val)>param.getValue())  {
                     flag=true;
                     out.add(1.0);
                     return out;
@@ -120,7 +121,7 @@ public class CircuitBreaker extends SchemeElement {
         }
 
         @Override
-        protected void init(){
+        public void init(){
             flag=false;
         }
 

@@ -20,8 +20,9 @@ public class MathInPin extends MathPin{
         super();
     }
 
-    MathInPin(double x,double y){
+    MathInPin(Element owner,double x,double y){
         this();
+        setOwner(owner);
         getView().setLayoutX(x);
         getView().setLayoutY(y);
     }
@@ -36,22 +37,6 @@ public class MathInPin extends MathPin{
         }
     }
 
-    void delete(){
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
-        setItsConnection(null);
-    }
-
-    public void setMathConnLink(MathMarker mc){
-        setItsConnection(mc);
-        setSource(mc.getWire().getSource());
-    }
-
-//    @Override
-//    public void clearPin(){
-//        source=null;
-//        view.setOpacity(1.0);
-//    }
-
     /**
      * @return the source
      */
@@ -65,12 +50,6 @@ public class MathInPin extends MathPin{
     public void setSource(MathOutPin source) {
         this.source = source;
     }
-
-//    @Override
-//    public void setItsConnection(MathMarker itsConnection) {
-//        this.itsConnection = itsConnection;
-//        //view.setOpacity(0.0);
-//    }
 
     @Override
     final public void clear(){

@@ -34,7 +34,7 @@ public class Capasitor extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Parameter("Capasitance", 0.01));
+        this.parameters.add(new ScalarParameter("Capasitance", 0.01));
         this.initials.add(new InitParam("Voltage", 0));
         setName("Capacitor");
     }

@@ -36,9 +36,9 @@ public class VariableVoltage extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Parameter("Amplitude", 10.0));
-        this.parameters.add(new Parameter("Frequency", 50.0));
-        this.parameters.add(new Parameter("Phase", 0.0));
+        this.parameters.add(new ScalarParameter("Amplitude", 10.0));
+        this.parameters.add(new ScalarParameter("Frequency", 50.0));
+        this.parameters.add(new ScalarParameter("Phase", 0.0));
         setName("AC voltage source");
     }
 

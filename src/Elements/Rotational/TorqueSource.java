@@ -4,7 +4,7 @@ import ElementBase.ElemMechPin;
 import ElementBase.SchemeElement;
 
 public class TorqueSource extends SchemeElement {
-    Parameter A;
+    ScalarParameter A;
     public TorqueSource(){
         super();
         addMechCont(new ElemMechPin(this,17,2));
@@ -28,7 +28,7 @@ public class TorqueSource extends SchemeElement {
 
     @Override
     protected void setParams() {
-        A=new Parameter("Torque value",1);
+        A=new ScalarParameter("Torque value",1);
         getParameters().add(A);
 
         setName("Constant torque\nsource");

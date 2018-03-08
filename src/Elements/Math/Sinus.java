@@ -18,7 +18,7 @@ import java.util.List;
  */
 
 public class Sinus extends MathElement{
-    private Parameter apmlitude,freq,phase;
+    private ScalarParameter apmlitude,freq,phase;
     private final double pi=Math.PI;
 
     public Sinus(){
@@ -32,9 +32,9 @@ public class Sinus extends MathElement{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        double ampl=apmlitude.getDoubleValue(),
-                f=freq.getDoubleValue(),
-                ph=phase.getDoubleValue();
+        double ampl=apmlitude.getValue(),
+                f=freq.getValue(),
+                ph=phase.getValue();
         List<Double> out=new ArrayList();
         out.add(ampl*sin(2*pi*f*Solver.time+ph/180*pi));
         return out;
@@ -42,11 +42,11 @@ public class Sinus extends MathElement{
 
     @Override
     protected void setParams(){
-        apmlitude=new Parameter("Amplitude",1);
+        apmlitude=new ScalarParameter("Amplitude",1);
         parameters.add(apmlitude);
-        freq=new Parameter("Frequency, Hz",1);
+        freq=new ScalarParameter("Frequency, Hz",1);
         parameters.add(freq);
-        phase=new Parameter("Phase shift, deg",0);
+        phase=new ScalarParameter("Phase shift, deg",0);
         parameters.add(phase);
         setName("Sinus wave");
     }

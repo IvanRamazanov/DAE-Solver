@@ -110,6 +110,8 @@ public class ListOfElements {
             case "Control systems":
                 cat.elements.add(new PIDRegulator(true));
                 cat.elements.add(new SqeezeWave(true));
+                cat.elements.add(new RMSvalue(true));
+                cat.elements.add(new TransferFunction(true));
                 break;
         }
     }

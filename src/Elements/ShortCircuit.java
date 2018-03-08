@@ -13,7 +13,7 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class ShortCircuit extends SchemeElement {
-    private Parameter t,ron;
+    private ScalarParameter t,ron;
     public ShortCircuit(){
         super();
         addElemCont(new ElemPin(this, 12, 5));
@@ -33,9 +33,9 @@ public class ShortCircuit extends SchemeElement {
 
     @Override
     protected void setParams(){
-        t=new Parameter("Trigger time, sec", 1.0);
+        t=new ScalarParameter("Trigger time, sec", 1.0);
         this.parameters.add(t);
-        ron=new Parameter("ON resistance, ohm", 0.001);
+        ron=new ScalarParameter("ON resistance, ohm", 0.001);
         this.parameters.add(ron);
         setName("Short circuit");
     }

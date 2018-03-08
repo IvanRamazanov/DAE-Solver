@@ -31,7 +31,7 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class Diode extends SchemeElement {
-    Parameter Vf;
+    ScalarParameter Vf;
 
     public Diode(){
         super();
@@ -52,7 +52,7 @@ public class Diode extends SchemeElement {
 
     @Override
     protected void setParams(){
-        Vf=new Parameter("Forward voltage", 0.5);
+        Vf=new ScalarParameter("Forward voltage", 0.5);
         this.parameters.add(Vf);
         setName("Diode");
     }

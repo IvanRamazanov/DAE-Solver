@@ -22,7 +22,7 @@ public class WireMarker extends LineMarker{
     //private ReadOnlyObjectProperty<Transform> eleContTransf;
 
 
-    WireMarker(){
+    private WireMarker(){
         super();
         Circle view=new Circle();
         view.layoutXProperty().bind(bindX);
@@ -31,50 +31,6 @@ public class WireMarker extends LineMarker{
         setView(view);
 
 
-
-        itsLines.setLineDragOver(de->{
-            if(activeWireConnect!=null){
-                if(activeWireConnect.getWire()!=this.getWire()){
-                    getWire().consumeWire(this,(MouseDragEvent)de);
-                }
-            }
-        });
-
-        itsLines.setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-            if(me.getButton()== MouseButton.SECONDARY){
-                if(getWire().getWireContacts().size()==1){
-                    me.consume();
-                    return;
-                }
-                if(getWire().getWireContacts().size()==2){
-                    WireMarker newCont=new WireMarker(getWire(),me.getX(), me.getY());
-                    activeWireConnect=newCont;
-                    adjustCrosses(newCont,
-                            getWire().getWireContacts().get(0),
-                            getWire().getWireContacts().get(1));
-                    List<Cross> list=new ArrayList();
-                    list.add(newCont.getItsLine().getStartMarker());
-                    list.add(getWire().getWireContacts().get(0).getItsLine().getStartMarker());
-                    list.add(getWire().getWireContacts().get(1).getItsLine().getStartMarker());
-                    getWire().getDotList().add(list);
-
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                    newCont.startFullDrag();
-                    getWire().showAll();
-                    me.consume();
-                }
-                else{
-                    WireMarker newCont=new WireMarker(getWire(),me.getX(), me.getY());
-                    activeWireConnect=newCont;
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                    ((Node)me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                    newCont.startFullDrag();
-                    getWire().addContToCont(this.getItsLine().getStartMarker(),newCont.getItsLine().getStartMarker());
-                }
-                me.consume();
-            }
-        });
 
         //EVENT ZONE
 
@@ -99,7 +55,7 @@ public class WireMarker extends LineMarker{
 
     }
 
-    WireMarker(Wire thisWire){
+    protected WireMarker(Wire thisWire){
         this();
         setWire(thisWire);
         itsLines.setColor(thisWire.getWireColor());
@@ -112,7 +68,7 @@ public class WireMarker extends LineMarker{
      * @param sx start x point
      * @param sy start y point
      */
-    WireMarker(Wire thisWire,double sx,double sy){
+    protected WireMarker(Wire thisWire,double sx,double sy){
         this(thisWire);
         itsLines.setStartXY(sx, sy);
         bindX.set(sx);
@@ -125,7 +81,7 @@ public class WireMarker extends LineMarker{
      * @param thisWire
      * @param ec
      */
-    WireMarker(ElectricWire thisWire,ElemPin ec){
+    WireMarker(ElectricWire thisWire,Pin ec){
         this(thisWire);
         this.setIsPlugged(false);
 //            ec.bindWCstartProp(this);
@@ -134,12 +90,12 @@ public class WireMarker extends LineMarker{
         setItsConnectedPin(ec);
     }
 
-    WireMarker(ElectricWire thisWire,double startX,double startY,double endX,double endY,int numOfLines,boolean isHorizontal,List<Double> constrList){
+    protected WireMarker(Wire thisWire,double startX,double startY,double endX,double endY,boolean isHorizontal,double[] constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
         bindY.set(endY);
-        itsLines.rearrange(numOfLines,isHorizontal,constrList);
+        itsLines.rearrange(isHorizontal,constrList);
     }
 
     /**
@@ -159,7 +115,7 @@ public class WireMarker extends LineMarker{
             if(getWire().getWireContacts().isEmpty()){
                 getWire().delete();
             }else{
-                WireMarker wm=getWire().getWireContacts().get(0);
+                LineMarker wm=getWire().getWireContacts().get(0);
                 if(wm.isPlugged()){
                     getWire().delete();
                 }
@@ -212,7 +168,7 @@ public class WireMarker extends LineMarker{
                 break;
             case 2:
                 System.out.println("Unplug in WireMarker case 2");
-                WireMarker loser;
+                LineMarker loser;
                 if(getWire().getWireContacts().get(0)==this){
                     loser=getWire().getWireContacts().get(1);
                 }else{
@@ -239,15 +195,20 @@ public class WireMarker extends LineMarker{
         return (ElectricWire) super.getWire();
     }
 
+    @Override
+    protected boolean isProperInstance(LineMarker lm) {
+        return lm instanceof WireMarker;
+    }
+
 //    public void setWire(ElectricWire wire) {
 //        itsWire=wire;
 //    }
 
-    public DoubleProperty getStartX(){
-        return this.itsLines.getStartX();
-    }
-
-    public DoubleProperty getStartY(){
-        return this.itsLines.getStartY();
-    }
+//    public DoubleProperty getStartX(){
+//        return this.itsLines.getStartX();
+//    }
+//
+//    public DoubleProperty getStartY(){
+//        return this.itsLines.getStartY();
+//    }
 }

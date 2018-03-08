@@ -12,24 +12,22 @@ import java.util.List;
  *
  * @author Ivan
  */
-public abstract class OutputElement extends MathElement {
-    protected List<Double> time;
-    protected List<List<Double>> data;
-
+abstract public class OutputElement extends MathElement{
+//
     public OutputElement(){
         super();
-        data=new ArrayList();
-        time=new ArrayList();
+//        data=new ArrayList();
+//        time=new ArrayList();
     }
 
     public OutputElement(boolean catalog) {
         super(catalog);
     }
 
-    @Override
-    abstract public void init();
+//    @Override
+//    abstract public void init();
 
-    abstract public void updateData(double t);
+    public abstract void updateData(double t);
 
 //    @Override
 //    protected void delete(){

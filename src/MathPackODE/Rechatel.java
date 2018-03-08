@@ -3,12 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package MathPack;
+package MathPackODE;
 
 import ElementBase.DynamMathElem;
 import ElementBase.OutputElement;
 import java.util.List;
 import ElementBase.PhysSubsystem;
+import MathPackODE.DAE;
 import MathPackODE.Solver;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -63,7 +64,7 @@ public class Rechatel extends Task<Integer>{
             //for(time=dt;time<=tEnd;time=time+dt){
             //solver.evalNextStep(time);
             //}
-            solver.solve(tEnd);
+            solver.solve();
 
             if(IS_LOGGING)
                 sys.layout();

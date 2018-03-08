@@ -17,43 +17,31 @@ import java.util.List;
  */
 public class MathOutPin extends MathPin{
     private int index;
-    private MathElement owner;
-//    private MathInPin source;
 
     public MathOutPin(){
         super();
     }
 
-    public MathOutPin(MathElement own){
-        this();
-        owner=own;
-    }
+//    /**
+//     * For physics to math
+//     * @param x
+//     * @param y
+//     */
+//    MathOutPin(double x,double y){
+//        this();
+//        getView().setLayoutX(x);
+//        getView().setLayoutY(y);
+//    }
 
-    /**
-     * For physics to math
-     * @param x
-     * @param y
-     */
-    MathOutPin(double x,double y){
+    MathOutPin(Element own,double x,double y){
         this();
         getView().setLayoutX(x);
         getView().setLayoutY(y);
-    }
-
-    MathOutPin(MathElement own,double x,double y){
-        this();
-        getView().setLayoutX(x);
-        getView().setLayoutY(y);
-        owner=own;
+        setOwner(own);
     }
 
     public List<Double> getValue(){
-        return owner.getValue(index);
-    }
-
-    void delete(){
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
-        owner=null;
+        return ((MathElement)getOwner()).getValue(index);
     }
 
     @Override

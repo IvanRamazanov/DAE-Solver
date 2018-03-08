@@ -23,6 +23,7 @@
  */
 package Elements.Math;
 
+import ElementBase.MathElement;
 import ElementBase.OutputElement;
 import java.util.List;
 import javafx.scene.Scene;
@@ -39,6 +40,7 @@ import raschetkz.Protection;
  */
 public class KZsensor extends OutputElement{
     Double maxIVal,maxItime;
+
     public KZsensor(){
         super();
         addMathContact('i');
@@ -49,6 +51,7 @@ public class KZsensor extends OutputElement{
 
     @Override
     public void init() {
+        super.init();
         maxIVal=Double.MIN_VALUE;
     }
 

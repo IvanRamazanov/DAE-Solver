@@ -23,7 +23,11 @@
  */
 package raschetkz;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -44,6 +48,9 @@ public class Logger extends OutputStream {
     private char[] buffer;
     private Text text;
     private int iterator;
+    private Button errBtn;
+    private SimpleBooleanProperty showBth=new SimpleBooleanProperty(false);
+
 
     Logger(){
         messageWindow=new Stage();
@@ -54,12 +61,13 @@ public class Logger extends OutputStream {
         root.getChildren().add(text);
         Scene scene=new Scene(root,400,400);
         messageWindow.setScene(scene);
-        buffer=new char[1024];
+        buffer=new char[4096];
     }
 
     @Override
     public void write(int b) throws IOException {
         buffer[iterator]=(char)b;
+        showBth.set(true);
         iterator++;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath,true))) {
             bw.write((char)b);
@@ -68,10 +76,20 @@ public class Logger extends OutputStream {
         }
     }
 
-    public void errorLayout(){
+    private void showWindow(){
         text.setText(String.valueOf(buffer,0,iterator));
         messageWindow.show();
         messageWindow.sizeToScene();
+    }
+
+    private void showWindow(String message){
+        text.setText(String.valueOf(buffer,0,iterator)+"\n"+message);
+        messageWindow.show();
+        messageWindow.sizeToScene();
+    }
+
+    public void errorLayout(){
+        showWindow();
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath,true))) {
             bw.newLine();
@@ -79,11 +97,21 @@ public class Logger extends OutputStream {
             bw.write(LocalDateTime.now().toString());
             bw.newLine();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            showWindow(e.getMessage());
         }
     }
 
+    void setButton(Button btn){
+        errBtn=btn;
+        errBtn.setGraphic(new ImageView(new Image("raschetkz/errIcon.png")));
+        errBtn.setOnAction(ae->{
+            showWindow();
+        });
+        errBtn.visibleProperty().bind(showBth);
+    }
+
     public void initLogs(){
+        showBth.setValue(false);
         iterator=0;
     }
 }

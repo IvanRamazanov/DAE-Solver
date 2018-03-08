@@ -14,7 +14,7 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class DPTPM extends SchemeElement {
-    private Parameter Rya,Lya,J0,Cm,Cw,F;
+    private ScalarParameter Rya,Lya,J0,Cm,Cw,F;
 
     public DPTPM(){
         super();
@@ -47,17 +47,17 @@ public class DPTPM extends SchemeElement {
 
     @Override
     protected void setParams(){
-        Rya=new Parameter("Rotor reluctance", 0.6);
+        Rya=new ScalarParameter("Rotor reluctance", 0.6);
         this.parameters.add(Rya);
-        Lya=new Parameter("Rotor inductance", 0.012);
+        Lya=new ScalarParameter("Rotor inductance", 0.012);
         this.parameters.add(Lya);
-        J0=new Parameter("Inertia", 1);
+        J0=new ScalarParameter("Inertia", 1);
         this.parameters.add(J0);
-        Cm=new Parameter("Cm", 1.8);
+        Cm=new ScalarParameter("Cm", 1.8);
         this.parameters.add(Cm);
-        Cw=new Parameter("Cw", 1.8);
+        Cw=new ScalarParameter("Cw", 1.8);
         this.parameters.add(Cw);
-        F=new Parameter("Flux", 1);
+        F=new ScalarParameter("Flux", 1);
         this.parameters.add(F);
 
         this.initials.add(new InitParam("Current", 0));

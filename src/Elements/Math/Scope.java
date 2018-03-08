@@ -5,6 +5,7 @@
  */
 package Elements.Math;
 
+import ElementBase.MathElement;
 import ElementBase.OutputElement;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -26,11 +27,15 @@ public class Scope extends OutputElement{
     private Painter plotter=new Painter();
     private double maxVal,minVal;
     private Stage plotStage;
+    private List<List<Double>> data;
+    private List<Double> time;
 
     public Scope(){
         super();
-//        data.add(new ArrayList());
         addMathContact('i');
+
+        data=new ArrayList<>();
+        time=new ArrayList<>();
         MenuItem export=new MenuItem("Export");
         export.setOnAction(e->{
             FileChooser filechoose=new FileChooser();
@@ -58,6 +63,11 @@ public class Scope extends OutputElement{
         super(catalog);
     }
 
+    @Override
+    protected List<Double> getValue(int outIndex) {
+        return null;
+    }
+
     void plot(){
         if(plotStage==null){
             plotStage=new Stage();
@@ -71,17 +81,19 @@ public class Scope extends OutputElement{
 
     @Override
     public void init(){
+        super.init();
         maxVal=-1*Double.MAX_VALUE;
         minVal=Double.MAX_VALUE;
         time.clear();
-//        for(List<Double> l:data){
-//            l.clear();
-//        }
         List<Double> val=getInputs().get(0).getValue();
         data.clear();
+        int i=0;
         for(Double d:val){
             data.add(new ArrayList());
+            data.get(i).add(d);
+            i++;
         }
+        time.add(0.0);
     }
 
     @Override

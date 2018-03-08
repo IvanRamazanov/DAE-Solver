@@ -6,7 +6,9 @@
 package Elements.Math;
 
 import ElementBase.DynamMathElem;
+import MathPack.WorkSpace;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,12 +33,23 @@ public class Integrator extends DynamMathElem{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        return X_old;
+        List<Double> out=new ArrayList<>();
+        for(WorkSpace.Variable v:wsX)
+            out.add(v.getValue());
+        return out;
     }
 
     @Override
     protected String getDescription(){
         return "This block represents an ideal integration unit.";
+    }
+
+    @Override
+    public void evalDerivatives(){
+        List<Double> res=getInputs().get(0).getValue();
+        for(int i=0;i<res.size();i++){
+            wsDX.get(i).set(res.get(i));
+        }
     }
 }
 

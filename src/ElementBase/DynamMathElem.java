@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import MathPackODE.Solver;
+import MathPack.WorkSpace;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,41 +14,48 @@ import java.util.List;
  * @author Ivan
  */
 abstract public class DynamMathElem extends MathElement{
-    protected List<Double> X_old;
-    protected List<Double> dX;
-    protected List<Parameter> x0;
+    protected List<WorkSpace.Variable> wsX,wsDX;
+    protected VectorParameter x0;
 
     public DynamMathElem(){
         super();
-        X_old=new ArrayList();
-        dX=new ArrayList();
-        x0=new ArrayList();
+        wsX=new ArrayList();
+        wsDX=new ArrayList();
+        x0=new VectorParameter("init X", 0);
 
-        x0.add(new Parameter("init X", 0));
-        parameters.addAll(x0);
+        parameters.add(x0);
     }
 
     public DynamMathElem(boolean flag){
         super(flag);
 
-        parameters.add(new Parameter("init X", 0));
+        x0=new VectorParameter("init X", 0);
+
+        parameters.add(x0);
     }
 
     //Only for Int!!!!!!!!!!
-    public void evalDerivatives(double time){
-        dX=getInputs().get(0).getValue();
-//        return getInputs().get(0).getValue();
-    }
-
-    public void updateOutputs(Solver solver){
-        solver.simpleUpdate(X_old,dX);
-    }
+    abstract public void evalDerivatives();
 
     @Override
     public void init(){
-        X_old.clear();
-        X_old.add(x0.get(0).getDoubleValue());
+        super.init();
+        wsX.clear();
+        wsDX.clear();
+        for(double v:x0.getValue()) {
+            wsX.add(null);
+            wsDX.add(null);
+        }
+
+//        List<Double> in=getInputs().get(0).getValue();
+//        if(getInputs().get(0).getValue().size()!=wsX.size())
+//            throw new Error("Dimensions mismatch in "+this.getName()+". Expected: "+wsX.size()+" present: "+getInputs().get(0).getValue().size());
         // MUST BE A VECTOR!!!!
+    }
+
+    public void setWorkSpaceLink(int index,WorkSpace.Variable Xlink,WorkSpace.Variable dXlink){
+        wsX.set(index,Xlink);
+        wsDX.set(index,dXlink);
     }
 
     /**
@@ -56,13 +63,12 @@ abstract public class DynamMathElem extends MathElement{
      * @return
      */
     public int getRank(){
-        return X_old.size();
+        return x0.getValue().length;
     }
 
-//    @Override
-//    protected void openDialogStage() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
+    public VectorParameter getX0(){
+        return x0;
+    }
 
 }
 

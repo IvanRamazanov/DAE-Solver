@@ -35,7 +35,7 @@ public class Resistor extends SchemeElement {
 
     @Override
     protected void setParams(){
-        this.parameters.add(new Parameter("Resistance", 10.0));
+        this.parameters.add(new ScalarParameter("Resistance", 10.0));
         setName("Resistance");
     }
 

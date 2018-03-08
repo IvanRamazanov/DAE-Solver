@@ -4,7 +4,7 @@ import ElementBase.ElemMechPin;
 import ElementBase.SchemeElement;
 
 public class Inertia extends SchemeElement{
-    Parameter P;
+    ScalarParameter P;
 
     public Inertia(){
         super();
@@ -29,7 +29,7 @@ public class Inertia extends SchemeElement{
 
     @Override
     protected void setParams() {
-        P=new Parameter("Inertia moment",1);
+        P=new ScalarParameter("Inertia moment",1);
         getParameters().add(P);
         getInitials().add(new InitParam("Initial speed",0));
 
