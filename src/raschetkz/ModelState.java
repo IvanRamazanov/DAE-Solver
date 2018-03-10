@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import Elements.Environment.Subsystem;
 import MathPack.Parser;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -31,7 +32,7 @@ import javafx.scene.layout.Pane;
 public class ModelState{
     private List<Element> elementList;
     private ArrayList<Wire> wireList;
-    private Pane draws;
+    private Subsystem mainSystem;
     private SimpleStringProperty solver;
     private SimpleDoubleProperty dt,tend,AbsTol,RelTol;
     private int jacobianEstimationType;
@@ -40,7 +41,7 @@ public class ModelState{
     ModelState(){
         elementList=new ArrayList();
         wireList=new ArrayList<>();
-        draws=new Pane();
+        mainSystem=new Subsystem();
         dt=new SimpleDoubleProperty();
         tend=new SimpleDoubleProperty();
         solver=new SimpleStringProperty();
@@ -188,9 +189,9 @@ public class ModelState{
         Class<?> clas= null;
         try {
             clas = Class.forName(className);
-            Constructor<?> ctor=clas.getConstructor();
-            Wire w=(Wire)ctor.newInstance(new Object[] {});
-            getWireList().add(w);
+            Constructor<?> ctor=clas.getConstructor(Subsystem.class);
+            Wire w=(Wire)ctor.newInstance(mainSystem);
+//            getWireList().add(w);
             w.configure(wireInfo);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -202,8 +203,8 @@ public class ModelState{
         Element elem=null;
         try {
             Class<?> clas = Class.forName(className);
-            Constructor<?> ctor=clas.getConstructor();
-            elem=(Element)ctor.newInstance(new Object[] {});
+            Constructor<?> ctor=clas.getConstructor(Subsystem.class);
+            elem=(Element)ctor.newInstance(mainSystem);
             elem.configurate(elementName,elemInfo);
         } catch (Exception e) {
             e.printStackTrace(System.err);
@@ -242,8 +243,8 @@ public class ModelState{
         return out;
     }
 
-    Pane getDrawBoard(){
-        return this.draws;
+    Subsystem getMainSystem(){
+        return mainSystem;
     }
 
     /**

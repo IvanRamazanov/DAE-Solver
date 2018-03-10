@@ -5,18 +5,19 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
  * @author Ivan
  */
 public class Voltmeter extends SchemeElement {
-    public Voltmeter(){
-        super();
-        addElemCont(new ElemPin(this, 12, 4));
-        addElemCont(new ElemPin(this, 12, 60));
+    public Voltmeter(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 4));
+        addElemCont(new ElectricPin(this, 12, 60));
         addMathContact('o');
     }
     public Voltmeter(boolean Catalog){

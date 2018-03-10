@@ -24,6 +24,8 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +36,8 @@ import java.util.List;
 public class Constant extends MathElement{
     private ScalarParameter apmlitude;
 
-    public Constant(){
-        super();
+    public Constant(Subsystem sys){
+        super(sys);
         addMathContact('o');
     }
 

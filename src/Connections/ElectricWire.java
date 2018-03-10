@@ -5,20 +5,13 @@
  */
 package Connections;
 
-import java.util.ArrayList;
-import java.util.List;
-import ElementBase.ElemPin;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import ElementBase.Pin;
+import Elements.Environment.Subsystem;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+import raschetkz.RaschetKz;
 
 /**
  *
@@ -28,26 +21,33 @@ public class ElectricWire extends Wire{
     public static final EventHandler WC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
         public void handle(MouseEvent me) {
+            //System.out.println("WC_MOUSE_DRAG");
             if(activeWireConnect!=null)
                 if(!activeWireConnect.getIsPlugged().get()){
-                    activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
+                    activeWireConnect.setEndPropInSceneCoordinates(me.getSceneX(), me.getSceneY());
                 }
             me.consume();
         }
     };
-    public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
+    public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseDragEvent>() {
         @Override
-        public void handle(MouseEvent me){
-            activeWireConnect.toFront();
+        public void handle(MouseDragEvent me){
+            //System.out.println("WC_DELETE");
+            if(activeWireConnect!=null)
+                activeWireConnect.toFront();
             activeWireConnect=null;
-            ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-            ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+//            ((Node)me.getGestureSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
+//            ((Node)me.getGestureSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+            ((Node)me.getGestureSource()).setOnMouseDragged(null);
+            ((Node)me.getGestureSource()).setOnMouseDragReleased(null);
             me.consume();
         }
     };
 
-    public ElectricWire(){
+    public ElectricWire(Subsystem sys){
+        setItsSystem(sys);
         setWireColor("#b87333");
+        RaschetKz.wireList.add(this);
     }
 
     /**
@@ -56,11 +56,24 @@ public class ElectricWire extends Wire{
      * @param meSceneX
      * @param meSceneY
      */
-    public ElectricWire(Pin EleCont,double meSceneX,double meSceneY){
-        this();
+    public ElectricWire(Subsystem sys, Pin EleCont, double meSceneX, double meSceneY){
+        this(sys);
         WireMarker wc=new WireMarker(this,EleCont);
-        wc.setEndProp(meSceneX,meSceneY);
+        wc.setEndPropInSceneCoordinates(meSceneX,meSceneY);
         activeWireConnect=wc;
+    }
+
+    public ElectricWire(Subsystem sys,Pin EleCont1,Pin EleCont2){
+        this(sys);
+        WireMarker wc1=new WireMarker(this,EleCont1);
+        WireMarker wc2=new WireMarker(this,EleCont2);
+
+        wc2.bindStartTo(wc1.getBindX(),wc1.getBindY());
+        wc1.bindStartTo(wc2.getBindX(),wc2.getBindY());
+
+        wc1.bindElemContact(EleCont1);
+        wc2.bindElemContact(EleCont2);
+        wc2.hide();
     }
 
     /**
@@ -71,7 +84,7 @@ public class ElectricWire extends Wire{
     public boolean setEnd(Pin elemCont){
         switch(getWireContacts().size()){
             case 1:
-                System.out.println("Set end case 1");
+                //System.out.println("Set end case 1");
                 Pin oldEc=activeWireConnect.getItsConnectedPin();   // начальный O--->
                 activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
                 LineMarker wcNew=addLineMarker(this); // ? bind?      // <---O новый
@@ -80,14 +93,14 @@ public class ElectricWire extends Wire{
                 wcNew.hide();
                 break;
             case 2:
-                System.out.println("Set end case 2");
+                //System.out.println("Set end case 2");
                 if(!getWireContacts().get(0).isPlugged()&&!getWireContacts().get(1).isPlugged()) {   // free floating wire case
                     LineMarker loser;
                     if(getWireContacts().get(0).equals(activeWireConnect))
                         loser=getWireContacts().get(1);
                     else
                         loser=getWireContacts().get(0);
-                    activeWireConnect.setEndProp(loser.getBindX().get(),loser.getBindY().get());
+                    activeWireConnect.setEndPoint(loser.getBindX().get(),loser.getBindY().get());
                     activeWireConnect.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
                     elemCont.setWirePointer(activeWireConnect);
                     activeWireConnect.setItsConnectedPin(elemCont);
@@ -97,7 +110,7 @@ public class ElectricWire extends Wire{
                 }
                 break;
             default:
-                System.out.println("Set end case default");
+                //System.out.println("Set end case default");
                 activeWireConnect.bindElemContact(elemCont);
         }
         return true;
@@ -213,8 +226,8 @@ public class ElectricWire extends Wire{
 
     @Override
     public void setStaticEventFilters(Node source) {
-        source.addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-        source.addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
+        source.setOnMouseDragged(WC_MOUSE_DRAG);
+        source.setOnMouseDragReleased( WC_MOUSE_RELEAS);
     }
 
 

@@ -65,14 +65,14 @@ public class Logger extends OutputStream {
     }
 
     @Override
-    public void write(int b) throws IOException {
+    public void write(int b){
         buffer[iterator]=(char)b;
         showBth.set(true);
         iterator++;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath,true))) {
             bw.write((char)b);
         } catch (IOException e) {
-            System.err.println(e.getMessage());
+            showWindow(e.getMessage());
         }
     }
 
@@ -103,7 +103,7 @@ public class Logger extends OutputStream {
 
     void setButton(Button btn){
         errBtn=btn;
-        errBtn.setGraphic(new ImageView(new Image("raschetkz/errIcon.png")));
+        errBtn.setGraphic(new ImageView(new Image("raschetkz/errIcon.png",24,24,true,true)));
         errBtn.setOnAction(ae->{
             showWindow();
         });

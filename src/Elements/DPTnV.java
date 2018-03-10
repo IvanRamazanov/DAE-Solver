@@ -5,8 +5,9 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -15,13 +16,13 @@ import ElementBase.SchemeElement;
 public class DPTnV extends SchemeElement {
     private ScalarParameter Rya,Lya,J0,Cm,Cw,F,Rf,Lf;
 
-    public DPTnV(){
-        super();
+    public DPTnV(Subsystem sys){
+        super(sys);
 //        Dymamic=true;
-        addElemCont(new ElemPin(this, 31, 4));
-        addElemCont(new ElemPin(this, 31, 66));
-        addElemCont(new ElemPin(this, 11, 4));
-        addElemCont(new ElemPin(this, 11, 66));
+        addElemCont(new ElectricPin(this, 31, 4));
+        addElemCont(new ElectricPin(this, 31, 66));
+        addElemCont(new ElectricPin(this, 11, 4));
+        addElemCont(new ElectricPin(this, 11, 66));
         this.addMathContact('o');
         this.addMathContact('i');
 

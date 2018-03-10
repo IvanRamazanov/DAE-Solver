@@ -28,6 +28,7 @@ import ElementBase.OutputElement;
 import java.util.ArrayList;
 import java.util.List;
 
+import Elements.Environment.Subsystem;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -42,8 +43,8 @@ import javafx.stage.Stage;
 public class XYGraph extends OutputElement{
     List<List<Double>> data;
 
-    public XYGraph(){
-        super();
+    public XYGraph(Subsystem sys){
+        super(sys);
         data.add(new ArrayList());
         data.add(new ArrayList());
         addMathContact('i');

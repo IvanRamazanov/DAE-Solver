@@ -2,6 +2,7 @@ package Elements.Math;
 
 import ElementBase.DynamMathElem;
 import ElementBase.Updatable;
+import Elements.Environment.Subsystem;
 import MathPackODE.Solver;
 
 import java.util.ArrayList;
@@ -12,8 +13,8 @@ public class PIDRegulator extends DynamMathElem implements Updatable{
     private Double x_diff,time_old;
     private double input;
 
-    public PIDRegulator(){
-        super();
+    public PIDRegulator(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('o');
     }

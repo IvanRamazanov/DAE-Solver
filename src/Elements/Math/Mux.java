@@ -24,6 +24,8 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +37,8 @@ public class Mux extends MathElement{
 
     ScalarParameter inpValue;
 
-    public Mux(){
-        super();
+    public Mux(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('i');
         addMathContact('i');

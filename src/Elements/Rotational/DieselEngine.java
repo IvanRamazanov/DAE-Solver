@@ -1,17 +1,18 @@
 package Elements.Rotational;
 
-import ElementBase.ElemMechPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 import java.util.List;
 
 public class DieselEngine extends SchemeElement{
     ScalarParameter Pn,wn,Tde;
 
-    public DieselEngine(){
-        super();
-        addMechCont(new ElemMechPin(this,40,30));
-        addMechCont(new ElemMechPin(this,4,30));
+    public DieselEngine(Subsystem sys){
+        super(sys);
+        addMechCont(new MechPin(this,40,30));
+        addMechCont(new MechPin(this,4,30));
         addMathContact('i'); // fuel consumption
     }
 

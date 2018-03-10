@@ -1,8 +1,9 @@
 package Elements;
 
-import ElementBase.ElemMechPin;
-import ElementBase.ElemPin;
+import ElementBase.MechPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 import java.util.List;
 
@@ -18,17 +19,17 @@ public class SynchronousMachine extends SchemeElement{
 
     ScalarParameter Lls,Lmd,Lmq,Pp,Rf,Rs,Llf,J,F;
 
-    public SynchronousMachine(){
-        super();
+    public SynchronousMachine(Subsystem sys){
+        super(sys);
 
-        addElemCont(new ElemPin(this, 9, 4));  //A
-        addElemCont(new ElemPin(this, 25, 4));  // B
-        addElemCont(new ElemPin(this, 40, 4));  // C
-        addElemCont(new ElemPin(this, 9, 63));  // Field
-        addElemCont(new ElemPin(this, 40, 63));
+        addElemCont(new ElectricPin(this, 9, 4));  //A
+        addElemCont(new ElectricPin(this, 25, 4));  // B
+        addElemCont(new ElectricPin(this, 40, 4));  // C
+        addElemCont(new ElectricPin(this, 9, 63));  // Field
+        addElemCont(new ElectricPin(this, 40, 63));
 
-        addMechCont(new ElemMechPin(this,45,35));   // positive
-        addMechCont(new ElemMechPin(this,4,35));    // ref
+        addMechCont(new MechPin(this,45,35));   // positive
+        addMechCont(new MechPin(this,4,35));    // ref
     }
 
     public SynchronousMachine(boolean val){

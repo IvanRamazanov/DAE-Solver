@@ -1,14 +1,15 @@
 package Elements.Rotational;
 
-import ElementBase.ElemMechPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 public class TorqueSource extends SchemeElement {
     ScalarParameter A;
-    public TorqueSource(){
-        super();
-        addMechCont(new ElemMechPin(this,17,2));
-        addMechCont(new ElemMechPin(this,17,52)); //Ref
+    public TorqueSource(Subsystem sys){
+        super(sys);
+        addMechCont(new MechPin(this,17,2));
+        addMechCont(new MechPin(this,17,52)); //Ref
     }
 
     public TorqueSource(boolean val){

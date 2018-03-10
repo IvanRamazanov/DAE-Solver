@@ -6,8 +6,9 @@
 package Elements;
 
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 
 /**
@@ -15,10 +16,10 @@ import ElementBase.SchemeElement;
  * @author Ivan
  */
 public class ControlledVoltage extends SchemeElement {
-    public ControlledVoltage(){
-        super();
-        addElemCont(new ElemPin(this, 12, 5));
-        addElemCont(new ElemPin(this, 12, 60));
+    public ControlledVoltage(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 5));
+        addElemCont(new ElectricPin(this, 12, 60));
         addMathContact('i');
     }
 

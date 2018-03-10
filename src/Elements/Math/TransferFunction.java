@@ -1,6 +1,7 @@
 package Elements.Math;
 
 import ElementBase.DynamMathElem;
+import Elements.Environment.Subsystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +11,8 @@ public class TransferFunction extends DynamMathElem{
     double[] A,B;
     int lenA,lenB;
 
-    public TransferFunction(){
-        super();
+    public TransferFunction(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('o');
     }

@@ -23,9 +23,10 @@
  */
 package Elements;
 
-import ElementBase.ElemMechPin;
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -34,15 +35,15 @@ import ElementBase.SchemeElement;
 public class SDPM extends SchemeElement {
     ScalarParameter Rs,Ls,J,KsiM,Zp,Fc;
 
-    public SDPM(){
-        super();
-        addElemCont(new ElemPin(this, 9, 4));
-        addElemCont(new ElemPin(this, 25, 4));
-        addElemCont(new ElemPin(this, 40, 4));
+    public SDPM(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 9, 4));
+        addElemCont(new ElectricPin(this, 25, 4));
+        addElemCont(new ElectricPin(this, 40, 4));
 //        this.addMathContact('o');
 //        this.addMathContact('i');
-        addMechCont(new ElemMechPin(this,45,35));
-        addMechCont(new ElemMechPin(this,4,35));
+        addMechCont(new MechPin(this,45,35));
+        addMechCont(new MechPin(this,4,35));
     }
 
     public SDPM(boolean flag){

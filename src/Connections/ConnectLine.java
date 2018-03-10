@@ -5,6 +5,7 @@
  */
 package Connections;
 
+import javafx.scene.Node;
 import javafx.scene.shape.Line;
 import java.util.List;
 import java.util.ArrayList;
@@ -33,17 +34,17 @@ public class ConnectLine {
     private final SimpleDoubleProperty endX=new SimpleDoubleProperty();
     private final SimpleDoubleProperty endY=new SimpleDoubleProperty();
     private Cross startMarker;
-    protected LineMarker marker;
+    private LineMarker marker;
+    private Wire owner;
     private List<ExtLine> lines;
     private ChangeListener propListen;
-    protected EventHandler lineDragDetect;
+    protected EventHandler lineDragDetect,lineDragOver;
     private boolean diacive=true;
     private boolean easyDraw=true;
     private String color="#000000";
 
-    ConnectLine(){
-        startMarker=new Cross(this);
-        startMarker.bindThis(startX, startY);
+    ConnectLine(Wire owner){
+        this.owner=owner;
         lines=new ArrayList();
         this.lines.add(new ExtLine(0,0,0,0,true));
         this.lines.add(new ExtLine(0,0,0,0,false));
@@ -63,6 +64,8 @@ public class ConnectLine {
         startY.addListener(propListen);
         endX.addListener(propListen);
         endY.addListener(propListen);
+        startMarker=new Cross(this);
+        startMarker.bindThis(startX, startY);
     }
 
     /**
@@ -70,33 +73,12 @@ public class ConnectLine {
      * @param owner
      */
     ConnectLine(LineMarker owner){
-        this();
+        this(owner.getWire());
+        this.marker=owner;
+
         endX.bind(owner.getBindX());
         endY.bind(owner.getBindY());
-        this.marker=owner;
     }
-
-//    ConnectLine(Connect owner,Point2D point){
-//
-//        point=raschetkz.RaschetKz.drawBoard.sceneToLocal(point);
-//        startPoint.setCenterX(point.getX());
-//        startPoint.setCenterY(point.getY());
-//
-//    }
-
-//    ConnectLine(Connect owner,double x,double y){
-//        this();
-//        //startPoint=new Cross(owner,x,y);
-//        startPoint.setCenterX(x);
-//        startPoint.setCenterY(y);
-//        lines.get(2).endXProperty().bind(owner.endXProp);
-//        lines.get(2).endYProperty().bind(owner.getEndYProp());
-//        lines.get(2).endYProperty().addListener(propListen);
-//        lines.get(2).endXProperty().addListener(propListen);
-//        lines.get(0).startYProperty().addListener(propListen);
-//        lines.get(0).startXProperty().addListener(propListen);
-//        Draw();
-//    }
 
     final void bindLines(){
         int len=lines.size()-1;
@@ -125,6 +107,10 @@ public class ConnectLine {
         });
     }
 
+    Wire getWire(){
+        return owner;
+    }
+
     List<Double> parseLines(){
         List<Double> constraints=new ArrayList();
         for(int i=1;i<this.lines.size()-1;i++){
@@ -133,9 +119,13 @@ public class ConnectLine {
         return constraints;
     }
 
+    LineMarker getMarker(){
+        return marker;
+    }
+
     void rearrange(boolean isHorizontal,double[] constrList){
         setEasyDraw(false);
-        raschetkz.RaschetKz.drawBoard.getChildren().removeAll(lines);
+        getWire().getItsSystem().getDrawBoard().getChildren().removeAll(lines);
         lines.clear();
         int numOfLines=constrList.length+2;
         if(numOfLines==2){
@@ -179,6 +169,7 @@ public class ConnectLine {
             lines.add(line2);
         }
         setLineDragDetect(lineDragDetect);
+        setLineDragOver(lineDragOver);
     }
 
     final void Draw(){
@@ -217,17 +208,13 @@ public class ConnectLine {
     }
 
     void delete(){
-        raschetkz.RaschetKz.drawBoard.getChildren().removeAll(lines);
-//        raschetkz.RaschetKz.drawBoard.getChildren().remove(getStartMarker());
-//        getStartX().unbind();
-//        getStartY().unbind();
+        getWire().getItsSystem().getDrawBoard().getChildren().removeAll(lines);
+        setLineDragOver(null);
+        setLineDragDetect(null);
         getStartMarker().delete();
         getEndX().unbind();
         getEndY().unbind();
-//        startPoint=null;
         marker=null;
-//        marker.delete();
-//        endPoint=null;
     }
 
     /**
@@ -235,16 +222,24 @@ public class ConnectLine {
      */
     public final void setLineDragDetect(EventHandler lineDraggDetect) {
         this.lineDragDetect = lineDraggDetect;
-        for(Line line:lines)
-            line.addEventHandler(MouseDragEvent.DRAG_DETECTED,lineDragDetect);
+        if(lineDraggDetect==null)
+            for(Line line:lines)
+                line.setOnDragDetected(null);
+        else
+            for(Line line:lines)
+                line.setOnDragDetected(lineDragDetect);
 
     }
 
     public final void setLineDragOver(EventHandler lineDragOver) {
-        //this.lineDragDetect = lineDraggDetect;
-        for(Line line:lines)
-            line.addEventHandler(MouseDragEvent.MOUSE_DRAG_OVER,lineDragOver);
-
+        this.lineDragOver=lineDragOver;
+        if(lineDragOver==null)
+            for(Line line:lines) {
+                line.setOnMouseDragOver(null);
+            }
+        else
+            for(Line line:lines)
+                line.setOnMouseDragOver(lineDragOver);
     }
 
     /**
@@ -322,6 +317,17 @@ public class ConnectLine {
         getStartMarker().centerYProperty().bind(C.centerYProperty());
     }
 
+    List<Node> getView(){
+        List<Node> out=new ArrayList<>();
+
+        for(ExtLine line:getLines()){
+            out.add(line);
+        }
+        out.add(getStartMarker());
+
+        return out;
+    }
+
     /**
      * @return the crossMarker
      */
@@ -349,7 +355,7 @@ public class ConnectLine {
                 setEndX(sX);
             }
             this.horizontal=horizon;
-            raschetkz.RaschetKz.drawBoard.getChildren().add(this);
+            getWire().getItsSystem().getDrawBoard().getChildren().add(this);
             this.setStrokeWidth(2);
             if(diacive){
                 this.setStyle("-fx-stroke: red; -fx-stroke-dash-array: 10 5");
@@ -469,7 +475,7 @@ public class ConnectLine {
                     if(itsIndx-1==0){
                         this.startXProperty().unbindBidirectional(lines.get(itsIndx-1).endXProperty());
                         this.startYProperty().unbindBidirectional(lines.get(itsIndx-1).endYProperty());
-                        raschetkz.RaschetKz.drawBoard.getChildren().remove(lines.get(itsIndx-1));
+                        getWire().getItsSystem().getDrawBoard().getChildren().remove(lines.get(itsIndx-1));
                         lines.remove(itsIndx-1);
                         this.startXProperty().bind(startX);
                         this.startYProperty().bind(startY);
@@ -482,8 +488,8 @@ public class ConnectLine {
                         lines.get(itsIndx-1).startYProperty().unbindBidirectional(lines.get(itsIndx-2).endYProperty());
                         lines.get(itsIndx-2).endXProperty().bindBidirectional(lines.get(itsIndx+1).startXProperty());
                         lines.get(itsIndx-2).endYProperty().bindBidirectional(lines.get(itsIndx+1).startYProperty());
-                        raschetkz.RaschetKz.drawBoard.getChildren().remove(lines.get(itsIndx));
-                        raschetkz.RaschetKz.drawBoard.getChildren().remove(lines.get(itsIndx-1));
+                        getWire().getItsSystem().getDrawBoard().getChildren().remove(lines.get(itsIndx));
+                        getWire().getItsSystem().getDrawBoard().getChildren().remove(lines.get(itsIndx-1));
                         lines.remove(itsIndx);
                         lines.remove(itsIndx-1);
                     }
@@ -491,7 +497,7 @@ public class ConnectLine {
                     if(itsIndx+1==maxInd){
                         this.endXProperty().unbindBidirectional(lines.get(itsIndx+1).startXProperty());
                         this.endYProperty().unbindBidirectional(lines.get(itsIndx+1).startYProperty());
-                        raschetkz.RaschetKz.drawBoard.getChildren().remove(lines.get(itsIndx+1));
+                        getWire().getItsSystem().getDrawBoard().getChildren().remove(lines.get(itsIndx+1));
                         lines.remove(itsIndx+1);
                         this.endXProperty().bind(endX);
                         this.endYProperty().bind(endY);
@@ -504,8 +510,8 @@ public class ConnectLine {
                         lines.get(itsIndx+1).endYProperty().unbindBidirectional(lines.get(itsIndx+2).startYProperty());
                         lines.get(itsIndx+2).startXProperty().bindBidirectional(lines.get(itsIndx-1).endXProperty());
                         lines.get(itsIndx+2).startYProperty().bindBidirectional(lines.get(itsIndx-1).endYProperty());
-                        raschetkz.RaschetKz.drawBoard.getChildren().remove(lines.get(itsIndx+1));
-                        raschetkz.RaschetKz.drawBoard.getChildren().remove(lines.get(itsIndx));
+                        getWire().getItsSystem().getDrawBoard().getChildren().remove(lines.get(itsIndx+1));
+                        getWire().getItsSystem().getDrawBoard().getChildren().remove(lines.get(itsIndx));
                         lines.remove(itsIndx+1);
                         lines.remove(itsIndx);
                     }

@@ -1,7 +1,8 @@
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 import java.util.List;
 
@@ -9,12 +10,12 @@ public class ThreePhaseFault extends SchemeElement{
 
     ScalarParameter fTime,ron;
 
-    public ThreePhaseFault(){
-        super();
+    public ThreePhaseFault(Subsystem sys){
+        super(sys);
 
-        addElemCont(new ElemPin(this,9,4));
-        addElemCont(new ElemPin(this,25,4));
-        addElemCont(new ElemPin(this,40,4));
+        addElemCont(new ElectricPin(this,9,4));
+        addElemCont(new ElectricPin(this,25,4));
+        addElemCont(new ElectricPin(this,40,4));
     }
 
     public ThreePhaseFault(boolean val){

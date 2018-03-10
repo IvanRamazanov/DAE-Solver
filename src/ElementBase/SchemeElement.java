@@ -5,9 +5,9 @@
  */
 package ElementBase;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import Elements.Environment.Subsystem;
 import raschetkz.RaschetKz;
 
 /**
@@ -18,8 +18,8 @@ public abstract class SchemeElement extends Element{
 
 
 
-    public SchemeElement(){
-        super();
+    public SchemeElement(Subsystem sys){
+        super(sys);
         maxX=viewPane.getBoundsInLocal().getMaxX();
         mathContOffset=viewPane.getBoundsInLocal().getMaxY()/2;
 
@@ -31,11 +31,11 @@ public abstract class SchemeElement extends Element{
 
     public abstract String[] getStringFunction();
 
-    public List<ElemPin> getElemContactList(){
+    public List<ElectricPin> getElemContactList(){
         return(electricContacts);
     }
 
-    public List<ElemMechPin> getMechContactList(){
+    public List<MechPin> getMechContactList(){
         return mechContacts;
     }
 
@@ -45,39 +45,27 @@ public abstract class SchemeElement extends Element{
     @Override
     public void delete(){
         getElemContactList().forEach(elemCont->{
-            elemCont.clear();
-            if(elemCont.getItsConnection()!=null){
-                elemCont.getItsConnection().unPlug();
-            }
+            elemCont.delete();
         });
         getElemContactList().clear();
 
         getMechContactList().forEach(elemCont->{
-            elemCont.clear();
-            if(elemCont.getItsConnection()!=null){
-                elemCont.getItsConnection().unPlug();
-            }
+            elemCont.delete();
         });
         getMechContactList().clear();
 
         getInputs().forEach(elemCont->{
-            elemCont.clear();
-            if(elemCont.getItsConnection()!=null){
-                elemCont.getItsConnection().unPlug();
-            }
+            elemCont.delete();
         });
         getInputs().clear();
 
         getOutputs().forEach(elemCont->{
-            elemCont.clear();
-            if(elemCont.getItsConnection()!=null){
-                elemCont.getItsConnection().unPlug();
-            }
+            elemCont.delete();
         });
         getOutputs().clear();
 
         RaschetKz.elementList.remove(this);
-        RaschetKz.drawBoard.getChildren().remove(this.getView());
+        getItsSystem().getDrawBoard().getChildren().remove(this.getView());
     }
 
     @Override

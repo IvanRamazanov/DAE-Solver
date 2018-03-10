@@ -5,6 +5,7 @@
  */
 package ElementBase;
 
+import Elements.Environment.Subsystem;
 import Elements.Math.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,7 @@ public class ListOfElements {
                 cat.elements.add(new SqeezeWave(true));
                 cat.elements.add(new RMSvalue(true));
                 cat.elements.add(new TransferFunction(true));
+                cat.elements.add(new Subsystem(true));
                 break;
         }
     }
@@ -130,7 +132,7 @@ public class ListOfElements {
 //            this.setOnAction((ActionEvent ae)->{
 //                elemLayout.getChildren().clear();
 //                elements.forEach(data -> {
-//                    elemLayout.getChildren().add(data.getView());
+//                    elemLayout.getChildren().add(data.getMarker());
 //                });
 //            });
             this.focusedProperty().addListener((asd,old,newval)->{

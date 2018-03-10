@@ -24,6 +24,7 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
 import MathPackODE.Solver;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,8 @@ import java.util.List;
  */
 public class SimulationTime extends MathElement{
 
-    public SimulationTime(){
-        super();
+    public SimulationTime(Subsystem sys){
+        super(sys);
         addMathContact('o');
     }
 

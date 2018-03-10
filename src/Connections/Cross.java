@@ -36,8 +36,8 @@ public class Cross extends Circle{
         });
         this.setVisible(false);
         this.setRadius(3);
-        raschetkz.RaschetKz.drawBoard.getChildren().add(this);
         this.owner=owner;
+        getOwner().getWire().getItsSystem().getDrawBoard().getChildren().add(this);
     }
 
     Cross(ConnectLine owner,double cX,double cY){
@@ -91,7 +91,7 @@ public class Cross extends Circle{
 
     public void delete(){
         unbind();
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(this);
+        getOwner().getWire().getItsSystem().getDrawBoard().getChildren().remove(this);
         owner=null;
     }
 }

@@ -19,7 +19,11 @@ public class MathOutPin extends MathPin{
     private int index;
 
     public MathOutPin(){
-        super();
+
+    }
+
+    public MathOutPin(Element owner){
+        super(owner);
     }
 
 //    /**
@@ -29,15 +33,14 @@ public class MathOutPin extends MathPin{
 //     */
 //    MathOutPin(double x,double y){
 //        this();
-//        getView().setLayoutX(x);
-//        getView().setLayoutY(y);
+//        getMarker().setLayoutX(x);
+//        getMarker().setLayoutY(y);
 //    }
 
-    MathOutPin(Element own,double x,double y){
-        this();
+    public MathOutPin(Element own,double x,double y){
+        this(own);
         getView().setLayoutX(x);
         getView().setLayoutY(y);
-        setOwner(own);
     }
 
     public List<Double> getValue(){

@@ -93,6 +93,7 @@ public class PhysSubsystem{
         List<StringGraph> function;
 
         PhysToMatOut(List<StringGraph> f){
+            super();
             function=f;
             //replace reference in matConnect
 

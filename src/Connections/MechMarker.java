@@ -1,49 +1,26 @@
 package Connections;
 
-import ElementBase.ElemMechPin;
 import ElementBase.Pin;
-import javafx.beans.property.DoubleProperty;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static Connections.MechWire.*;
 
 public class MechMarker extends LineMarker{
 //    private Wire itsWire;
-    //private ElemMechPin itsElemCont;
+    //private MechPin itsElemCont;
     //private ReadOnlyObjectProperty<Transform> eleContTransf;
 
 
-    MechMarker(){
-        super();
+    MechMarker(Wire thisWire){
+        super(thisWire);
         Circle view=new Circle();
         view.layoutXProperty().bind(bindX);
         view.layoutYProperty().bind(bindY);
         view.setRadius(4);
-        setView(view);
-
-//        itsLines.setLineDragOver(de->{
-//            if(activeWireConnect!=null){
-//                if(activeWireConnect instanceof MechMarker)
-//                    if(activeWireConnect.getWire()!=this.getWire()){
-//                        getWire().consumeWire(this,(MouseDragEvent)de);
-//                    }
-//            }
-//        });
-
-        //EVENT ZONE
+        setMarker(view);
 
         EventHandler dragMouseReleas = (EventHandler<MouseEvent>)(MouseEvent me) -> {
             activeWireConnect=null;
@@ -59,11 +36,6 @@ public class MechMarker extends LineMarker{
         view.addEventHandler(MouseDragEvent.MOUSE_RELEASED, dragMouseReleas);
         //-------------
 
-    }
-
-    MechMarker(Wire thisWire){
-        this();
-        setWire(thisWire);
         itsLines.setColor(thisWire.getWireColor());
         getWire().getWireContacts().add(this);
         pushToBack();
@@ -105,76 +77,9 @@ public class MechMarker extends LineMarker{
     }
 
     /**
-     * Удаление контакта и линии
-     */
-    @Override
-    void delete(){
-        dotReduction(activeWireConnect);
-
-        if(getItsConnectedPin()!=null){
-            getItsConnectedPin().setItsConnection(null);
-            getItsConnectedPin().getView().setOpacity(1.0);
-            setItsConnectedPin(null);
-        }
-        getWire().getWireContacts().remove(this);
-        if(getWire().getWireContacts().size()<2){
-            if(getWire().getWireContacts().isEmpty()){
-                getWire().delete();
-            }else{
-                LineMarker wm=getWire().getWireContacts().get(0);
-                if(wm.isPlugged()){
-                    getWire().delete();
-                }
-            }
-        }
-        setWire(null);
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
-        unbindEndPoint();
-        unBindStartPoint();
-        itsLines.delete();
-        itsLines=null;
-    }
-
-    /**
-     * Unplug (usually active one) wire contact. If Rank==2 delete second WireCont.
-     */
-    public void unPlug(){
-        setIsPlugged(false);
-        unbindEndPoint();
-        getItsConnectedPin().setItsConnection(null);
-        getItsConnectedPin().getView().setOpacity(1.0);
-        setItsConnectedPin(null);
-        switch(getWire().getRank()){
-            case 1:
-                MechMarker wc=new MechMarker(getWire(),this.getStartX().get(),this.getStartY().get());
-                activeWireConnect=wc;
-                //wc.setElemContact(this.getElemContact());
-                wc.bindStartTo(bindX,bindY);
-                this.bindStartTo(wc.getBindX(),wc.getBindY());
-                this.hide();
-                break;
-            case 2:
-                LineMarker loser;
-                if(getWire().getWireContacts().get(0)==this){
-                    loser=getWire().getWireContacts().get(1);
-                }else{
-                    loser=getWire().getWireContacts().get(0);
-                }
-                activeWireConnect=this;
-                Pin temp=loser.getItsConnectedPin();
-                loser.delete();
-                temp.setWirePointer(this);
-                setItsConnectedPin(temp);
-                this.show();
-                break;
-            default:
-                activeWireConnect=this;
-        }
-    }
-
-    /**
      * @return the itsBranch
      */
+    @Override
     public MechWire getWire() {
         return (MechWire) super.getWire();
     }

@@ -6,8 +6,10 @@
 package Elements;
 
 import static java.lang.StrictMath.PI;
-import ElementBase.ElemPin;
+
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -15,13 +17,13 @@ import ElementBase.SchemeElement;
  */
 public class ThreePhaseVoltageSource extends SchemeElement {
 
-    public ThreePhaseVoltageSource(){
-        super();
+    public ThreePhaseVoltageSource(Subsystem sys){
+        super(sys);
 //        Dymamic=false;
-        addElemCont(new ElemPin(this, 7, 4));//A
-        addElemCont(new ElemPin(this, 26, 4));//B
-        addElemCont(new ElemPin(this, 43, 4));//C
-        addElemCont(new ElemPin(this, 26, 66));//N
+        addElemCont(new ElectricPin(this, 7, 4));//A
+        addElemCont(new ElectricPin(this, 26, 4));//B
+        addElemCont(new ElectricPin(this, 43, 4));//C
+        addElemCont(new ElectricPin(this, 26, 66));//N
     }
 
     public ThreePhaseVoltageSource(boolean Catalog){

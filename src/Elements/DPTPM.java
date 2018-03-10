@@ -5,9 +5,10 @@
  */
 package Elements;
 
-import ElementBase.ElemMechPin;
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -16,13 +17,13 @@ import ElementBase.SchemeElement;
 public class DPTPM extends SchemeElement {
     private ScalarParameter Rya,Lya,J0,Cm,Cw,F;
 
-    public DPTPM(){
-        super();
+    public DPTPM(Subsystem sys){
+        super(sys);
 //        Dymamic=true;
-        addElemCont(new ElemPin(this, 31, 4));
-        addElemCont(new ElemPin(this, 31, 66));
-        addMechCont(new ElemMechPin(this,40,40));
-        addMechCont(new ElemMechPin(this,4,40));
+        addElemCont(new ElectricPin(this, 31, 4));
+        addElemCont(new ElectricPin(this, 31, 66));
+        addMechCont(new MechPin(this,40,40));
+        addMechCont(new MechPin(this,4,40));
     }
 
     public DPTPM(boolean Catalog){

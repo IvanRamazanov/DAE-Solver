@@ -1,6 +1,7 @@
 package Elements.Math;
 
 import ElementBase.DynamMathElem;
+import Elements.Environment.Subsystem;
 import MathPack.WorkSpace;
 import MathPackODE.Solver;
 
@@ -9,8 +10,8 @@ import java.util.List;
 
 public class RMSvalue extends DynamMathElem{
 
-    public RMSvalue(){
-        super();
+    public RMSvalue(Subsystem sys){
+        super(sys);
 
         addMathContact('i');
         addMathContact('o');

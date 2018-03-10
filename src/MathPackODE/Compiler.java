@@ -45,13 +45,13 @@ public class Compiler {
 
             for(SchemeElement elem:elemList){
                 int i=0;
-                for(ElemPin pin:elem.getElemContactList()){
+                for(ElectricPin pin:elem.getElemContactList()){
                     if(pin.getItsConnection()==null)
                         throw new Error("All electrical contacts must be connected! (Pin #"+i+" in "+elem.getName());
                     i++;
                 }
                 i=0;
-                for(ElemMechPin pin:elem.getMechContactList()){
+                for(MechPin pin:elem.getMechContactList()){
                     if(pin.getItsConnection()==null){
                         throw new Error("All mechanical contacts must be connected! (Pin #"+i+" in "+elem.getName());
                     }

@@ -1,9 +1,14 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package ElementBase;
 
+import Connections.ElectricWire;
 import Connections.LineMarker;
-import Connections.MechMarker;
-import Connections.MechWire;
 import Connections.Wire;
+import Connections.WireMarker;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -15,27 +20,34 @@ import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Circle;
 import raschetkz.RaschetKz;
 
-public class ElemMechPin extends Pin{
 
-    public ElemMechPin(SchemeElement owner){
-        setOwner(owner);
-    }
+/**
+ *
+ * @author Ivan
+ */
+public class ElectricPin extends Pin{
 
-    public ElemMechPin(SchemeElement owner, int x, int y){
+//    public ElectricPin(SchemeElement owner){
+//        super(owner);
+//    }
+
+    public ElectricPin(SchemeElement owner, int x, int y){
         super(owner,x,y);
-        setView(new Rectangle(width,height));
+        setView(new Circle());
+        ((Circle) getView()).setRadius(height);
     }
 
     @Override
     protected boolean isProperInstance(LineMarker lm) {
-        return lm instanceof MechMarker;
+        return lm instanceof WireMarker;
     }
 
     @Override
     protected Wire createWire(Pin pin, double x, double y) {
-        return new MechWire(pin,x,y);
+        return new ElectricWire(getOwner().getItsSystem(),pin,x,y);
     }
 }
+

@@ -15,9 +15,11 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import Elements.Environment.Subsystem;
 import MathPack.MatrixEqu;
 import MathPack.Parser;
 import MathPack.StringGraph;
+import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -42,8 +44,6 @@ import javafx.scene.text.*;
 import javafx.stage.Stage;
 import raschetkz.RaschetKz;
 
-import static raschetkz.RaschetKz.drawBoard;
-
 /**
  *
  * @author Ivan
@@ -58,9 +58,11 @@ public abstract class Element {
     protected Label name;
     protected List<MathInPin> mathInputs=new ArrayList();
     protected List<MathOutPin> mathOutputs=new ArrayList();
-    protected List<ElemPin> electricContacts =new ArrayList();
-    protected List<ElemMechPin> mechContacts=new ArrayList();
+    protected List<ElectricPin> electricContacts =new ArrayList();
+    protected List<MechPin> mechContacts=new ArrayList();
     private static double HEIGHT_FIT=5;
+    private Subsystem itsSystem;
+    private View view;
 
     protected double contStep=15,maxX,mathContOffset;
 
@@ -90,7 +92,7 @@ public abstract class Element {
         public void handle(MouseEvent me){
             if(me.getButton()==MouseButton.SECONDARY){
                 catCm.hide();
-                catCm.show(viewPane, me.getScreenX(), me.getScreenY());  //getView()
+                catCm.show(viewPane, me.getScreenX(), me.getScreenY());  //getMarker()
             }
             if(me.getButton()==MouseButton.PRIMARY){
                 if(me.getClickCount()==2){
@@ -101,7 +103,9 @@ public abstract class Element {
         }
     };
 
-    Element(){
+    public Element(){}
+
+    public Element(Subsystem sys){
         cm=new ContextMenu();
         MenuItem deleteMenu =new MenuItem("Удалить");
         deleteMenu.setOnAction((ActionEvent ae)-> this.delete());
@@ -112,7 +116,9 @@ public abstract class Element {
         cm.getItems().addAll(deleteMenu,paramMenu,rotate);
         imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
 
-        drawBoard.getChildren().add(this.getView());
+        //drawBoard.getChildren().add(this.getView());
+//        getView(); // for init
+        this.setItsSystem(sys);
         setParams();
 
         this.viewPane.setOnDragDetected(de->{
@@ -122,7 +128,7 @@ public abstract class Element {
         });
     }
 
-    Element(boolean catalog){
+    public Element(boolean catalog){
         if(catalog){
             catCm=new ContextMenu();
             MenuItem menu =new MenuItem("Добавить");
@@ -174,6 +180,11 @@ public abstract class Element {
         }
     }
 
+    public void setHeight(double val){
+        view.setPreserveRatio(false);
+        view.setFitHeight(val);
+    }
+
     final public Pane getView(){
         if(viewPane==null){
             viewPane=new Pane();
@@ -181,7 +192,7 @@ public abstract class Element {
             layout=new VBox();
             layout.setAlignment(Pos.TOP_CENTER);
 
-            View view=new View(imagePath,0,0);
+            view=new View(imagePath,0,0);
             viewPane.setPrefSize(Region.USE_COMPUTED_SIZE,Region.USE_COMPUTED_SIZE);
             viewPane.setMaxSize(Region.USE_PREF_SIZE,Region.USE_PREF_SIZE);
             viewPane.focusedProperty().addListener((type,oldVal,newVal)->{
@@ -254,6 +265,22 @@ public abstract class Element {
 
     abstract protected void init();
 
+    public void setItsSystem(Subsystem sys){
+        itsSystem=sys;
+
+        Pane draw = sys.getDrawBoard();
+
+        draw.getChildren().add(getView());
+
+        for(Pin p:getAllPins()){
+            p.setSystem(sys);
+        }
+    }
+
+    public Subsystem getItsSystem(){
+        return itsSystem;
+    }
+
     /**
      * Find element by its name
      * @param name
@@ -273,9 +300,9 @@ public abstract class Element {
             index=mathInputs.indexOf(pin);
         else if(pin instanceof MathOutPin)
             index=mathOutputs.indexOf(pin);
-        else  if(pin instanceof ElemPin)
+        else  if(pin instanceof ElectricPin)
             index=electricContacts.indexOf(pin);
-        else if(pin instanceof ElemMechPin)
+        else if(pin instanceof MechPin)
             index=mechContacts.indexOf(pin);
         return index;
     }
@@ -293,9 +320,9 @@ public abstract class Element {
             out=mathInputs.get(index);
         else if(pin.startsWith("MathOutPin"))
             out=mathOutputs.get(index);
-        else if(pin.startsWith("ElemPin"))
+        else if(pin.startsWith("ElectricPin"))
             out=electricContacts.get(index);
-        else if(pin.startsWith("ElemMechPin"))
+        else if(pin.startsWith("MechPin"))
             out=mechContacts.get(index);
         return out;
     }
@@ -304,10 +331,14 @@ public abstract class Element {
         if(ch=='i'){
             if(mathInputs==null) mathInputs=new ArrayList();
             MathInPin ic=new MathInPin();
+            ic.setOwner(this);
+//            MathInPin ic=new MathInPin(this);
             mathInputs.add(ic);
         }else{
             if(mathOutputs==null) mathOutputs=new ArrayList();
             MathOutPin oc=new MathOutPin();
+            oc.setOwner(this);
+//            MathOutPin oc=new MathOutPin(this);
             mathOutputs.add(oc);
         }
     }
@@ -489,12 +520,12 @@ public abstract class Element {
         return viewPane.getRotate();
     }
 
-    final protected void addElemCont(ElemPin input){
+    final protected void addElemCont(ElectricPin input){
         this.electricContacts.add(input);
         this.viewPane.getChildren().add(input.getView());
     }
 
-    final protected void addMechCont(ElemMechPin input){
+    final protected void addMechCont(MechPin input){
         this.mechContacts.add(input);
         this.viewPane.getChildren().add(input.getView());
     }
@@ -502,10 +533,10 @@ public abstract class Element {
     abstract public void delete();
 
     protected void openDialogStage() {
-        Stage subWind=new Stage();
+        final Stage subWind=new Stage();
         subWind.setTitle("Параметры: "+this.getName());
         VBox root=new VBox();
-        Scene scene=new Scene(root,300,200,Color.DARKCYAN);
+        final Scene scene=new Scene(root,300,200,Color.DARKCYAN);
         subWind.setScene(scene);
 
         Text header=new Text(getName()+"\n\n");
@@ -584,6 +615,15 @@ public abstract class Element {
         if(this.getParameters().size()>0){
             this.getParameters().get(0).requestFocus();
         }
+    }
+
+    public List<Pin> getAllPins(){
+        List<Pin> out=new ArrayList<>();
+        out.addAll(electricContacts);
+        out.addAll(mechContacts);
+        out.addAll(mathInputs);
+        out.addAll(mathOutputs);
+        return out;
     }
 
     abstract protected String getDescription();
@@ -686,6 +726,10 @@ public abstract class Element {
             text=new TextField(initVal);
             layout.getChildren().add(new Label(name));
             layout.getChildren().add(text);
+        }
+
+        public void setChangeListener(ChangeListener<String> changeListener){
+            text.textProperty().addListener(changeListener);
         }
 
         void update(){

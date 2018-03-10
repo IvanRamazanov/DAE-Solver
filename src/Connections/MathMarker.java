@@ -1,20 +1,9 @@
 package Connections;
 
 import ElementBase.MathInPin;
-import ElementBase.MathOutPin;
-import ElementBase.MathPin;
 import ElementBase.Pin;
-import javafx.beans.property.DoubleProperty;
-import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
-import javafx.scene.Node;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 import java.util.ArrayList;
@@ -24,14 +13,14 @@ import static Connections.MathWire.*;
 
 public class MathMarker extends LineMarker{
 
-    MathMarker(){
-        super();
+    MathMarker(Wire owner){
+        super(owner);
         Polygon view=new Polygon(0,0,0,8.0,6.0,6.0/2.0);
         view.setTranslateX(-2.0);
         view.setTranslateY(-3.0);
         view.layoutXProperty().bind(bindX);
         view.layoutYProperty().bind(bindY);
-        setView(view);
+        setMarker(view);
 
         view.setOnDragDetected(me->{
             Wire.activeWireConnect=this;
@@ -41,11 +30,7 @@ public class MathMarker extends LineMarker{
             view.addEventFilter(MouseEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
             view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
         });
-    }
 
-    MathMarker(Wire owner){
-        this();
-        setWire(owner);
         itsLines.setColor(owner.getWireColor());
         getWire().getWireContacts().add(this);
         pushToBack();
@@ -80,6 +65,7 @@ public class MathMarker extends LineMarker{
     /**
      * @return the itsBranch
      */
+    @Override
     public MathWire getWire() {
         return (MathWire) super.getWire();
     }
@@ -89,39 +75,12 @@ public class MathMarker extends LineMarker{
      */
     @Override
     void delete(){
-        // check if this is sourceMarker!
         if(this.equals(getWire().getSourceMarker())){
-            if(getItsConnectedPin()!=null){
-                getItsConnectedPin().setItsConnection(null);
-                getItsConnectedPin().getView().setOpacity(1.0);
-                setItsConnectedPin(null);
-            }
-            getWire().getWireContacts().remove(this);
-            raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
-            unbindEndPoint();
-            unBindStartPoint();
-            itsLines.delete();
-            itsLines=null;
-            getWire().delete();
-            setWire(null);
-            return;
-        }
-
-        dotReduction(Wire.activeWireConnect);
-
-        if(getItsConnectedPin()!=null){
-            getItsConnectedPin().clear();
-            setItsConnectedPin(null);
-        }
-        getWire().getWireContacts().remove(this);
-        if(getWire().getWireContacts().size()<2)
-            getWire().delete();
-        setWire(null);
-        raschetkz.RaschetKz.drawBoard.getChildren().remove(getView());
-        unbindEndPoint();
-        unBindStartPoint();
-        itsLines.delete();
-        itsLines=null;
+            Wire w=getWire();
+            super.delete();
+            w.delete();
+        }else
+            super.delete();
     }
 
     @Override
@@ -136,8 +95,8 @@ public class MathMarker extends LineMarker{
         if(getItsConnectedPin() instanceof MathInPin){  //==? this.connectedPin.clearWireContact();
 
             unbindEndPoint();
-            getView().setVisible(true);
-            getView().toBack();
+            getMarker().setVisible(true);
+            getMarker().toBack();
         }else{
             getWire().setSource(null); //TODO IMPLEMENT THIS!!!
 //                if(connectedPin!=null)
@@ -157,7 +116,7 @@ public class MathMarker extends LineMarker{
     @Override
     protected void activate(){
         getItsLine().activate();
-        getView().setVisible(false);
+        getMarker().setVisible(false);
 //            this.startView.setVisible(false);
     }
 
@@ -179,15 +138,14 @@ public class MathMarker extends LineMarker{
     @Override
     final public void setItsConnectedPin(Pin pin) {
         super.setItsConnectedPin(pin);
-        bindEndTo(pin.getBindX(), pin.getBindY());
-        pin.setWirePointer(this);
-        setIsPlugged(true);
+        if(pin!=null) {
+            bindEndTo(pin.getBindX(), pin.getBindY());
+            pin.setWirePointer(this);
+            setIsPlugged(true);
 
-        if(pin instanceof MathInPin)
-            ((MathInPin)pin).setSource(getWire().getSource());
-
-
-//            itsWire.getSource().setSource(destin);
+            if (pin instanceof MathInPin)
+                ((MathInPin) pin).setSource(getWire().getSource());
+        }
     }
 
     @Override
@@ -195,23 +153,4 @@ public class MathMarker extends LineMarker{
         return lm instanceof MathMarker && lm.getWire().getWireContacts().indexOf(lm)==0; // only for source marker
     }
 
-
-    /**
-     * Отрисовка линии
-     * @param x - координата в scene coord
-     * @param y
-     */
-    @Override
-    public void setEndProp(double x,double y){
-        Point2D a=new Point2D(x, y);
-        a=raschetkz.RaschetKz.drawBoard.sceneToLocal(a);
-        bindX.set(a.getX());
-        bindY.set(a.getY());
-    }
-
-    @Override
-    final public void pushToBack() {
-        super.pushToBack();
-        //startView.toBack();
-    }
 }

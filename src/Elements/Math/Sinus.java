@@ -6,6 +6,7 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
 import MathPackODE.Solver;
 import static java.lang.StrictMath.sin;
 import java.util.ArrayList;
@@ -21,8 +22,8 @@ public class Sinus extends MathElement{
     private ScalarParameter apmlitude,freq,phase;
     private final double pi=Math.PI;
 
-    public Sinus(){
-        super();
+    public Sinus(Subsystem sys){
+        super(sys);
         addMathContact('o');
     }
 

@@ -23,22 +23,21 @@
  */
 package Connections;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import ElementBase.ElemPin;
 import ElementBase.Element;
 import ElementBase.Pin;
+import Elements.Environment.Subsystem;
 import MathPack.Parser;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.PickResult;
+import javafx.scene.layout.Pane;
 import raschetkz.RaschetKz;
 
 /**
@@ -52,6 +51,58 @@ public abstract class Wire{
     private List<List<Cross>> dotList=new ArrayList<>();
     public static LineMarker activeWireConnect;
     private static String[] wireConsumptionBackup=new String[4];
+    private Cross eventCross;
+    private Subsystem itsSystem;
+    private final EventHandler<MouseDragEvent> mouseExit=new EventHandler<MouseDragEvent>() {
+        @Override
+        public void handle(MouseDragEvent event) {
+            //restore wires
+            eventCross.removeEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,this);
+            eventCross.getOwner().getWire().delete();
+            String className=wireConsumptionBackup[1];
+            Class<?> clas= null;
+            try {
+                clas = Class.forName(className);
+                Constructor<?> ctor=clas.getConstructor(Subsystem.class);
+                Wire w1=(Wire)ctor.newInstance(getItsSystem());
+                //RaschetKz.wireList.add(w1);
+                w1.configure(wireConsumptionBackup[2]);
+                Wire w2=(Wire)ctor.newInstance(getItsSystem());
+                //RaschetKz.wireList.add(w2);
+                w2.configure(wireConsumptionBackup[3]);
+
+                activeWireConnect=w1.getWireContacts().get(Integer.valueOf(wireConsumptionBackup[0]));
+                //activeWireConnect.setEndPoint(event.getX(),event.getY());
+                activeWireConnect.pushToBack();
+                Node obj=activeWireConnect.getMarker();
+                MouseEvent e1=new MouseEvent(obj,obj,MouseDragEvent.MOUSE_PRESSED,0,0,0,0,event.getButton(),1,false,false,false,false,
+                        event.isPrimaryButtonDown(),event.isMiddleButtonDown(),event.isSecondaryButtonDown(),event.isSynthesized(),event.isPopupTrigger(),
+                        true,new PickResult(obj,event.getSceneX(),event.getSceneY()));
+                MouseEvent e2=new MouseEvent(obj,obj,MouseDragEvent.DRAG_DETECTED,0,0,0,0,event.getButton(),1,false,false,false,false,
+                        event.isPrimaryButtonDown(),event.isMiddleButtonDown(),event.isSecondaryButtonDown(),event.isSynthesized(),event.isPopupTrigger(),
+                        true,event.getPickResult());
+//                MouseEvent eve=MouseEvent.copyForMouseDragEvent(event,activeWireConnect.getMarker(),event.getTarget(),MouseDragEvent.ANY,event.getGestureSource(),
+//                        event.getPickResult());
+//                setStaticEventFilters(activeWireConnect.getMarker());
+                activeWireConnect.getMarker().fireEvent(e1);
+//                activeWireConnect.getMarker().fireEvent(e2);
+//                activeWireConnect.getMarker().setOnMouseMoved(e->{
+//                    activeWireConnect.setEndPropInSceneCoordinates(e.getSceneX(),e.getSceneY());
+//                });
+
+                System.out.println("wires restored");
+            } catch (Exception e) {
+                e.printStackTrace(System.err);
+            }
+        }
+    };
+    private final EventHandler<MouseDragEvent> mouseReleased=new EventHandler<MouseDragEvent>() {
+        @Override
+        public void handle(MouseDragEvent event) {
+            eventCross.removeEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
+            eventCross.removeEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,this);
+        }
+    };
 
     public List<CrossToCrossLine> getContContList() {
         return ContContList;
@@ -68,7 +119,6 @@ public abstract class Wire{
     public void setDotList(List<List<Cross>> dotList) {
         this.dotList = dotList;
     }
-
     /**
      *
      * @param wc1 Strat marker of first WireMarker
@@ -96,6 +146,7 @@ public abstract class Wire{
         for(List<Cross> line:getDotList()){
             Cross major=line.get(0);
             major.setVisible(true);
+            major.toFront();
             for(int i=1;i<line.size();i++){
                 line.get(i).bindToCross(major);
             }
@@ -138,7 +189,8 @@ public abstract class Wire{
             }else{
                 wm=addLineMarker(this);
             }
-            wm.setEndProp(ex, ey);
+            wm.getBindX().set(ex);
+            wm.getBindY().set(ey);
             wm.setStartPoint(ax, ay);
             if(!dotlistpoint.equals("null")){  //then exist Cross in dotList
                 double[] point=Parser.parseRow(dotlistpoint);
@@ -172,7 +224,8 @@ public abstract class Wire{
                         ey=arr[3];
                 Pin p=wm.getItsConnectedPin();
                 wm.bindStartTo(p.getBindX(),p.getBindY());
-                wm.setEndProp(ex,ey);
+                wm.getBindX().set(ex);
+                wm.getBindY().set(ey);
                 wm.setIsPlugged(false);
                 break;
             case 2:
@@ -267,6 +320,14 @@ public abstract class Wire{
 
     protected String getWireColor(){
         return wireColor;
+    }
+
+    public Subsystem getItsSystem(){
+        return itsSystem;
+    }
+
+    public void setItsSystem(Subsystem sys){
+        itsSystem=sys;
     }
 
     protected void setWireColor(String color){
@@ -407,11 +468,79 @@ public abstract class Wire{
         return bw.toString();
     }
 
-    void consumeWire(LineMarker eventSource,MouseDragEvent mde){
+    void consumeWire(CrossToCrossLine eventSource,MouseDragEvent mde){
         double x=mde.getX(),y=mde.getY();
         Wire consumedWire=activeWireConnect.getWire();
 
-        wireConsumptionBackup[0]=Integer.toString(activeWireConnect.getWire().getWireContacts().indexOf(activeWireConnect));
+        wireConsumptionBackup[0]=Integer.toString(consumedWire.getWireContacts().indexOf(activeWireConnect));
+        wireConsumptionBackup[1]=getClass().getName();
+        wireConsumptionBackup[2]=consumedWire.save();
+        wireConsumptionBackup[3]=this.save();
+
+        switch(consumedWire.getRank()) {
+            case 1:
+                activeWireConnect.setWire(this);
+
+                // add to this wire
+                this.getWireContacts().add(activeWireConnect);
+
+                consumedWire.getWireContacts().remove(0);
+                consumedWire.delete();  // remove empty wire
+                //flip
+                activeWireConnect.getItsLine().getStartMarker().unbind();
+                activeWireConnect.setStartPoint(x, y);
+                activeWireConnect.bindElemContact(activeWireConnect.getItsConnectedPin());
+                addContToCont(eventSource.getStartMarker(), activeWireConnect.getItsLine().getStartMarker());
+
+                eventCross = activeWireConnect.getItsLine().getStartMarker();
+                activeWireConnect = null;
+                break;
+            case 2:
+                //?? TODO well...
+                eventCross = null;
+                break;
+            default:
+                double sx=activeWireConnect.getStartX().get(),
+                        sy=activeWireConnect.getStartY().get();
+                // merge lists
+                Point2D p=MathPack.MatrixEqu.findFirst(consumedWire.getDotList(),activeWireConnect.getItsLine().getStartMarker());
+                p=p.add(getDotList().size(),0);
+                getDotList().addAll(consumedWire.getDotList());
+                consumedWire.getWireContacts().remove(activeWireConnect);
+                this.getWireContacts().addAll(consumedWire.getWireContacts());
+                for(LineMarker lm:consumedWire.getWireContacts()){
+                    lm.setWire(this);
+                }
+                consumedWire.getWireContacts().clear();
+                this.getContContList().addAll(consumedWire.getContContList());
+                for(CrossToCrossLine lm:consumedWire.getContContList()){
+                    lm.setWire(this);
+                }
+                consumedWire.getContContList().clear();
+                consumedWire.delete();
+
+                // replace with crosToCros
+                CrossToCrossLine replacementLine = this.addContToCont(sx,sy,x,y);
+                getDotList().get((int) p.getX()).set((int)p.getY(),replacementLine.getStartMarker());
+                activeWireConnect.delete();
+                activeWireConnect=null;
+
+                this.addContToCont(eventSource.getStartMarker(),replacementLine.getEndCrossMarker());
+                eventCross=replacementLine.getEndCrossMarker();
+
+        }
+
+        eventCross.addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
+        eventCross.addEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,mouseReleased);
+    }
+
+    void consumeWire(LineMarker eventSource,MouseDragEvent mde){
+        MouseDragEvent nEvent=mde.copyFor(mde.getGestureSource(),mde.getTarget(),MouseDragEvent.MOUSE_DRAG_RELEASED);
+
+        double x=mde.getX(),y=mde.getY();
+        Wire consumedWire=activeWireConnect.getWire();
+
+        wireConsumptionBackup[0]=Integer.toString(consumedWire.getWireContacts().indexOf(activeWireConnect));
         wireConsumptionBackup[1]=getClass().getName();
         wireConsumptionBackup[2]=consumedWire.save();
         wireConsumptionBackup[3]=this.save();
@@ -444,7 +573,8 @@ public abstract class Wire{
                         bindCrosses();
 
                         // move before rebind
-                        wm.setEndProp(eventSource.getBindX().doubleValue(), eventSource.getBindY().doubleValue());
+                        wm.getBindX().set(eventSource.getBindX().doubleValue());
+                        wm.getBindY().set(eventSource.getBindY().doubleValue());
                         eventSource.bindElemContact(eventSource.getItsConnectedPin());
                         break;
                     case 2+1:
@@ -461,6 +591,8 @@ public abstract class Wire{
                         addContToCont(eventSource.getItsLine().getStartMarker(),activeWireConnect.getItsLine().getStartMarker());
                         break;
                 }
+                eventCross=activeWireConnect.getItsLine().getStartMarker();
+                activeWireConnect=null;
                 break;
             case 2:
                 System.out.println("Hi, you there!"); // TODO This case is present, when fully unplugged wire connects. Also MathWire case.
@@ -473,7 +605,7 @@ public abstract class Wire{
 
                     }
                 }
-
+                eventCross=null;
                 break;
             default:
                 double sx=activeWireConnect.getStartX().get(),
@@ -484,9 +616,15 @@ public abstract class Wire{
                 p=p.add(getDotList().size(),0);
                 getDotList().addAll(consumedWire.getDotList());
                 consumedWire.getWireContacts().remove(activeWireConnect);
-                this.getWireContacts().addAll(getWireContacts());
+                getWireContacts().addAll(consumedWire.getWireContacts());
+                for(LineMarker lm:consumedWire.getWireContacts()){
+                    lm.setWire(this);
+                }
                 consumedWire.getWireContacts().clear();
                 this.getContContList().addAll(consumedWire.getContContList());
+                for(CrossToCrossLine lm:consumedWire.getContContList()){
+                    lm.setWire(this);
+                }
                 consumedWire.getContContList().clear();
                 consumedWire.delete();
 
@@ -494,15 +632,16 @@ public abstract class Wire{
                 CrossToCrossLine replacementLine = this.addContToCont(sx,sy,x,y);
                 getDotList().get((int) p.getX()).set((int)p.getY(),replacementLine.getStartMarker());
                 activeWireConnect.delete();
-
+                activeWireConnect=null;
                 switch(rank){
                     case 1:
                         //TODO u know what to do
                         break;
                     case 2:
                         List<Cross> row=new ArrayList();
-                        row.add(replacementLine.getEndCrossMarker());
                         row.add(this.getWireContacts().get(0).getItsLine().getStartMarker());
+
+                        row.add(replacementLine.getEndCrossMarker());
                         row.add(this.getWireContacts().get(1).getItsLine().getStartMarker());
                         this.getDotList().add(row);
                         this.bindCrosses();
@@ -511,51 +650,30 @@ public abstract class Wire{
                     default:
                         this.addContToCont(eventSource.getItsLine().getStartMarker(),replacementLine.getEndCrossMarker());
                 }
+                eventCross=replacementLine.getEndCrossMarker();
         }
-        //final EventHandler<MouseEvent> mouseReleased=null;
-        final EventHandler<MouseDragEvent> mouseExit=new EventHandler<MouseDragEvent>() {
-            @Override
-            public void handle(MouseDragEvent event) {
-                //restore wires
-                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,this);
-//                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseEvent.MOUSE_RELEASED,mouseReleased);
-                activeWireConnect.getWire().delete();
-                String className=wireConsumptionBackup[1];
-                Class<?> clas= null;
-                try {
-                    clas = Class.forName(className);
-                    Constructor<?> ctor=clas.getConstructor();
-                    Wire w1=(Wire)ctor.newInstance(new Object[] {});
-                    RaschetKz.wireList.add(w1);
-                    w1.configure(wireConsumptionBackup[2]);
-                    Wire w2=(Wire)ctor.newInstance(new Object[] {});
-                    RaschetKz.wireList.add(w2);
-                    w2.configure(wireConsumptionBackup[3]);
+        eventCross.addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
+        eventCross.addEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,mouseReleased);
 
-                    activeWireConnect=w1.getWireContacts().get(Integer.valueOf(wireConsumptionBackup[0]));
-                    activeWireConnect.pushToBack();
-
-                } catch (Exception e) {
-                    e.printStackTrace(System.err);
-                }
-            }
-        };
-        final EventHandler<MouseDragEvent> mouseReleased=new EventHandler<MouseDragEvent>() {
-            @Override
-            public void handle(MouseDragEvent event) {
-                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
-                activeWireConnect.getItsLine().getStartMarker().removeEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,this);
-            }
-        };
-        activeWireConnect.getItsLine().getStartMarker().addEventFilter(MouseDragEvent.MOUSE_DRAG_EXITED,mouseExit);
-        activeWireConnect.getItsLine().getStartMarker().addEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,mouseReleased);
-
+        ((Node)mde.getGestureSource()).fireEvent(nEvent);
     }
 
     abstract public void setStaticEventFilters(Node source);
 
     public List<LineMarker> getWireContacts(){
         return wireContList;
+    }
+
+    public List<Node> getView(){
+        List<Node> out=new ArrayList<>();
+        for(LineMarker lm:getWireContacts()){
+            out.addAll(lm.getView());
+        }
+        for(CrossToCrossLine ctcl:getContContList()){
+            out.addAll(ctcl.getView());
+        }
+
+        return out;
     }
 
     void showAll(){

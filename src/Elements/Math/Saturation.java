@@ -6,6 +6,8 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
+
 import java.util.List;
 
 /**
@@ -16,8 +18,8 @@ public class Saturation extends MathElement {
 
     private ScalarParameter levelUp,levelDown;
 
-    public Saturation(){
-        super();
+    public Saturation(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('o');
     }

@@ -17,12 +17,15 @@ public class MathInPin extends MathPin{
     private MathOutPin source;
 
     MathInPin(){
-        super();
+
     }
 
-    MathInPin(Element owner,double x,double y){
-        this();
-        setOwner(owner);
+    MathInPin(Element owner){
+        super(owner);
+    }
+
+    public MathInPin(Element owner,double x,double y){
+        this(owner);
         getView().setLayoutX(x);
         getView().setLayoutY(y);
     }
