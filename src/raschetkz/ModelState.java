@@ -14,10 +14,13 @@ import ElementBase.*;
 import ElementBase.SchemeElement;
 
 import java.io.*;
+import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicReference;
 
 import Elements.Environment.Subsystem;
 import MathPack.Parser;
@@ -56,7 +59,7 @@ public class ModelState{
             bw.write("<config>");bw.newLine();
 
             bw.write("<Solver>");
-            bw.write(getSolver().getValue()); // TODO empty string
+            bw.write(getSolver().getValue());
             bw.write("</Solver>");bw.newLine();
 
             bw.write("<tEnd>");
@@ -71,18 +74,24 @@ public class ModelState{
             bw.write(Integer.toString(getJacobianEstimationType()));
             bw.write("</JacobEsim>");bw.newLine();
 
+
+
             bw.write("</config>");bw.newLine();
 
 
             bw.write("<Elements>");bw.newLine();
+            int cnt=0;
             for(Element elem:getElementList()){
+                //bw.write("<Elem"+cnt+">");bw.newLine();
                 elem.save(bw);
+                //bw.write("</Elem"+cnt+">");bw.newLine();
+                //cnt++;
             }
             bw.write("</Elements>");bw.newLine();
 
             bw.write("<WireList>");bw.newLine();
 
-            int cnt=0;
+            cnt=0;
             for(Wire w: getWireList()){
                 bw.write("<wire"+cnt+">");bw.newLine();
                 bw.write(w.save());
@@ -115,32 +124,26 @@ public class ModelState{
             clearState();
             setFileName(filePath);
 
+            Path p=new File(filePath).toPath();
+
+            parseConfig(Parser.getBlock(p,"<config>"));
+
+            AtomicReference<String> elems=new AtomicReference<>(Parser.getBlock(p,"<Elements>"));
+            if(!elems.get().isEmpty()){
+                while(!elems.get().isEmpty()){
+                    String blockName=elems.get().substring(0,elems.get().indexOf('>')+1),
+                    elemName=blockName.substring(1,blockName.length()-1),
+                            elemInfo=Parser.getBlock(p,blockName);
+
+                    Element elem=parseElement(elemName,elemInfo,elems);
+                }
+            }
+
+
             br.useDelimiter(System.lineSeparator());
             String line;
             while(br.hasNext()){
                 line=br.next();
-                if(line.equals("<config>")){
-                    StringBuilder config=new StringBuilder();
-                    while(!(line=br.next()).equals("</config>")){
-                        config.append(line+System.lineSeparator());
-                    }
-                    parseConfig(config.toString());
-                    continue;
-                }
-                if(line.equals("<Elements>")){
-                    while(!(line=br.next()).equals("</Elements>")) {
-                        String elemName=line,end="</"+elemName.substring(1);
-                        StringBuilder elementInfo=new StringBuilder();
-                        while (!(line=br.next()).equals(end)){
-                            elementInfo.append(line+System.lineSeparator());
-                        }
-                        String name=elemName.substring(1,elemName.length()-1);
-                        Element elem=parseElement(name,elementInfo.toString());
-
-                        getElementList().add(elem);
-                    }
-                    continue;
-                }
                 if(line.equals("<WireList>")){
                     while(!(line=br.next()).equals("</WireList>")) {
                         String wire=line,end="</"+wire.substring(1);
@@ -186,11 +189,23 @@ public class ModelState{
 
     private void parseWire(String wireInfo){
         String className=wireInfo.substring(wireInfo.lastIndexOf("<ClassName>")+"<ClassName>".length(),wireInfo.indexOf("</ClassName>"));
+
+        String sysName=Parser.getFirstKeyValue(wireInfo,"<Subsystem>");
+
+        Subsystem sys;
+
+        if(sysName.isEmpty()){
+            sys=mainSystem;
+        }else{
+            Element e=Element.findElement(sysName);
+            sys=(Subsystem) e;
+        }
+
         Class<?> clas= null;
         try {
             clas = Class.forName(className);
             Constructor<?> ctor=clas.getConstructor(Subsystem.class);
-            Wire w=(Wire)ctor.newInstance(mainSystem);
+            Wire w=(Wire)ctor.newInstance(sys);
 //            getWireList().add(w);
             w.configure(wireInfo);
         } catch (Exception e) {
@@ -198,17 +213,44 @@ public class ModelState{
         }
     }
 
-    private Element parseElement(String elementName,String elemInfo){
-        String className=elemInfo.substring(elemInfo.indexOf("<ClassName>")+"<ClassName>".length(),elemInfo.indexOf("</ClassName>"));
+    private Element parseElement(String name, String elemInfo, AtomicReference<String> elemBlock){
+//        String className=elemInfo.substring(elemInfo.indexOf("<ClassName>")+"<ClassName>".length(),elemInfo.indexOf("</ClassName>"));
+        String className=Parser.getFirstKeyValue(elemInfo,"<ClassName>");
+
+        String sysName=Parser.getFirstKeyValue(elemInfo,"<Subsystem>");
+
+        Subsystem sys;
+
+        if(sysName.isEmpty()){
+            sys=mainSystem;
+        }else{
+            Element e=Element.findElement(sysName);
+            if(e==null){
+                // create subsys
+                String sysInfo=Parser.getBlock(elemBlock.get(),"<"+sysName+">");
+                Element subsys=parseElement(sysName,sysInfo,elemBlock);
+                sys=(Subsystem)subsys;
+            }else
+                sys=(Subsystem) e;
+        }
+
         Element elem=null;
         try {
             Class<?> clas = Class.forName(className);
             Constructor<?> ctor=clas.getConstructor(Subsystem.class);
-            elem=(Element)ctor.newInstance(mainSystem);
-            elem.configurate(elementName,elemInfo);
+            elem=(Element)ctor.newInstance(sys);
+            elem.configurate(name,elemInfo);
+
+            getElementList().add(elem);
         } catch (Exception e) {
             e.printStackTrace(System.err);
         }
+
+        // reduce block
+        String ls=System.lineSeparator();
+        String rep="<"+name+">"+ls+elemInfo+"</"+name+">"+ls;
+        elemBlock.set(elemBlock.get().replace(rep,""));
+
         return elem;
     }
 

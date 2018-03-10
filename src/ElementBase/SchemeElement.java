@@ -16,8 +16,6 @@ import raschetkz.RaschetKz;
  */
 public abstract class SchemeElement extends Element{
 
-
-
     public SchemeElement(Subsystem sys){
         super(sys);
         maxX=viewPane.getBoundsInLocal().getMaxX();
@@ -30,10 +28,6 @@ public abstract class SchemeElement extends Element{
     }
 
     public abstract String[] getStringFunction();
-
-    public List<ElectricPin> getElemContactList(){
-        return(electricContacts);
-    }
 
     public List<MechPin> getMechContactList(){
         return mechContacts;

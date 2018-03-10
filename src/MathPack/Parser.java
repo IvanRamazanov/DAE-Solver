@@ -5,8 +5,10 @@
  */
 package MathPack;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  *
@@ -199,6 +201,48 @@ public class Parser {
         end=data.indexOf(endKey);
         out=data.substring(start,end);
         return out;
+    }
+
+    public static String getBlock(String data,String key){
+        Scanner sc=new Scanner(data);
+        sc.useDelimiter(System.lineSeparator());
+        StringBuilder out=new StringBuilder();
+        String endKey="</"+key.substring(1);
+        while(sc.hasNext()){
+            String line=sc.next();
+            if(line.equals(key)){
+                while(sc.hasNext()){
+                    line=sc.next();
+                    if(line.equals(endKey)){
+                        return out.toString();
+                    }else{
+                        out.append(line+System.lineSeparator());
+                    }
+                }
+            }
+        }
+        return "";
+    }
+
+    public static String getBlock(java.nio.file.Path path,String key) throws IOException{
+        Scanner sc=new Scanner(path);
+        StringBuilder out=new StringBuilder();
+        String endKey="</"+key.substring(1);
+        sc.useDelimiter(System.lineSeparator());
+        while(sc.hasNext()){
+            String line=sc.next();
+            if(line.equals(key)){
+                while(sc.hasNext()){
+                    line=sc.next();
+                    if(line.equals(endKey)){
+                        return out.toString();
+                    }else{
+                        out.append(line+System.lineSeparator());
+                    }
+                }
+            }
+        }
+        return null;
     }
 }
 

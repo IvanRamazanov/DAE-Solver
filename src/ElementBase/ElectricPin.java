@@ -34,7 +34,7 @@ public class ElectricPin extends Pin{
 //        super(owner);
 //    }
 
-    public ElectricPin(SchemeElement owner, int x, int y){
+    public ElectricPin(Element owner, int x, int y){
         super(owner,x,y);
         setView(new Circle());
         ((Circle) getView()).setRadius(height);

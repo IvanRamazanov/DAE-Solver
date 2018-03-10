@@ -7,6 +7,7 @@ import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
@@ -30,6 +31,7 @@ public class Subsystem extends Element {
 
     public Subsystem(){
         initGui();
+        name=new Label();
     }
 
     public Subsystem(Subsystem sys){
@@ -94,8 +96,7 @@ public class Subsystem extends Element {
 //                this.setHeight(electroPinCnt*pinStep+pinOffset*2); // TODO not fully implemented
             }
 
-            ElectricPass ep=new ElectricPass(this,leftPinCnt);
-            leftPinCnt++;
+            ElectricPass ep=new ElectricPass(this);
 
             RaschetKz.elementList.add(ep);
 
@@ -105,8 +106,7 @@ public class Subsystem extends Element {
             new ElectricWire(oldSys,oldPin,ep.outside);
         }else
             if(lm instanceof MechMarker){
-                MechPass ep=new MechPass(this,leftPinCnt);
-                leftPinCnt++;
+                MechPass ep=new MechPass(this);
 
                 RaschetKz.elementList.add(ep);
 
@@ -118,8 +118,7 @@ public class Subsystem extends Element {
             else
                 if(lm instanceof MathMarker){
                     if(lm.getItsConnectedPin() instanceof MathInPin){
-                        MathOutPass ep=new MathOutPass(this,rightPinCnt);
-                        rightPinCnt++;
+                        MathOutPass ep=new MathOutPass(this);
 
                         RaschetKz.elementList.add(ep);
 
@@ -128,8 +127,7 @@ public class Subsystem extends Element {
                         lm.bindElemContact(ep.inner);
                         new MathWire(oldSys,oldPin,ep.outside);
                     }else{
-                        MathInPass ep=new MathInPass(this,leftPinCnt);
-                        leftPinCnt++;
+                        MathInPass ep=new MathInPass(this);
 
                         RaschetKz.elementList.add(ep);
 
@@ -235,15 +233,17 @@ public class Subsystem extends Element {
     public static class MechPass extends SchemeElement{
         MechPin outside,inner;
 
-        public MechPass(Subsystem sys,int cnt){
+        public MechPass(Subsystem sys){
             super(sys);
 
-            outside=new MechPin( this,0,pinOffset+cnt*pinStep);
+            outside=new MechPin( this,0,pinOffset+sys.leftPinCnt*pinStep);
             getMechContactList().add(outside);
             outside.setSystem(sys.getItsSystem());
             sys.viewPane.getChildren().add(outside.getView());
             //add view to subsystem Pane
             addMechCont(inner=new MechPin(this,30,15)); // local pin
+
+            sys.leftPinCnt++;
         }
 
         public MechPass(boolean val){
@@ -283,10 +283,10 @@ public class Subsystem extends Element {
         private MathInPin outside;
         private MathOutPin inner;
 
-        public MathInPass(Subsystem sys,int cnt){
+        public MathInPass(Subsystem sys){
             super(sys);
 
-            outside=new MathInPin( this,0,pinOffset+cnt*pinStep);
+            outside=new MathInPin( this,0,pinOffset+sys.leftPinCnt*pinStep);
             getInputs().add(outside);
             outside.setSystem(sys.getItsSystem());
             sys.viewPane.getChildren().add(outside.getView());
@@ -294,6 +294,8 @@ public class Subsystem extends Element {
             inner=new MathOutPin(this,30,15); // local pin
             getOutputs().add(inner);
             viewPane.getChildren().add(inner.getView());
+
+            sys.leftPinCnt++;
         }
 
         public MathInPass(boolean val){
@@ -330,10 +332,10 @@ public class Subsystem extends Element {
         private MathOutPin outside;
         private MathInPin inner;
 
-        public MathOutPass(Subsystem sys,int cnt){
+        public MathOutPass(Subsystem sys){
             super(sys);
 
-            outside=new MathOutPin( this,sys.viewPane.getBoundsInLocal().getMaxX(),pinOffset+cnt*pinStep);
+            outside=new MathOutPin( this,sys.viewPane.getBoundsInLocal().getMaxX(),pinOffset+sys.rightPinCnt*pinStep);
             getOutputs().add(outside);
             outside.setSystem(sys.getItsSystem());
             sys.viewPane.getChildren().add(outside.getView());
@@ -341,6 +343,8 @@ public class Subsystem extends Element {
             inner=new MathInPin(this,0,15); // local pin
             getInputs().add(inner);
             viewPane.getChildren().add(inner.getView());
+
+            sys.rightPinCnt++;
         }
 
         public MathOutPass(boolean val){
@@ -376,15 +380,18 @@ public class Subsystem extends Element {
     public static class ElectricPass extends SchemeElement {
         ElectricPin outside,inner;
 
-        public ElectricPass(Subsystem sys,int cnt){
+        public ElectricPass(Subsystem sys){
             super(sys);
 
-            outside=new ElectricPin( this,0,pinOffset+cnt*pinStep);
+            outside=new ElectricPin( sys,0,pinOffset+sys.leftPinCnt*pinStep);
+            sys.getElemContactList().add(outside);
             getElemContactList().add(outside);
-            outside.setSystem(sys.getItsSystem());
+            //outside.setSystem(sys.getItsSystem());
             sys.viewPane.getChildren().add(outside.getView());
             //add view to subsystem Pane
             addElemCont(inner=new ElectricPin(this,30,15)); // local pin
+
+            sys.leftPinCnt++;
         }
 
         public ElectricPass(boolean val){

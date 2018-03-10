@@ -34,6 +34,7 @@ public class ListOfElements {
         list.add(new Categorie("Maths"));
         list.add(new Categorie("Mechanics"));
         list.add(new Categorie("Control systems"));
+        list.add(new Categorie("Environment"));
     }
     public List<Categorie> getCategories() {
         return(list);
@@ -113,7 +114,13 @@ public class ListOfElements {
                 cat.elements.add(new SqeezeWave(true));
                 cat.elements.add(new RMSvalue(true));
                 cat.elements.add(new TransferFunction(true));
+                break;
+            case "Environment":
                 cat.elements.add(new Subsystem(true));
+                cat.elements.add(new Subsystem.ElectricPass(true));
+                cat.elements.add(new Subsystem.MechPass(true));
+                cat.elements.add(new Subsystem.MathInPass(true));
+                cat.elements.add(new Subsystem.MathOutPass(true));
                 break;
         }
     }
