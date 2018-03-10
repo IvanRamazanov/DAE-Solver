@@ -360,6 +360,10 @@ public abstract class Wire{
         bw.append(getClass().getName());
         bw.append("</ClassName>");bw.append(eol);
 
+        bw.append("<Subsystem>");
+        bw.append(getItsSystem().getName());
+        bw.append("</Subsystem>");bw.append(eol);
+
         int i=0;
         for(LineMarker lm:getWireContacts()){
             bw.append("<SubWire"+i+">");bw.append(eol);

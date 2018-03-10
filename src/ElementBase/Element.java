@@ -343,6 +343,10 @@ public abstract class Element {
         }
     }
 
+    public List<ElectricPin> getElemContactList(){
+        return(electricContacts);
+    }
+
     /**
      *
      * @param type 'i' or 'o'
@@ -365,8 +369,8 @@ public abstract class Element {
         return out;
     }
 
-    public void configurate(String elemName,String elemInfo){
-        setName(elemName);
+    public void configurate(String name,String elemInfo){
+        setName(name);
 
         String[] lines = elemInfo.split(System.getProperty("line.separator"));
         double[] layout= Parser.parseRow(Parser.getKeyValue(lines,"<Layout>"));
@@ -450,11 +454,17 @@ public abstract class Element {
     }
 
     public final void save(BufferedWriter bw) throws IOException{
+//        bw.write("<Name>");
+//        bw.write(getName());
         bw.write("<"+getName()+">");bw.newLine();
 
         bw.write("<ClassName>");
         bw.write(getClass().getName());
         bw.write("</ClassName>");bw.newLine();
+
+        bw.write("<Subsystem>");
+        bw.write(getItsSystem().getName());
+        bw.write("</Subsystem>");bw.newLine();
 
         bw.write("<Layout>");
         String str="["+getView().getLayoutX()+" "+getView().getLayoutY()+" "+getRotation()+"]";
