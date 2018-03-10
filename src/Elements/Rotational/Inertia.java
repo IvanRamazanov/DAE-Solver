@@ -1,15 +1,16 @@
 package Elements.Rotational;
 
-import ElementBase.ElemMechPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 public class Inertia extends SchemeElement{
     ScalarParameter P;
 
-    public Inertia(){
-        super();
-        addMechCont(new ElemMechPin(this,17,2));
-        addMechCont(new ElemMechPin(this,17,52));
+    public Inertia(Subsystem sys){
+        super(sys);
+        addMechCont(new MechPin(this,17,2));
+        addMechCont(new MechPin(this,17,52));
     }
 
     public Inertia(boolean val){

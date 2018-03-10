@@ -8,7 +8,6 @@ package MathPack;
 import Connections.*;
 import ElementBase.*;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -1011,7 +1010,7 @@ public class MatrixEqu {
 
     public static int[][] getPotentialsMap(List<ElectricWire> Wires, List<SchemeElement> Elems) throws Exception{
         if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
-        List<ElemPin> conts=new ArrayList();
+        List<ElectricPin> conts=new ArrayList();
         int rowLength=0;
         for(SchemeElement elem:Elems){
             conts.addAll(elem.getElemContactList());
@@ -1058,7 +1057,7 @@ public class MatrixEqu {
 
     public static int[][] getSpeedMap(List<MechWire> Wires, List<SchemeElement> Elems) throws Exception{
         if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
-        List<ElemMechPin> conts=new ArrayList();
+        List<MechPin> conts=new ArrayList();
         int rowLength=0;
         for(SchemeElement elem:Elems){
             conts.addAll(elem.getMechContactList());
@@ -1105,7 +1104,7 @@ public class MatrixEqu {
 
     public static int[][] getCurrentsMap(List<ElectricWire> Wires, List<SchemeElement> Elems){
         if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
-        List<ElemPin> conts=new ArrayList();
+        List<ElectricPin> conts=new ArrayList();
         int rowLength=0,columnLength=0;
 
         //Рассчет размерности
@@ -1159,7 +1158,7 @@ public class MatrixEqu {
 
     public static int[][] getTorqueMap(List<MechWire> Wires, List<SchemeElement> Elems){
         if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
-        List<ElemMechPin> conts=new ArrayList();
+        List<MechPin> conts=new ArrayList();
         int rowLength=0,columnLength=0;
 
         //Рассчет размерности

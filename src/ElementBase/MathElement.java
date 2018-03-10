@@ -5,11 +5,9 @@
  */
 package ElementBase;
 
-import Connections.MathMarker;
-
-import java.util.ArrayList;
 import java.util.List;
 
+import Elements.Environment.Subsystem;
 import raschetkz.RaschetKz;
 
 /**
@@ -17,12 +15,9 @@ import raschetkz.RaschetKz;
  * @author Ivan
  */
 public abstract class MathElement extends Element{
-    //protected List<List<Double>> presentIn;
-//    private final double contStep=15;
-//    private double maxX;
 
-    public MathElement(){
-        super();
+    public MathElement(Subsystem sys){
+        super(sys);
 
         maxX=viewPane.getBoundsInLocal().getMaxX();
 
@@ -33,39 +28,21 @@ public abstract class MathElement extends Element{
         super(catalog);
     }
 
-//    final protected void addHiddenMathContact(char ch){
-//        if(ch=='i'){
-//            //if(mathInputs==null) inputs=new ArrayList();
-//            MathInPin ic=new MathInPin();
-//            getInputs().add(ic);
-//        }else{
-//            //if(outputs==null) outputs=new ArrayList();
-//            MathOutPin oc=new MathOutPin(this);
-//            getOutputs().add(oc);
-//        }
-//    }
-
     @Override
     public void delete(){
-        //disconnect !!!!!
-        this.getInputs().forEach(pin->{
-            if(pin.getItsConnection()!=null)
-                pin.getItsConnection().unPlug();
+        getInputs().forEach(elemCont->{
+            elemCont.delete();
         });
-        RaschetKz.elementList.remove(this);
-        RaschetKz.drawBoard.getChildren().remove(this.getView());
-    }
+        getInputs().clear();
 
-//    /**
-//     *
-//     * @param ch 'i' or 'o'
-//     */
-//    final protected Pin addMathContact(char ch){
-//        Pin p=super.addMathContact(ch);
-//        if(ch=='o')
-//            p.setOwner(this);
-//        return p;
-//    }
+        getOutputs().forEach(elemCont->{
+            elemCont.delete();
+        });
+        getOutputs().clear();
+
+        RaschetKz.elementList.remove(this);
+        getItsSystem().getDrawBoard().getChildren().remove(this.getView());
+    }
 
     abstract protected List<Double> getValue(int outIndex);
 
@@ -78,13 +55,6 @@ public abstract class MathElement extends Element{
 //            presentIn.add(in);
 //        }
     }
-
-//    /**
-//     * @return the parameters
-//     */
-//    public List<Parameter> getParameters() {
-//        return parameters;
-//    }
 
     /**
      * @return the inputs

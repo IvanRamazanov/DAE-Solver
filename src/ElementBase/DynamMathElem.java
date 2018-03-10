@@ -5,6 +5,7 @@
  */
 package ElementBase;
 
+import Elements.Environment.Subsystem;
 import MathPack.WorkSpace;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +18,8 @@ abstract public class DynamMathElem extends MathElement{
     protected List<WorkSpace.Variable> wsX,wsDX;
     protected VectorParameter x0;
 
-    public DynamMathElem(){
-        super();
+    public DynamMathElem(Subsystem sys){
+        super(sys);
         wsX=new ArrayList();
         wsDX=new ArrayList();
         x0=new VectorParameter("init X", 0);

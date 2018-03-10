@@ -24,6 +24,7 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
 import MathPackODE.Solver;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,8 @@ import java.util.List;
 public class Ramp extends MathElement{
     ScalarParameter slope,ton;
 
-    public Ramp(){
-        super();
+    public Ramp(Subsystem sys){
+        super(sys);
         addMathContact('o');
     }
 

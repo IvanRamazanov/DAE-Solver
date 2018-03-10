@@ -1,13 +1,14 @@
 package Elements.Rotational;
 
-import ElementBase.ElemMechPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 public class TorqueSensor extends SchemeElement{
-    public TorqueSensor(){
-        super();
-        addMechCont(new ElemMechPin(this,17,2));
-        addMechCont(new ElemMechPin(this,17,52));
+    public TorqueSensor(Subsystem sys){
+        super(sys);
+        addMechCont(new MechPin(this,17,2));
+        addMechCont(new MechPin(this,17,52));
 
         addMathContact('o');
     }

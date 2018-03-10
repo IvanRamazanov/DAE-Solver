@@ -1,6 +1,7 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
 import MathPackODE.Solver;
 
 import java.util.ArrayList;
@@ -10,8 +11,8 @@ public class SqeezeWave extends MathElement{
     private ScalarParameter fStart,fEnd,slopeTime,A,phaseShift;
     private final double pi=Math.PI;
 
-    public SqeezeWave(){
-        super();
+    public SqeezeWave(Subsystem sys){
+        super(sys);
 
         addMathContact('o');
     }

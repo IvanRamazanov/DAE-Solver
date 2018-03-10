@@ -23,8 +23,9 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -32,11 +33,11 @@ import ElementBase.SchemeElement;
  */
 public class PNPtrans extends SchemeElement {
     ScalarParameter Is,bf,br,Vt;
-    public PNPtrans(){
-        super();
-        addElemCont(new ElemPin(this, 32, 9)); //C
-        addElemCont(new ElemPin(this, 32, 84)); //E
-        addElemCont(new ElemPin(this, 6, 46)); //B
+    public PNPtrans(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 32, 9)); //C
+        addElemCont(new ElectricPin(this, 32, 84)); //E
+        addElemCont(new ElectricPin(this, 6, 46)); //B
     }
 
     public PNPtrans(boolean catalog){

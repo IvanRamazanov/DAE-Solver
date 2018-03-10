@@ -5,8 +5,9 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -14,10 +15,10 @@ import ElementBase.SchemeElement;
  */
 public class Inductance extends SchemeElement {
 
-    public Inductance(){
-        super();
-        addElemCont(new ElemPin(this, 12, 5));
-        addElemCont(new ElemPin(this, 12, 60));
+    public Inductance(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 5));
+        addElemCont(new ElectricPin(this, 12, 60));
     }
     public Inductance(boolean Catalog){
         super(Catalog);

@@ -6,8 +6,8 @@
 package raschetkz;
 
 import Connections.Wire;
+import Elements.Environment.Subsystem;
 import MathPackODE.Rechatel;
-import ElementBase.ElemSerialization;
 import ElementBase.Element;
 import ElementBase.ListOfElements;
 import MathPack.StringFunctionSystem;
@@ -17,31 +17,25 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
-import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import javafx.scene.input.MouseEvent;
-import ElementBase.SchemeElement;
+
 import java.io.File;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.paint.Color;
 import javafx.stage.WindowEvent;
 import javafx.util.converter.DoubleStringConverter;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyCombination;
-import javafx.scene.input.TransferMode;
 
 /**
  *
@@ -49,33 +43,23 @@ import javafx.scene.input.TransferMode;
  */
 public class RaschetKz extends Application{
     private static String[] arguments;
-    Button stopBtn;
-
+    private Button stopBtn;
     public SimpleStringProperty solverType;
-
     public static List<Element> elementList;
-
-//    public static List<SchemeElement> ElementList;
-//    public static List<MathElement> MathElemList;
-//    public static List<ElectricWire> BranchList;
-//    public static List<MechWire> MechWireList;
     public static List<Wire> wireList;
-//    public static List<MathWire> mathContsList;//!!!!!!!!!!!!
-
-    public static Pane drawBoard;
+    private Subsystem mainSystem;
     public static ProgressBar progBar=new ProgressBar(0);
-    public SimpleDoubleProperty dt,t_end,absTol,relTol;//????????
-    ModelState state;
-    boolean isSaveNeeded;
-    Stage parentStage;
+    public SimpleDoubleProperty dt,t_end,absTol,relTol;
+    private ModelState state;
+    private boolean isSaveNeeded;
+    private Stage parentStage;
     private static Label Status;
     private Label currentFile=new Label("untitled");
-
     private Logger myLog=new Logger();
 
     @Override
     public void start(Stage primaryStage) {
-        System.setErr(new PrintStream(myLog));
+        //System.setErr(new PrintStream(myLog));
 
         state=new ModelState();
         dt=state.getDt();
@@ -88,7 +72,7 @@ public class RaschetKz extends Application{
         relTol.set(1e-3);
         solverType=state.getSolver();
         parentStage=primaryStage;
-        drawBoard=state.getDrawBoard();
+        mainSystem=state.getMainSystem();
         elementList=state.getElementList();
         wireList=state.getWireList();
         switch(arguments.length) {
@@ -170,9 +154,7 @@ public class RaschetKz extends Application{
             Status.textProperty().bind(eval.messageProperty());
             tr.start();
             stopBtn.setOnAction(e->{
-                //Status.
                 eval.cancel();
-
             });
 
             stopBtn.setDisable(false);
@@ -191,44 +173,21 @@ public class RaschetKz extends Application{
                 Status.setText("Fatal error");
                 stopBtn.setDisable(true);
                 startBtn.setDisable(false);
-
                 myLog.errorLayout();
             });
-//            MathPackODE.Compiler compiler=new MathPackODE.Compiler();
-//            DAE sys=compiler.evalNumState(state);
         });
         bottomBox.add(startBtn,4,0);
         stopBtn=new Button("Stop");
         stopBtn.setDisable(true);
         bottomBox.add(stopBtn,5,0);
         Button errBtn=new Button();
+
         myLog.setButton(errBtn);
+        errBtn.setMaxHeight(24);
         bottomBox.add(errBtn,6,0);
         rootBp.setBottom(bottomBox);
-        ScrollPane scrllPane = new ScrollPane(drawBoard);
-        scrllPane.setPannable(true);
-        scrllPane.setOnDragDetected((MouseEvent me)->{
-            scrllPane.setCursor(Cursor.CLOSED_HAND);
-        });
 
-        scrllPane.setOnDragOver(de->{
-            //de.getDragboard().getContentTypes().contains(de)
-            de.acceptTransferModes(TransferMode.ANY);
-        });
-        scrllPane.setOnDragDropped(de->{
-
-            ElemSerialization content=(ElemSerialization)de.getDragboard().getContent(SchemeElement.CUSTOM_FORMAT);
-            Element obj=content.deserialize();
-            obj.getView().setLayoutX(de.getX());
-            obj.getView().setLayoutY(de.getY());
-
-            elementList.add(obj);
-
-            de.setDropCompleted(true);
-            de.consume();
-        });
-
-        rootBp.setCenter(scrllPane);
+        rootBp.setCenter(mainSystem.getScrollPane());
     }
 
     void createElementCatalog(){
@@ -242,14 +201,10 @@ public class RaschetKz extends Application{
         scene.getStylesheets().add("raschetkz/mod.css");
 
         TilePane elems=new TilePane(Orientation.HORIZONTAL, 5, 5);
-        elems.getChildren().addListener(new ListChangeListener<Node>() {
-                                            @Override
-                                            public void onChanged(Change<? extends Node> c) {
-                                                if(c.getList().isEmpty())
-                                                    elems.setTranslateY(0);
-                                            }
-                                        }
-        );
+        elems.getChildren().addListener((ListChangeListener<Node>) c -> {
+            if(c.getList().isEmpty())
+                elems.setTranslateY(0);
+        });
         elems.setOnScroll(se->{
             double val=elems.getTranslateY(),dy=se.getDeltaY();
             if(dy>0){
@@ -285,7 +240,6 @@ public class RaschetKz extends Application{
     }
 
     MenuBar createMenu(){
-        FileChooser fileChoose = new FileChooser();
         MenuBar menuBar = new MenuBar();
         Menu fileMenu = new Menu("File");
         MenuItem newFile= new MenuItem("New");
@@ -346,7 +300,7 @@ public class RaschetKz extends Application{
         Menu evalMenu = new Menu("Simulation");
 
         MenuItem config=new MenuItem("Solver configuration");
-        config.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+g"));
+        //config.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+g"));
         config.setOnAction((ActionEvent ae)->{
             showConfigurator();
         });
@@ -417,22 +371,19 @@ public class RaschetKz extends Application{
         root.setTop(top);
         HBox bot=new HBox();
         Button okBtn=new Button("Ok");
-        okBtn.setOnAction(new EventHandler<ActionEvent>(){
-            @Override
-            public void handle(ActionEvent ae){
-                try {
-                    DoubleStringConverter conv=new DoubleStringConverter();
-                    dt.set(conv.fromString(delta.getText()));
-                    t_end.set(conv.fromString(endTime.getText()));
-                    solverType.set((String)solver.getValue());
-                    state.setJacobianEstimationType(jacobEstType.getItems().indexOf(jacobEstType.getValue()));
-                    absTol.set(conv.fromString(abst.getText()));
-                    relTol.set(conv.fromString(relt.getText()));
-                } catch (Exception e) {
-                    layoutString(e.getMessage());
-                }
-                subWind.close();
-            };
+        okBtn.setOnAction(ae -> {
+            try {
+                DoubleStringConverter conv=new DoubleStringConverter();
+                dt.set(conv.fromString(delta.getText()));
+                t_end.set(conv.fromString(endTime.getText()));
+                solverType.set((String)solver.getValue());
+                state.setJacobianEstimationType(jacobEstType.getItems().indexOf(jacobEstType.getValue()));
+                absTol.set(conv.fromString(abst.getText()));
+                relTol.set(conv.fromString(relt.getText()));
+            } catch (Exception e) {
+                layoutString(e.getMessage());
+            }
+            subWind.close();
         });
         Button applyBtn=new Button("Apply");
         applyBtn.setOnAction((ActionEvent ae)->{
@@ -479,8 +430,9 @@ public class RaschetKz extends Application{
         root.getChildren().add(lbl);
         Scene sc=new Scene(root,300,50);
         stag.setScene(sc);
-//        stag.setResizable(false);
         stag.show();
     }
+
+
 }
 

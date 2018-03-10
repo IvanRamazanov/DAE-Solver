@@ -25,6 +25,8 @@ package ElementBase;
 
 import ElementBase.Element.Parameter;
 import ElementBase.Element.InitParam;
+import Elements.Environment.Subsystem;
+
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -67,12 +69,12 @@ public class ElemSerialization implements Serializable{
 
     }
 
-    public Element deserialize(){
+    public Element deserialize(Subsystem sys){
         Element out=null;
         try {
             Class<?> clas=Class.forName(elemName);
-            Constructor<?> ctor=clas.getConstructor();
-            out=(Element)ctor.newInstance(new Object[] {});
+            Constructor<?> ctor=clas.getConstructor(Subsystem.class);
+            out=(Element)ctor.newInstance(sys);
             out.setRotation(rotation);
 
             int i=0;
@@ -88,7 +90,8 @@ public class ElemSerialization implements Serializable{
             }
 
         } catch (Exception ex) {
-            Logger.getLogger(ElemSerialization.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace(System.err);
+            //Logger.getLogger(ElemSerialization.class.getName()).log(Level.SEVERE, null, ex);
         }
         return out;
     }

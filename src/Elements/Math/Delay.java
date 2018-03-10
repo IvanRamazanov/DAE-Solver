@@ -2,6 +2,7 @@ package Elements.Math;
 
 import ElementBase.MathElement;
 import ElementBase.Updatable;
+import Elements.Environment.Subsystem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +11,8 @@ public class Delay extends MathElement implements Updatable{
     private List<Double> tmp=new ArrayList<>(),
                         out=new ArrayList<>();;
 
-    public Delay(){
-        super();
+    public Delay(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('o');
     }

@@ -1,12 +1,13 @@
 package Elements.Rotational;
 
-import ElementBase.ElemMechPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 public class RotationReference extends SchemeElement {
-    public RotationReference(){
-        super();
-        addMechCont(new ElemMechPin(this,6,6));
+    public RotationReference(Subsystem sys){
+        super(sys);
+        addMechCont(new MechPin(this,6,6));
     }
     public RotationReference(boolean val){
         super(val);

@@ -12,23 +12,12 @@ import javafx.scene.paint.Paint;
 import java.util.ArrayList;
 import java.util.List;
 
-import static Connections.ElectricWire.WC_MOUSE_DRAG;
-import static Connections.ElectricWire.WC_MOUSE_RELEAS;
-import static Connections.MathWire.MC_MOUSE_DRAG;
-import static Connections.MathWire.MC_MOUSE_RELEAS;
-import static Connections.MechWire.MeC_MOUSE_DRAG;
-import static Connections.MechWire.MeC_MOUSE_RELEAS;
-
 class CrossToCrossLine extends ConnectLine{
     private Cross endCrossMarker;
     private Wire owner;
-    /**
-     *
-     * @param wc1
-     * @param wc2 new one
-     */
-    CrossToCrossLine(Wire owner,Cross wc1,Cross wc2){
-        super();
+
+    private CrossToCrossLine(Wire owner){
+        super(owner);
 
         this.getLines().forEach(extLine->{
             //extLine.setOnKeyReleased(null);
@@ -39,11 +28,54 @@ class CrossToCrossLine extends ConnectLine{
             });
         });
 
-        this.owner=owner;
-        //this.getStartMarker().setVisible(true);
+        setLineDragOver(de->{
+            if(Wire.activeWireConnect!=null){
+                if(getWire().getWireContacts().get(0).isProperInstance(Wire.activeWireConnect))
+                    if(Wire.activeWireConnect.getWire()!=getWire()){
+                        getWire().consumeWire(this,(MouseDragEvent)de);
+                    }
+            }
+        });
+
+        setLineDragDetect((EventHandler<MouseDragEvent>)(MouseDragEvent me)->{
+            if(me.getButton().equals(MouseButton.SECONDARY)){
+                double x=me.getX(),y=me.getY();
+                CrossToCrossLine newOne=getWire().addContToCont(x,y,
+                        this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
+                this.getEndCrossMarker().unbind();
+                this.setEndXY(x, y);
+
+                List<Cross> line=new ArrayList();
+
+                //create new WireMarker
+                Wire.activeWireConnect = new WireMarker(getWire(),x,y);
+                line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
+                getWire().setStaticEventFilters(((Node) me.getGestureSource()));
+                Wire.activeWireConnect.startFullDrag();
+
+                // dotList manipulation
+                line.add(this.getEndCrossMarker());
+                line.add(newOne.getStartMarker());
+                //replace old crTcr end to new end
+                Point2D p=MathPack.MatrixEqu.findFirst(getWire().getDotList(), this.getEndCrossMarker());
+                getWire().getDotList().get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
+                getWire().getDotList().add(line);
+
+                getWire().bindCrosses();
+            }
+        });
+    }
+
+    /**
+     *
+     * @param wc1
+     * @param wc2 new one
+     */
+    CrossToCrossLine(Wire owner,Cross wc1,Cross wc2){
+        this(owner);
+
         this.setStartXY(wc1.getCenterX(), wc1.getCenterY());
         endCrossMarker=new Cross(this,wc2.getCenterX(),wc2.getCenterY());
-        //endCrossMarker.setVisible(true);
         this.getEndX().bind(endCrossMarker.centerXProperty());
         this.getEndY().bind(endCrossMarker.centerYProperty());
         endCrossMarker.centerXProperty().addListener(super.getPropListen());
@@ -58,57 +90,14 @@ class CrossToCrossLine extends ConnectLine{
                 line.add(0, getStartMarker()); // set new major cross - CrToCr start one
                 // add new line
                 List<Cross> nLine=new ArrayList();
+                nLine.add(wc2);
                 nLine.add(endCrossMarker);
                 nLine.add(wc1);
-                nLine.add(wc2);
                 owner.getDotList().add(nLine);
                 owner.bindCrosses();
                 break;
             }
         }
-
-        setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-            if(me.getButton().equals(MouseButton.SECONDARY)){
-                double x=me.getX(),y=me.getY();
-                CrossToCrossLine newOne=owner.addContToCont(x,y,
-                        this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
-                this.getEndCrossMarker().unbind();
-                this.setEndXY(x, y);
-
-                List<Cross> line=new ArrayList();
-
-                //create new WireMarker
-                if(owner instanceof ElectricWire) {
-                    Wire.activeWireConnect = new WireMarker(owner,x,y);
-                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                    Wire.activeWireConnect.startFullDrag();
-                }else if(owner instanceof MechWire){
-                    Wire.activeWireConnect = new MechMarker(owner,x,y);
-                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
-                    Wire.activeWireConnect.startFullDrag();
-                }else if(owner instanceof MathWire){
-                    Wire.activeWireConnect = new MathMarker(owner,x,y);
-                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-                    Wire.activeWireConnect.startFullDrag();
-                }
-
-                // dotList manipulation
-                line.add(this.getEndCrossMarker());
-                line.add(newOne.getStartMarker());
-                //replace old crTcr end to new end
-                Point2D p=MathPack.MatrixEqu.findFirst(owner.getDotList(), this.getEndCrossMarker());
-                owner.getDotList().get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
-                owner.getDotList().add(line);
-
-                owner.bindCrosses();
-            }
-        });
     }
 
     /**
@@ -119,72 +108,18 @@ class CrossToCrossLine extends ConnectLine{
      * @param ey
      */
     CrossToCrossLine(Wire owner,double sx,double sy,double ex,double ey){
-        super();
+        this(owner);
 
-        this.getLines().forEach(extLine->{
-            //extLine.setOnKeyReleased(null);
-            extLine.setOnKeyReleased(k->{
-                if(k.getCode()==KeyCode.DELETE){
-                    this.delete();
-                }
-            });
-        });
-
-        this.owner=owner;
         this.setStartXY(sx, sy);
         endCrossMarker=new Cross(this,ex,ey);
         this.getEndX().bind(endCrossMarker.centerXProperty());
         this.getEndY().bind(endCrossMarker.centerYProperty());
         endCrossMarker.centerXProperty().addListener(super.getPropListen());
         endCrossMarker.centerYProperty().addListener(super.getPropListen());
-
-        setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-            if(me.getButton().equals(MouseButton.SECONDARY)){
-                double x=me.getX(),y=me.getY();
-                CrossToCrossLine newOne=owner.addContToCont(x,y,
-                        this.getEndCrossMarker().getCenterX(),this.getEndCrossMarker().getCenterY());
-                this.getEndCrossMarker().unbind();
-                this.setEndXY(x, y);
-
-                //create new WireMarker
-                List<Cross> line=new ArrayList();
-
-                if(owner instanceof ElectricWire) {
-                    Wire.activeWireConnect = new WireMarker(owner,x,y);
-                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-                    Wire.activeWireConnect.startFullDrag();
-                }else if(owner instanceof MechWire){
-                    Wire.activeWireConnect = new MechMarker(owner,x,y);
-                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
-                    Wire.activeWireConnect.startFullDrag();
-                }else if(owner instanceof MathWire){
-                    Wire.activeWireConnect = new MathMarker(owner,x,y);
-                    line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MC_MOUSE_DRAG);
-                    ((Node) me.getSource()).addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
-                    Wire.activeWireConnect.startFullDrag();
-                }
-
-                // dotList manipulation
-                line.add(this.getEndCrossMarker());
-                line.add(newOne.getStartMarker());
-                //replace old crTcr end to new end
-                Point2D p=MathPack.MatrixEqu.findFirst(owner.getDotList(), this.getEndCrossMarker());
-                owner.getDotList().get((int)p.getX()).set((int)p.getY(), newOne.getEndCrossMarker());
-                owner.getDotList().add(line);
-
-                owner.bindCrosses();
-            }
-        });
     }
 
     @Override
     public void delete(){
-        //implement
         deleteQuiet();
         owner.delete();
     }
@@ -199,10 +134,20 @@ class CrossToCrossLine extends ConnectLine{
         endCrossMarker.delete();
     }
 
+
+
     @Override
     public void setColor(String rgb){
         super.setColor(rgb);
         getEndCrossMarker().setFill(Paint.valueOf(rgb));
+    }
+
+    @Override
+    List<Node> getView(){
+        List<Node> out=super.getView();
+        out.add(getEndCrossMarker());
+
+        return out;
     }
 
     /**
@@ -215,5 +160,9 @@ class CrossToCrossLine extends ConnectLine{
     final void setEndXY(double x,double y){
         getEndCrossMarker().setCenterX(x);
         getEndCrossMarker().setCenterY(y);
+    }
+
+    public void setWire(Wire owner) {
+        this.owner = owner;
     }
 }

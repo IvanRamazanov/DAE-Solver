@@ -1,20 +1,21 @@
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 import java.util.List;
 
 public class ThreePhLoad extends SchemeElement{
     ScalarParameter Ra,Rb,Rc;
 
-    public ThreePhLoad(){
-        super();
-        addElemCont(new ElemPin(this, 4, 4));   //A
-        addElemCont(new ElemPin(this, 20, 4));  //B
-        addElemCont(new ElemPin(this, 40, 4));  //C
-        addElemCont(new ElemPin(this, 20, 60));
-//        addElemCont(new ElemPin(this, 4, 60));  //N
+    public ThreePhLoad(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 4, 4));   //A
+        addElemCont(new ElectricPin(this, 20, 4));  //B
+        addElemCont(new ElectricPin(this, 40, 4));  //C
+        addElemCont(new ElectricPin(this, 20, 60));
+//        addElemCont(new ElectricPin(this, 4, 60));  //N
     }
 
     public ThreePhLoad(boolean val){

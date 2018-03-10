@@ -19,12 +19,15 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static Connections.Wire.activeWireConnect;
 
 
 /**
@@ -38,12 +41,14 @@ public abstract class LineMarker{
     protected ConnectLine itsLines;
     protected SimpleBooleanProperty plugged;
     protected EventHandler lineDraggedDetect;
-    private Shape view;
+    private Shape marker;
 
     private Wire itsWire;
     private Pin itsConnectedPin;
 
-    LineMarker(){
+    LineMarker(Wire itswire){
+        setWire(itswire);
+
         itsLines=new ConnectLine(this);
         this.plugged=new SimpleBooleanProperty(false);
         this.plugged.addListener((Boolean,old,newval)->{
@@ -54,42 +59,47 @@ public abstract class LineMarker{
             }
         });
 
-        itsLines.setLineDragDetect((EventHandler<MouseEvent>)(MouseEvent me)->{
-            if(me.getButton()== MouseButton.SECONDARY){
-                if(getWire().getWireContacts().size()==1){
+        EventHandler<MouseEvent> dd=new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent me) {
+                if(me.getButton()== MouseButton.SECONDARY){
+                    if(getWire().getWireContacts().size()==1){
+                        me.consume();
+                        return;
+                    }
+                    if(getWire().getWireContacts().size()==2){
+                        LineMarker newCont=getWire().addLineMarker(getWire(),me.getX(), me.getY());
+                        Wire.activeWireConnect=newCont;
+                        adjustCrosses(newCont,
+                                getWire().getWireContacts().get(0),
+                                getWire().getWireContacts().get(1));
+                        List<Cross> list=new ArrayList();
+                        list.add(newCont.getItsLine().getStartMarker());
+                        list.add(getWire().getWireContacts().get(0).getItsLine().getStartMarker());
+                        list.add(getWire().getWireContacts().get(1).getItsLine().getStartMarker());
+                        getWire().getDotList().add(list);
+
+                        getWire().setStaticEventFilters((Node)me.getSource());
+
+                        newCont.startFullDrag();
+                        getWire().showAll();
+                        me.consume();
+                    }
+                    else{
+                        LineMarker newCont=getWire().addLineMarker(getWire(),me.getX(), me.getY());
+                        Wire.activeWireConnect=newCont;
+
+                        getWire().setStaticEventFilters((Node)me.getSource());
+
+                        newCont.startFullDrag();
+                        getWire().addContToCont(getItsLine().getStartMarker(),newCont.getItsLine().getStartMarker());
+                    }
                     me.consume();
-                    return;
                 }
-                if(getWire().getWireContacts().size()==2){
-                    LineMarker newCont=getWire().addLineMarker(getWire(),me.getX(), me.getY());
-                    Wire.activeWireConnect=newCont;
-                    adjustCrosses(newCont,
-                            getWire().getWireContacts().get(0),
-                            getWire().getWireContacts().get(1));
-                    List<Cross> list=new ArrayList();
-                    list.add(newCont.getItsLine().getStartMarker());
-                    list.add(getWire().getWireContacts().get(0).getItsLine().getStartMarker());
-                    list.add(getWire().getWireContacts().get(1).getItsLine().getStartMarker());
-                    getWire().getDotList().add(list);
-
-                    getWire().setStaticEventFilters((Node)me.getSource());
-
-                    newCont.startFullDrag();
-                    getWire().showAll();
-                    me.consume();
-                }
-                else{
-                    LineMarker newCont=getWire().addLineMarker(getWire(),me.getX(), me.getY());
-                    Wire.activeWireConnect=newCont;
-
-                    getWire().setStaticEventFilters((Node)me.getSource());
-
-                    newCont.startFullDrag();
-                    getWire().addContToCont(this.getItsLine().getStartMarker(),newCont.getItsLine().getStartMarker());
-                }
-                me.consume();
             }
-        });
+        };
+
+        itsLines.setLineDragDetect(dd);
 
         itsLines.setLineDragOver(de->{
             if(Wire.activeWireConnect!=null){
@@ -101,10 +111,75 @@ public abstract class LineMarker{
         });
     }
 
-    abstract void delete();
+    void delete(){
+        dotReduction(activeWireConnect);
+
+        if(getItsConnectedPin()!=null){
+            getItsConnectedPin().setItsConnection(null);
+            getItsConnectedPin().getView().setOpacity(1.0);
+            //setItsConnectedPin(null);
+        }
+        getWire().getWireContacts().remove(this);
+        if(getWire().getWireContacts().size()<2){
+            if(getWire().getWireContacts().isEmpty()){
+                getWire().delete();
+            }else{
+                LineMarker wm=getWire().getWireContacts().get(0);
+                if(wm.isPlugged()){
+                    getWire().delete();
+                }
+            }
+        }
+        getWire().getItsSystem().getDrawBoard().getChildren().remove(getMarker());
+        setWire(null);
+        unbindEndPoint();
+        unBindStartPoint();
+        itsLines.delete();
+        itsLines=null;
+    }
+
+    public void unPlug(){
+        setIsPlugged(false);
+        unbindEndPoint();
+        getItsConnectedPin().setItsConnection(null);
+        getItsConnectedPin().getView().setOpacity(1.0);
+        //getItsConnectedPin().toFront();
+        setItsConnectedPin(null);
+        switch(getWire().getRank()){
+            case 1:
+                //System.out.println("Unplug in WireMarker case 1");
+                //WireMarker wc=new WireMarker(getWire(),this.getStartX().get(),this.getStartY().get());
+                LineMarker wc=getWire().addLineMarker(getWire(),this.getStartX().get(),this.getStartY().get());
+                activeWireConnect=wc;
+                //wc.setElemContact(this.getElemContact());
+                wc.bindStartTo(bindX,bindY);
+                this.bindStartTo(wc.getBindX(),wc.getBindY());
+                this.hide();
+                break;
+            case 2:
+                //System.out.println("Unplug in WireMarker case 2");
+                LineMarker loser;
+                if(getWire().getWireContacts().get(0)==this){
+                    loser=getWire().getWireContacts().get(1);
+                }else{
+                    loser=getWire().getWireContacts().get(0);
+                }
+                activeWireConnect=this;
+                Pin temp=loser.getItsConnectedPin();
+                loser.delete();
+                temp.setWirePointer(this);
+                setItsConnectedPin(temp);
+                this.show();
+                //temp.toFront();
+                break;
+            default:
+                //System.out.println("Unplug in WireMarker case default");
+                activeWireConnect=this;
+        }
+    }
 
     public void pushToBack() {
-        view.toBack();
+        marker.toBack();
         for(Line l:this.itsLines.getLines()){
             l.toBack();
         }
@@ -162,20 +237,23 @@ public abstract class LineMarker{
         eleCont.toFront();
     }
 
-    abstract public void unPlug();
-
     /**
      * Отрисовка линии
      * @param x - координата в scene coord
      * @param y
      */
-    public void setEndProp(double x,double y){
+    public void setEndPropInSceneCoordinates(double x,double y){
         Point2D a=new Point2D(x, y);
-        a=raschetkz.RaschetKz.drawBoard.sceneToLocal(a);
+        a=getWire().getItsSystem().getDrawBoard().sceneToLocal(a);
         if(!bindX.isBound()){
             bindX.set(a.getX());
             bindY.set(a.getY());
         }
+    }
+
+    public void setEndPoint(double x,double y){
+        bindX.set(x);
+        bindY.set(y);
     }
 
     public void setStartPoint(double x,double y){
@@ -187,7 +265,7 @@ public abstract class LineMarker{
      */
     protected void activate(){
         //activeWireContact=this;
-        view.setVisible(false);
+        marker.setVisible(false);
         getItsLine().activate();
     }
 
@@ -196,7 +274,7 @@ public abstract class LineMarker{
      */
     protected void diactivate(){
         getItsLine().diactivate();
-        view.setVisible(true);
+        marker.setVisible(true);
         //activeWireContact=null;
     }
 
@@ -218,8 +296,8 @@ public abstract class LineMarker{
             switch(getWire().getDotList().size()){
                 case 1: //triple line Wire
                     getWire().getDotList().get(0).remove((int)p.getY());
-                    LineMarker major = getWire().getDotList().get(0).get(0).getOwner().marker;
-                    LineMarker minor = getWire().getDotList().get(0).get(1).getOwner().marker;
+                    LineMarker major = getWire().getDotList().get(0).get(0).getOwner().getMarker();
+                    LineMarker minor = getWire().getDotList().get(0).get(1).getOwner().getMarker();
                     getWire().getDotList().remove(0);
                     if(!major.isPlugged()&&!minor.isPlugged()){
                         // TODO implement this! Floating wire case
@@ -330,7 +408,7 @@ public abstract class LineMarker{
     }
 
     public void startFullDrag(){
-        view.startFullDrag();
+        marker.startFullDrag();
     }
 
     public static void adjustCrosses(LineMarker... inp){
@@ -380,15 +458,15 @@ public abstract class LineMarker{
         return this.itsLines.getStartY();
     }
 
-    protected Shape getView() {
-        return view;
+    protected Shape getMarker() {
+        return marker;
     }
 
-    protected void setView(Shape vview) {
-        if(view!=null)
-            raschetkz.RaschetKz.drawBoard.getChildren().remove(view);
+    protected void setMarker(Shape vview) {
+        if(marker !=null)
+            getWire().getItsSystem().getDrawBoard().getChildren().remove(marker);
 
-        view = vview;
+        marker = vview;
 
         EventHandler connDragDetectHandle =(EventHandler<MouseEvent>) (MouseEvent me) -> {
             if(me.getButton()== MouseButton.PRIMARY){
@@ -399,33 +477,42 @@ public abstract class LineMarker{
         };
 
         EventHandler enterMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
-            view.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
-            //view.toFront();
-            view.setCursor(Cursor.HAND);
+            marker.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
+            //marker.toFront();
+            marker.setCursor(Cursor.HAND);
         };
 
         EventHandler exitMouse= (EventHandler<MouseEvent>)(MouseEvent me) ->{
-            view.setEffect(null);
-            view.setCursor(Cursor.DEFAULT);
+            marker.setEffect(null);
+            marker.setCursor(Cursor.DEFAULT);
         };
 
-        view.addEventHandler(MouseDragEvent.DRAG_DETECTED, connDragDetectHandle);
-        view.addEventHandler(MouseEvent.MOUSE_ENTERED, enterMouse);
-        view.addEventHandler(MouseEvent.MOUSE_EXITED, exitMouse);
+        marker.addEventHandler(MouseDragEvent.DRAG_DETECTED, connDragDetectHandle);
+        marker.addEventHandler(MouseEvent.MOUSE_ENTERED, enterMouse);
+        marker.addEventHandler(MouseEvent.MOUSE_EXITED, exitMouse);
 
-        raschetkz.RaschetKz.drawBoard.getChildren().add(view);
+        getWire().getItsSystem().getDrawBoard().getChildren().add(marker);
     }
 
     /**
-     * push to front of view
+     * push to front of marker
      */
     public void toFront(){
         itsLines.toFront();
-        getView().toFront();
+        getMarker().toFront();
     }
 
     public void show(){
         this.itsLines.show();
+    }
+
+    List<Node> getView(){
+        List<Node> out=new ArrayList<>();
+
+        out.add(getMarker());
+        out.addAll(getItsLine().getView());
+
+        return out;
     }
 
     abstract protected boolean isProperInstance(LineMarker lm);

@@ -6,6 +6,7 @@
 package Elements.Math;
 
 import ElementBase.DynamMathElem;
+import Elements.Environment.Subsystem;
 import MathPack.WorkSpace;
 
 import java.util.ArrayList;
@@ -16,8 +17,8 @@ import java.util.List;
  * @author Ivan
  */
 public class Integrator extends DynamMathElem{
-    public Integrator(){
-        super();
+    public Integrator(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('o');
     }

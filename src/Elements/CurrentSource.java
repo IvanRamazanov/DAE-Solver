@@ -23,19 +23,20 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.Element;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
  * @author Ivan
  */
 public class CurrentSource extends SchemeElement {
-    public CurrentSource(){
-        super();
-        addElemCont(new ElemPin(this, 12, 5));
-        addElemCont(new ElemPin(this, 12, 60));
+    public CurrentSource(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 5));
+        addElemCont(new ElectricPin(this, 12, 60));
     }
 
     public CurrentSource(boolean catalog){

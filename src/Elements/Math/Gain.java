@@ -6,6 +6,8 @@
 package Elements.Math;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,8 +19,8 @@ public class Gain extends MathElement{
 
     ScalarParameter gainValue;
 
-    public Gain(){
-        super();
+    public Gain(Subsystem sys){
+        super(sys);
         addMathContact('i');
         addMathContact('o');
     }

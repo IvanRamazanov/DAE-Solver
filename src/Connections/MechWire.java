@@ -5,17 +5,9 @@
  */
 package Connections;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import ElementBase.ElemMechPin;
 import ElementBase.Pin;
+import Elements.Environment.Subsystem;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
@@ -25,44 +17,60 @@ import raschetkz.RaschetKz;
  *
  * @author Ivan
  */
-public class MechWire extends Wire{
+public class MechWire extends Wire {
 
-    public static final EventHandler MeC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
+    public static final EventHandler MeC_MOUSE_DRAG = new EventHandler<MouseEvent>() {
         @Override
         public void handle(MouseEvent me) {
-            if(activeWireConnect!=null)
-                if(!activeWireConnect.getIsPlugged().get()){
-                    activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
+            if (activeWireConnect != null)
+                if (!activeWireConnect.getIsPlugged().get()) {
+                    activeWireConnect.setEndPropInSceneCoordinates(me.getSceneX(), me.getSceneY());
                 }
             me.consume();
         }
     };
-    public static final EventHandler MeC_MOUSE_RELEAS= new EventHandler<MouseEvent>() {
+    public static final EventHandler MeC_MOUSE_RELEAS = new EventHandler<MouseEvent>() {
         @Override
-        public void handle(MouseEvent me){
+        public void handle(MouseEvent me) {
             activeWireConnect.toFront();
-            activeWireConnect=null;
-            ((Node)me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
-            ((Node)me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
+            activeWireConnect = null;
+            ((Node) me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
+            ((Node) me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
             me.consume();
         }
     };
 
-    public MechWire(){
+    public MechWire(Subsystem sys) {
+        setItsSystem(sys);
         setWireColor("#949899");
+        RaschetKz.wireList.add(this);
     }
 
     /**
      * Создает провод и цепляет старт к контакту
+     *
      * @param EleCont
      * @param meSceneX
      * @param meSceneY
      */
-    public MechWire(Pin EleCont,double meSceneX,double meSceneY){
-        this();
-        MechMarker wc=new MechMarker(this,EleCont);
-        wc.setEndProp(meSceneX,meSceneY);
-        activeWireConnect=wc;
+    public MechWire(Subsystem sys, Pin EleCont, double meSceneX, double meSceneY) {
+        this(sys);
+        MechMarker wc = new MechMarker(this, EleCont);
+        wc.setEndPropInSceneCoordinates(meSceneX, meSceneY);
+        activeWireConnect = wc;
+    }
+
+    public MechWire(Subsystem sys, Pin EleCont1, Pin EleCont2) {
+        this(sys);
+        MechMarker wc1 = new MechMarker(this, EleCont1);
+        MechMarker wc2 = new MechMarker(this, EleCont2);
+
+        wc2.bindStartTo(wc1.getBindX(),wc1.getBindY());
+        wc1.bindStartTo(wc2.getBindX(),wc2.getBindY());
+
+        wc1.bindElemContact(EleCont1);
+        wc2.bindElemContact(EleCont2);
+        wc2.hide();
     }
 
     /**
@@ -87,7 +95,7 @@ public class MechWire extends Wire{
                         loser=getWireContacts().get(1);
                     else
                         loser=getWireContacts().get(0);
-                    activeWireConnect.setEndProp(loser.getBindX().get(),loser.getBindY().get());
+                    activeWireConnect.setEndPoint(loser.getBindX().get(),loser.getBindY().get());
                     activeWireConnect.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
                     elemCont.setWirePointer(activeWireConnect);
                     loser.delete();

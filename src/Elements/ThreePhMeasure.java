@@ -23,22 +23,23 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
  * @author ramazanov_im
  */
 public class ThreePhMeasure extends SchemeElement {
-    public ThreePhMeasure(){
-        super();
-        addElemCont(new ElemPin(this, 4, 4));   //A
-        addElemCont(new ElemPin(this, 20, 4));  //B
-        addElemCont(new ElemPin(this, 40, 4));  //C
-        addElemCont(new ElemPin(this, 4, 60));  //a
-        addElemCont(new ElemPin(this, 20, 60)); //b
-        addElemCont(new ElemPin(this, 40, 60)); //c
+    public ThreePhMeasure(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 4, 4));   //A
+        addElemCont(new ElectricPin(this, 20, 4));  //B
+        addElemCont(new ElectricPin(this, 40, 4));  //C
+        addElemCont(new ElectricPin(this, 4, 60));  //a
+        addElemCont(new ElectricPin(this, 20, 60)); //b
+        addElemCont(new ElectricPin(this, 40, 60)); //c
         addMathContact('o');
         addMathContact('o');
     }

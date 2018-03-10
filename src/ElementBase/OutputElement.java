@@ -5,6 +5,8 @@
  */
 package ElementBase;
 
+import Elements.Environment.Subsystem;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +16,8 @@ import java.util.List;
  */
 abstract public class OutputElement extends MathElement{
 //
-    public OutputElement(){
-        super();
+    public OutputElement(Subsystem sys){
+        super(sys);
 //        data=new ArrayList();
 //        time=new ArrayList();
     }

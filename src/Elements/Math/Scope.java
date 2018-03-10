@@ -13,6 +13,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import Elements.Environment.Subsystem;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -30,8 +32,8 @@ public class Scope extends OutputElement{
     private List<List<Double>> data;
     private List<Double> time;
 
-    public Scope(){
-        super();
+    public Scope(Subsystem sys){
+        super(sys);
         addMathContact('i');
 
         data=new ArrayList<>();
@@ -75,6 +77,7 @@ public class Scope extends OutputElement{
         }
         plotStage.show();
         plotStage.toFront();
+        plotStage.setTitle(getName());
         //if(!data.isEmpty())
         plotter.plot(plotStage, data, time, minVal, maxVal);
     }

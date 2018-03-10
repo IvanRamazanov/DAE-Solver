@@ -23,8 +23,9 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -33,10 +34,10 @@ import ElementBase.SchemeElement;
 public class Diode extends SchemeElement {
     ScalarParameter Vf;
 
-    public Diode(){
-        super();
-        addElemCont(new ElemPin(this, 12, 5));
-        addElemCont(new ElemPin(this, 12, 60));
+    public Diode(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 5));
+        addElemCont(new ElectricPin(this, 12, 60));
     }
 
     public Diode(boolean catalog){

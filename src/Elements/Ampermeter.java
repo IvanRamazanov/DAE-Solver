@@ -5,18 +5,19 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
  * @author Ivan
  */
 public class Ampermeter extends SchemeElement {
-    public Ampermeter(){
-        super();
-        addElemCont(new ElemPin(this, 12, 4));
-        addElemCont(new ElemPin(this, 12, 60));
+    public Ampermeter(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 4));
+        addElemCont(new ElectricPin(this, 12, 60));
         addMathContact('o');
     }
     public Ampermeter(boolean Catalog){

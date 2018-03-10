@@ -5,8 +5,9 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
@@ -14,9 +15,9 @@ import ElementBase.SchemeElement;
  */
 public class ElectricalReference extends SchemeElement {
 
-    public ElectricalReference(){
-        super();
-        addElemCont(new ElemPin(this, 12, 5));
+    public ElectricalReference(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 5));
     }
 
     public ElectricalReference(boolean Catalog){

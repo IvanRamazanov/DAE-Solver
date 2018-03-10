@@ -25,7 +25,9 @@ package ElementBase;
 
 import Connections.LineMarker;
 import Connections.Wire;
+import Elements.Environment.Subsystem;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
@@ -38,6 +40,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import javafx.scene.transform.Transform;
 import raschetkz.RaschetKz;
 
 /**
@@ -50,25 +53,30 @@ public abstract class Pin {
     private SimpleDoubleProperty bindY;
     private LineMarker itsConnection;
     private Element owner;
+    private Subsystem system;
     private EventHandler<MouseEvent> enterMouse,exitMouse,dragDetected;
     private EventHandler<MouseDragEvent> dragEnterHndl,dragExitHndl;
+    private ChangeListener<Transform> transform;
     private double layoutX,layoutY;
 
     protected double width=4,height=4;
 
-    Pin(){
-        enterMouse= (MouseEvent me) ->{
+    Pin(){}
+
+    Pin(Element owner) {
+        setOwner(owner);
+        enterMouse = (MouseEvent me) -> {
             getView().setEffect(new DropShadow(BlurType.GAUSSIAN, Color.AQUA, 2, 1, 0, 0));
             getView().setCursor(Cursor.HAND);
         };
-        exitMouse= (MouseEvent me) ->{
+        exitMouse = (MouseEvent me) -> {
             getView().setEffect(null);
             getView().setCursor(Cursor.DEFAULT);
         };
         dragEnterHndl = (MouseDragEvent me) -> {
-            if(Wire.activeWireConnect!=null&&getItsConnection()==null){
-                if(isProperInstance(Wire.activeWireConnect)) {
-                    System.out.println("Drag enter to ElemPin. Will plug");
+            if (Wire.activeWireConnect != null && getItsConnection() == null) {
+                if (isProperInstance(Wire.activeWireConnect)) {
+                    //System.out.println("Drag enter to ElectricPin. Will plug");
                     Wire.activeWireConnect.getWire().setEnd(this);
                     getView().toFront();
                 }
@@ -76,11 +84,11 @@ public abstract class Pin {
 
         };
         dragExitHndl = (MouseDragEvent me) -> {
-            if(Wire.activeWireConnect!=null)
-                if(isProperInstance(Wire.activeWireConnect)&&
-                        this.equals(Wire.activeWireConnect.getItsConnectedPin())&&
-                        Wire.activeWireConnect.getWire().getRank()!=1) {
-                    System.out.println("Drag exit from ElemPin. Source: " + me.getGestureSource());
+            if (Wire.activeWireConnect != null)
+                if (isProperInstance(Wire.activeWireConnect) &&
+                        this.equals(Wire.activeWireConnect.getItsConnectedPin()) &&
+                        Wire.activeWireConnect.getWire().getRank() != 1) {
+                    //System.out.println("Drag exit from ElectricPin. Source: " + me.getGestureSource());
                     //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
                     switch (me.getButton()) {
                         case PRIMARY:
@@ -103,17 +111,17 @@ public abstract class Pin {
                 }
 
         };
-        dragDetected= (MouseEvent me) -> {
-            if(me.getButton()== MouseButton.PRIMARY){
-                if(getItsConnection()==null){
-                    System.out.println("Drag from ElemPin detected! ItsConnection is Null");
-                    Wire w=createWire(this,me.getSceneX(),me.getSceneY());
-                    RaschetKz.wireList.add(w);
+        dragDetected = (MouseEvent me) -> {
+            if (me.getButton() == MouseButton.PRIMARY) {
+                if (getItsConnection() == null) {
+                    //System.out.println("Drag from ElectricPin detected! ItsConnection is Null");
+                    Wire w = createWire(this, me.getSceneX(), me.getSceneY());
+                    //RaschetKz.wireList.add(w);
                     getView().startFullDrag();
                     w.setStaticEventFilters(getView());
-                }else{
-                    System.out.println("Drag from ElemPin detected! ItsConnection not Null");
-                    LineMarker lm=getItsConnection();
+                } else {
+                    //System.out.println("Drag from ElectricPin detected! ItsConnection not Null");
+                    LineMarker lm = getItsConnection();
                     lm.unPlug();
                     getView().startFullDrag();
                     lm.getWire().setStaticEventFilters(getView());
@@ -121,11 +129,20 @@ public abstract class Pin {
                 me.consume();
             }
         };
+
+        transform = (aza, oldVal, newVal) -> {
+            double xx = width / 2;
+            double yy = height / 2;
+            Point2D point = newVal.transform(xx, yy);
+            point = getSystem().getDrawBoard().sceneToLocal(point);
+
+            getBindX().set(point.getX());
+            getBindY().set(point.getY());
+        };
     }
 
     Pin(Element elem, double x, double y){
-        this();
-        setOwner(elem);
+        this(elem);
         layoutX=x;
         layoutY=y;
     }
@@ -140,6 +157,11 @@ public abstract class Pin {
             //itsConnection.setIsPlugged(false);  // TODO check this
         }
         this.getView().setOpacity(1);
+    }
+
+    public void delete(){
+        clear();
+        getView().localToSceneTransformProperty().removeListener(transform);
     }
 
     /**
@@ -175,14 +197,7 @@ public abstract class Pin {
 
         setBindX(new SimpleDoubleProperty());
         setBindY(new SimpleDoubleProperty());
-        getView().localToSceneTransformProperty().addListener((aza, oldVal, newVal)->{
-            double xx=width/2;
-            double yy=height/2;
-            Point2D point=newVal.transform(xx,yy);
-            point=raschetkz.RaschetKz.drawBoard.sceneToLocal(point);
-            getBindX().set(point.getX());
-            getBindY().set(point.getY());
-        });
+        getView().localToSceneTransformProperty().addListener(transform);
         getView().setFill(Paint.valueOf("#ffffff"));
         getView().setStrokeWidth(2);
         getView().setStroke(Paint.valueOf("#000000"));
@@ -219,6 +234,11 @@ public abstract class Pin {
 
     public void setOwner(Element owner) {
         this.owner = owner;
+        system=owner.getItsSystem();
+    }
+
+    public void setSystem(Subsystem system) {
+        this.system = system;
     }
 
     public void toFront(){
@@ -229,4 +249,8 @@ public abstract class Pin {
     abstract protected boolean isProperInstance(LineMarker lm);
 
     abstract protected Wire createWire(Pin pin,double x,double y);
+
+    public Subsystem getSystem() {
+        return system;
+    }
 }

@@ -23,9 +23,11 @@
  */
 package Elements;
 
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.MathElement;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
+import raschetkz.RaschetKz;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +40,10 @@ public class CircuitBreaker extends SchemeElement {
     private Logic itsLogic;
     private ScalarParameter param;
 
-    public CircuitBreaker(){
-        super();
-        addElemCont(new ElemPin(this, 12, 5));
-        addElemCont(new ElemPin(this, 12, 60));
+    public CircuitBreaker(Subsystem sys){
+        super(sys);
+        addElemCont(new ElectricPin(this, 12, 5));
+        addElemCont(new ElectricPin(this, 12, 60));
         addHiddenMathContact('i');
         addHiddenMathContact('o');
         itsLogic=new Logic(false);
@@ -68,7 +70,8 @@ public class CircuitBreaker extends SchemeElement {
     @Override
     public void delete() {
         itsLogic=null;
-        super.delete();
+        RaschetKz.elementList.remove(this);
+        getItsSystem().getDrawBoard().getChildren().remove(this.getView());
     }
 
     @Override

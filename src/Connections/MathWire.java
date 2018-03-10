@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ElementBase.Pin;
+import Elements.Environment.Subsystem;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
@@ -55,7 +56,7 @@ public class MathWire extends Wire{
         @Override
         public void handle(MouseEvent me) {
             if(!activeWireConnect.getIsPlugged().get()){
-                activeWireConnect.setEndProp(me.getSceneX(), me.getSceneY());
+                activeWireConnect.setEndPropInSceneCoordinates(me.getSceneX(), me.getSceneY());
             }
             me.consume();
         }
@@ -72,8 +73,11 @@ public class MathWire extends Wire{
         }
     };
 
-    public MathWire(){
+    public MathWire(Subsystem sys){
+        setItsSystem(sys);
         setWireColor("#000000");
+
+        RaschetKz.wireList.add(this);
     }
 
     /**
@@ -82,22 +86,40 @@ public class MathWire extends Wire{
      * @param meSceneX
      * @param meSceneY
      */
-    public MathWire(Pin mathPin,double meSceneX,double meSceneY){
-        this();
+    public MathWire(Subsystem sys, Pin mathPin,double meSceneX,double meSceneY){
+        this(sys);
         sourceMarker=new MathMarker(this);
         MathMarker wc=new MathMarker(this);
         if(mathPin instanceof MathOutPin){
             getSourceMarker().setItsConnectedPin(mathPin);  // link and bind end
             getSourceMarker().bindStartTo(mathPin.getBindX(), mathPin.getBindY()); // zeroLength
             wc.bindStartTo(mathPin.getBindX(), mathPin.getBindY()); // same point
-            wc.setEndProp(meSceneX,meSceneY);
+            wc.setEndPropInSceneCoordinates(meSceneX,meSceneY);
             activeWireConnect=wc; // for mouse_drag event
         }else{
             wc.setItsConnectedPin(mathPin); // link and bind end
             wc.bindStartTo(mathPin.getBindX(), mathPin.getBindY());
             getSourceMarker().bindStartTo(mathPin.getBindX(), mathPin.getBindY());
-            getSourceMarker().setEndProp(meSceneX,meSceneY);
+            getSourceMarker().setEndPropInSceneCoordinates(meSceneX,meSceneY);
             activeWireConnect= getSourceMarker();
+        }
+    }
+
+    public MathWire(Subsystem sys,Pin EleCont1,Pin EleCont2){
+        this(sys);
+        MathMarker wc1=new MathMarker(this);
+        sourceMarker=wc1;
+        MathMarker wc2=new MathMarker(this);
+
+        wc2.bindStartTo(wc1.getBindX(),wc1.getBindY());
+        wc1.bindStartTo(wc1.getBindX(),wc1.getBindY());
+
+        if(EleCont1 instanceof MathOutPin) {
+            wc1.bindElemContact(EleCont1);
+            wc2.bindElemContact(EleCont2);
+        }else{
+            wc1.bindElemContact(EleCont2);
+            wc2.bindElemContact(EleCont1);
         }
     }
 

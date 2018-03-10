@@ -6,19 +6,20 @@
 package Elements;
 
 import static java.lang.StrictMath.PI;
-import ElementBase.ElemPin;
+import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 /**
  *
  * @author Ivan
  */
 public class VariableVoltage extends SchemeElement {
-    public VariableVoltage(){
-        super();
+    public VariableVoltage(Subsystem sys){
+        super(sys);
 //        Dymamic=false;
-        addElemCont(new ElemPin(this, 12, 5));
-        addElemCont(new ElemPin(this, 12, 60));
+        addElemCont(new ElectricPin(this, 12, 5));
+        addElemCont(new ElectricPin(this, 12, 60));
     }
 
     public VariableVoltage(boolean Catalog){

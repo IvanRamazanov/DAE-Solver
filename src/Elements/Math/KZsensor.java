@@ -26,6 +26,8 @@ package Elements.Math;
 import ElementBase.MathElement;
 import ElementBase.OutputElement;
 import java.util.List;
+
+import Elements.Environment.Subsystem;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -41,8 +43,8 @@ import raschetkz.Protection;
 public class KZsensor extends OutputElement{
     Double maxIVal,maxItime;
 
-    public KZsensor(){
-        super();
+    public KZsensor(Subsystem sys){
+        super(sys);
         addMathContact('i');
     }
     public KZsensor(boolean catalog){

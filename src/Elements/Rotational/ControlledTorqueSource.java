@@ -1,15 +1,16 @@
 package Elements.Rotational;
 
-import ElementBase.ElemMechPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
+import Elements.Environment.Subsystem;
 
 public class ControlledTorqueSource extends SchemeElement{
 
-    public ControlledTorqueSource(){
-        super();
+    public ControlledTorqueSource(Subsystem sys){
+        super(sys);
         addMathContact('i');
-        addMechCont(new ElemMechPin(this,17,2));
-        addMechCont(new ElemMechPin(this,17,52)); //Ref
+        addMechCont(new MechPin(this,17,2));
+        addMechCont(new MechPin(this,17,52)); //Ref
     }
 
     public ControlledTorqueSource(boolean val){
