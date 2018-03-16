@@ -89,16 +89,22 @@ public class MathMarker extends LineMarker{
         setIsPlugged(false);
         this.bindX.unbind();
         this.bindY.unbind();
-        getItsConnectedPin().setItsConnection(null);
-        getItsConnectedPin().getView().setOpacity(1.0);
+        Pin p=getItsConnectedPin();
+        p.setItsConnection(null);
+        p.getView().setOpacity(1.0);
 
-        if(getItsConnectedPin() instanceof MathInPin){  //==? this.connectedPin.clearWireContact();
+        if(p instanceof MathInPin){  //==? this.connectedPin.clearWireContact();
+
+            ((MathInPin)p).setSource(null);
 
             unbindEndPoint();
             getMarker().setVisible(true);
             getMarker().toBack();
         }else{
             getWire().setSource(null); //TODO IMPLEMENT THIS!!!
+            unbindEndPoint();
+            getMarker().setVisible(true);
+            getMarker().toBack();
 //                if(connectedPin!=null)
 //                    itsWire.setSource(null);
 //                startView.layoutXProperty().unbind();

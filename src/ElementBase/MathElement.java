@@ -7,7 +7,7 @@ package ElementBase;
 
 import java.util.List;
 
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import raschetkz.RaschetKz;
 
 /**

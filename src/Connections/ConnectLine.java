@@ -88,12 +88,12 @@ public class ConnectLine {
         }
     }
 
-    public void hide(){
-        lines.forEach(lin->{
-            lin.setVisible(false);
-        });
-        startMarker.setVisible(false);
-    }
+//    public void hide(){
+//        lines.forEach(lin->{
+//            lin.setVisible(false);
+//        });
+//        startMarker.setVisible(false);
+//    }
 
     public void show(){
         lines.forEach(lin->{

@@ -46,7 +46,7 @@ public class Graph {
         co_tree.addAll(arcs);
         co_tree.removeAll(tree);
         return(co_tree);
-    };
+    }
 
     public static List<Arc> getCycle(List<Arc> tree, Arc coArc) {
         List<Arc> cycle=new ArrayList<>();

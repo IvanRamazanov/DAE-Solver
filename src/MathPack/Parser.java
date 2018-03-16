@@ -46,7 +46,7 @@ public class Parser {
                 List<String> cols=new ArrayList<>();
                 for(int j=0;j<row.length();j++){
                     char c=row.charAt(j);
-                    if(c!=','||c!=' '){
+                    if(c!=','&&c!=' '){
                         temp+=c;
                     }else{
                         cols.add(temp);
@@ -116,8 +116,8 @@ public class Parser {
                     if(c!=';')
                         temp+=c;
                     else {
-                        lines.add(temp);
-                        temp="";
+                            lines.add(temp);  // TODO "; " case!
+                            temp = "";
                     }
                 }
                 if(!temp.isEmpty())
@@ -138,8 +138,10 @@ public class Parser {
                     if(c!=','&&c!=' '){
                         temp.append(c);
                     }else{
-                        cols.add(temp.toString());
-                        temp=new StringBuilder();
+                        if(temp.length()!=0) {
+                            cols.add(temp.toString());
+                            temp = new StringBuilder();
+                        }
                     }
                 }
                 String stmp=temp.toString();
@@ -199,8 +201,12 @@ public class Parser {
                 endKey="</"+key.substring(1);
         int start=data.indexOf(key)+key.length(),
         end=data.indexOf(endKey);
-        out=data.substring(start,end);
-        return out;
+        if(end!=-1) {
+            out = data.substring(start, end);
+            return out;
+        }else{
+            return out;
+        }
     }
 
     public static String getBlock(String data,String key){

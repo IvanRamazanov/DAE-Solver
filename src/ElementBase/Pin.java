@@ -25,7 +25,7 @@ package ElementBase;
 
 import Connections.LineMarker;
 import Connections.Wire;
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.event.EventHandler;
@@ -38,10 +38,8 @@ import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
 import javafx.scene.transform.Transform;
-import raschetkz.RaschetKz;
 
 /**
  *
@@ -76,7 +74,7 @@ public abstract class Pin {
         dragEnterHndl = (MouseDragEvent me) -> {
             if (Wire.activeWireConnect != null && getItsConnection() == null) {
                 if (isProperInstance(Wire.activeWireConnect)) {
-                    //System.out.println("Drag enter to ElectricPin. Will plug");
+                    //System.out.println("Drag enter to ElectricPass. Will plug");
                     Wire.activeWireConnect.getWire().setEnd(this);
                     getView().toFront();
                 }
@@ -88,7 +86,7 @@ public abstract class Pin {
                 if (isProperInstance(Wire.activeWireConnect) &&
                         this.equals(Wire.activeWireConnect.getItsConnectedPin()) &&
                         Wire.activeWireConnect.getWire().getRank() != 1) {
-                    //System.out.println("Drag exit from ElectricPin. Source: " + me.getGestureSource());
+                    //System.out.println("Drag exit from ElectricPass. Source: " + me.getGestureSource());
                     //if(!ElectricWire.activeWireConnect.getElemContact().equals(this))
                     switch (me.getButton()) {
                         case PRIMARY:
@@ -114,13 +112,13 @@ public abstract class Pin {
         dragDetected = (MouseEvent me) -> {
             if (me.getButton() == MouseButton.PRIMARY) {
                 if (getItsConnection() == null) {
-                    //System.out.println("Drag from ElectricPin detected! ItsConnection is Null");
+                    //System.out.println("Drag from ElectricPass detected! ItsConnection is Null");
                     Wire w = createWire(this, me.getSceneX(), me.getSceneY());
                     //RaschetKz.wireList.add(w);
                     getView().startFullDrag();
                     w.setStaticEventFilters(getView());
                 } else {
-                    //System.out.println("Drag from ElectricPin detected! ItsConnection not Null");
+                    //System.out.println("Drag from ElectricPass detected! ItsConnection not Null");
                     LineMarker lm = getItsConnection();
                     lm.unPlug();
                     getView().startFullDrag();

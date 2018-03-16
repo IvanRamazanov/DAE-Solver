@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import Elements.ElectricalReference;
-import Elements.Rotational.RotationReference;
+import Elements.Electric.Basic.ElectricalReference.ElectricalReference;
+import Elements.Rotational.Basics.RotationReference.RotationReference;
 import javafx.geometry.Point2D;
 
 /**

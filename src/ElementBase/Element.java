@@ -5,8 +5,6 @@
  */
 package ElementBase;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -15,7 +13,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import MathPack.MatrixEqu;
 import MathPack.Parser;
 import MathPack.StringGraph;
@@ -114,7 +112,8 @@ public abstract class Element {
         MenuItem rotate=new MenuItem("Поворот");
         rotate.setOnAction(ae-> rotate());
         cm.getItems().addAll(deleteMenu,paramMenu,rotate);
-        imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
+//        imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
+        imagePath=getClass().getResource(this.getClass().getSimpleName()+".png").toString();
 
         //drawBoard.getChildren().add(this.getView());
 //        getView(); // for init
@@ -137,7 +136,9 @@ public abstract class Element {
                 catElemCreation();
             });
             catCm.getItems().add(menu);
-            imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
+//            imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
+
+            imagePath=getClass().getResource(this.getClass().getSimpleName()+".png").toString();
             catalogFlag=catalog;
 
             getView(); //for creation!
@@ -453,67 +454,71 @@ public abstract class Element {
         }
     }
 
-    public final void save(BufferedWriter bw) throws IOException{
-//        bw.write("<Name>");
-//        bw.write(getName());
-        bw.write("<"+getName()+">");bw.newLine();
+    public StringBuilder save(){
+        StringBuilder bw=new StringBuilder();
 
-        bw.write("<ClassName>");
-        bw.write(getClass().getName());
-        bw.write("</ClassName>");bw.newLine();
+        String nl=System.lineSeparator();
+        
+        bw.append("<"+getName()+">");bw.append(nl);
 
-        bw.write("<Subsystem>");
-        bw.write(getItsSystem().getName());
-        bw.write("</Subsystem>");bw.newLine();
+        bw.append("<ClassName>");
+        bw.append(getClass().getName());
+        bw.append("</ClassName>");bw.append(nl);
 
-        bw.write("<Layout>");
+        bw.append("<Subsystem>");
+        bw.append(getItsSystem().getName());
+        bw.append("</Subsystem>");bw.append(nl);
+
+        bw.append("<Layout>");
         String str="["+getView().getLayoutX()+" "+getView().getLayoutY()+" "+getRotation()+"]";
-        bw.write(str);
-        bw.write("</Layout>");bw.newLine();
+        bw.append(str);
+        bw.append("</Layout>");bw.append(nl);
 
-        bw.write("<Parameters>");bw.newLine();
+        bw.append("<Parameters>");bw.append(nl);
         int cnt=0;
         for(Element.Parameter param:getParameters()){
-            bw.write("<Param."+param.getName()+">");bw.newLine();
+            bw.append("<Param."+param.getName()+">");bw.append(nl);
 
-            bw.write("<Type>");
-            bw.write(param.getClass().getSimpleName());
-            bw.write("</Type>");bw.newLine();
+            bw.append("<Type>");
+            bw.append(param.getClass().getSimpleName());
+            bw.append("</Type>");bw.append(nl);
 
-            bw.write("<Name>");
-            bw.write(param.getName());
-            bw.write("</Name>");bw.newLine();
+            bw.append("<Name>");
+            bw.append(param.getName());
+            bw.append("</Name>");bw.append(nl);
 
-            bw.write("<Value>");
-            bw.write(param.getStringValue());
-            bw.write("</Value>");bw.newLine();
+            bw.append("<Value>");
+            bw.append(param.getStringValue());
+            bw.append("</Value>");bw.append(nl);
 
-            bw.write("</Param."+param.getName()+">");bw.newLine();
+            bw.append("</Param."+param.getName()+">");bw.append(nl);
 
             cnt++;
         }
-        bw.write("</Parameters>");bw.newLine();
+        bw.append("</Parameters>");bw.append(nl);
 
-        bw.write("<InitParameters>");bw.newLine();
+        bw.append("<InitParameters>");bw.append(nl);
         cnt=0;
         for(Element.InitParam param:getInitials()){
-            bw.write("<Param."+param.getName()+">");bw.newLine();
+            bw.append("<Param."+param.getName()+">");bw.append(nl);
 
-            bw.write("<Name>");
-            bw.write(param.getName());
-            bw.write("</Name>");bw.newLine();
+            bw.append("<Name>");
+            bw.append(param.getName());
+            bw.append("</Name>");bw.append(nl);
 
-            bw.write("<Value>");
-            bw.write(param.getStringValue());
-            bw.write("</Value>");bw.newLine();
+            bw.append("<Value>");
+            bw.append(param.getStringValue());
+            bw.append("</Value>");bw.append(nl);
 
-            bw.write("</Param."+param.getName()+">");bw.newLine();
+            bw.append("</Param."+param.getName()+">");bw.append(nl);
 
             cnt++;
         }
-        bw.write("</InitParameters>");bw.newLine();
+        bw.append("</InitParameters>");bw.append(nl);
 
-        bw.write("</"+getName()+">");bw.newLine();
+        bw.append("</"+getName()+">");bw.append(nl);
+
+        return bw;
     }
 
     private void rotate(){
@@ -538,6 +543,10 @@ public abstract class Element {
     final protected void addMechCont(MechPin input){
         this.mechContacts.add(input);
         this.viewPane.getChildren().add(input.getView());
+    }
+
+    public List<MechPin> getMechContactList(){
+        return mechContacts;
     }
 
     abstract public void delete();

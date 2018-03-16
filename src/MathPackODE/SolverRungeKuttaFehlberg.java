@@ -1,6 +1,5 @@
 package MathPackODE;
 
-import ElementBase.OutputElement;
 import MathPack.MatrixEqu;
 import MathPack.WorkSpace;
 

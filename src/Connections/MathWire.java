@@ -25,18 +25,10 @@ package Connections;
 
 import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
-import ElementBase.MathPin;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
 
 import ElementBase.Pin;
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;

@@ -5,7 +5,7 @@
  */
 package ElementBase;
 
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import MathPack.WorkSpace;
 import java.util.ArrayList;
 import java.util.List;

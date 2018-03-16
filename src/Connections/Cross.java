@@ -5,8 +5,6 @@
  */
 package Connections;
 
-import java.util.ArrayList;
-import java.util.List;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
@@ -74,7 +72,7 @@ public class Cross extends Circle{
     public void unbind(){
         centerXProperty().unbind();
         this.centerYProperty().unbind();
-    };
+    }
 
     public void bindToCross(Cross superCross){
         centerXProperty().bind(superCross.centerXProperty());

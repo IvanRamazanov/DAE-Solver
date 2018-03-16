@@ -5,14 +5,20 @@
  */
 package ElementBase;
 
-import Elements.Environment.Subsystem;
-import Elements.Math.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.nio.file.DirectoryIteratorException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import Elements.Rotational.*;
-import javafx.scene.control.Button;
-import Elements.*;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.layout.TilePane;
 
 
@@ -22,135 +28,106 @@ import javafx.scene.layout.TilePane;
  */
 public class ListOfElements {
     TilePane elemLayout;
-    List<Categorie> list=new ArrayList<>();
+    TreeView<Category> tv=new TreeView<>();
 
     public ListOfElements(){
-        list.add(new Categorie("Basics"));
-        list.add(new Categorie("Electric sources"));
-        list.add(new Categorie("Special elements"));
-        list.add(new Categorie("Semiconductors"));
-        list.add(new Categorie("Electrical machines"));
-        list.add(new Categorie("Measurments"));
-        list.add(new Categorie("Maths"));
-        list.add(new Categorie("Mechanics"));
-        list.add(new Categorie("Control systems"));
-        list.add(new Categorie("Environment"));
+        Path p=new File("src/Elements").toPath();
+
+        TreeItem<Category> root=treeCreate(p);
+
+        tv.setRoot(root);
+        tv.setShowRoot(false);
+
+        tv.getSelectionModel().selectedItemProperty().addListener((t,o,n)->{
+            if(n.isLeaf()){
+                elemLayout.getChildren().clear();
+                elemLayout.getChildren().addAll(n.getValue().getView());
+            }
+        });
     }
-    public List<Categorie> getCategories() {
-        return(list);
+    public TreeView getCategories() {
+        return tv;
     }
 
     public void setElemPane(TilePane elems) {
         this.elemLayout=elems;
     }
 
-    private void addToCategorie(String type,Categorie cat){
-        switch (type){
-            case "Basics":
-                cat.elements.add(new Resistor(true));
-                cat.elements.add(new Inductance(true));
-                cat.elements.add(new Capasitor(true));
-                cat.elements.add(new ElectricalReference(true));
-                cat.elements.add(new ThreePhLoad(true));
-                break;
-            case "Electric sources":
-                cat.elements.add(new VoltageSource(true));
-                cat.elements.add(new VariableVoltage(true));
-                cat.elements.add(new ThreePhaseVoltageSource(true));
-                cat.elements.add(new ControlledVoltage(true));
-                cat.elements.add(new CurrentSource(true));
-                break;
-            case "Special elements":
-                cat.elements.add(new ShortCircuit(true));
-                cat.elements.add(new IdealKey(true));
-                cat.elements.add(new CircuitBreaker(true));
-                cat.elements.add(new ThreePhaseFault(true));
-                break;
-            case "Electrical machines":
-                cat.elements.add(new DPTPM(true));
-                cat.elements.add(new DPTnV(true));
-                cat.elements.add(new InductionMotor(true));
-                cat.elements.add(new SDPM(true));
-                cat.elements.add(new SynchronousMachine(true));
-                break;
-            case "Measurments":
-                cat.elements.add(new Voltmeter(true));
-                cat.elements.add(new Ampermeter(true));
-                cat.elements.add(new ThreePhMeasure(true));
-                cat.elements.add(new SpeedSensor(true));
-                cat.elements.add(new TorqueSensor(true));
-                break;
-            case "Maths":
-                cat.elements.add(new Scope(true));
-                cat.elements.add(new Gain(true));
-                cat.elements.add(new Sinus(true));
-                cat.elements.add(new Ramp(true));
-                cat.elements.add(new Saturation(true));
-                cat.elements.add(new Integrator(true));
-                cat.elements.add(new Constant(true));
-                cat.elements.add(new Step(true));
-                cat.elements.add(new Sum(true));
-                cat.elements.add(new XYGraph(true));
-                cat.elements.add(new Mux(true));
-                cat.elements.add(new KZsensor(true));
-                cat.elements.add(new SimulationTime(true));
-                cat.elements.add(new Delay(true));
-                break;
-            case "Semiconductors":
-                cat.elements.add(new Diode(true));
-                cat.elements.add(new NPNtrans(true));
-                cat.elements.add(new PNPtrans(true));
-                break;
-            case "Mechanics":
-                cat.elements.add(new TorqueSource(true));
-                cat.elements.add(new Inertia(true));
-                cat.elements.add(new RotationalFriction(true));
-                cat.elements.add(new RotationReference(true));
-                cat.elements.add(new ControlledTorqueSource(true));
-                cat.elements.add(new DieselEngine(true));
-                break;
-            case "Control systems":
-                cat.elements.add(new PIDRegulator(true));
-                cat.elements.add(new SqeezeWave(true));
-                cat.elements.add(new RMSvalue(true));
-                cat.elements.add(new TransferFunction(true));
-                break;
-            case "Environment":
-                cat.elements.add(new Subsystem(true));
-                cat.elements.add(new Subsystem.ElectricPass(true));
-                cat.elements.add(new Subsystem.MechPass(true));
-                cat.elements.add(new Subsystem.MathInPass(true));
-                cat.elements.add(new Subsystem.MathOutPass(true));
-                break;
+    TreeItem<Category> treeCreate(Path dir){
+        TreeItem<Category> trIt=new TreeItem<>();
+        Category cat=new Category(dir);
+        trIt.setValue(cat);
+        trIt.setGraphic(new Label(dir.getFileName().toString()));
+
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (Path file: stream) {
+                if(!isLeaf(file)){
+                    trIt.getChildren().add(treeCreate(file));
+                }
+            }
+        } catch (IOException | DirectoryIteratorException x) {
+            // IOException can never be thrown by the iteration.
+            // In this snippet, it can only be thrown by newDirectoryStream.
+            System.err.println(x);
         }
+
+        return trIt;
     }
 
-    class Categorie extends Button{
-        String type;
-        List<Element> elements=new ArrayList<>();
+    private boolean isLeaf(Path p){
+        boolean flag=true;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(p)) {
+            for (Path file: stream) {
+                if(Files.isDirectory(file)){
+                    flag=false;
+                    break;
+                }
+            }
+        } catch (IOException | DirectoryIteratorException x) {
+            // IOException can never be thrown by the iteration.
+            // In this snippet, it can only be thrown by newDirectoryStream.
+            System.err.println(x);
+        }
+        return flag;
+    }
+
+    private class Category{
+        Path path;
+        List<Node> view;
+
+        Category(Path dir){
+            path=dir;
+            view=new ArrayList<>();
+
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+                for (Path file: stream) {
+                    if(isLeaf(file)){
+                        String elemName=file.getFileName().toString();
+                        String className=file.resolve(elemName).toString().replace('\\','.').replace("src.","");
 
 
-        Categorie(String name){
-            this.type=name;
-            this.setText(name);
-            this.setPrefSize(150, 30);
-            this.setMinSize(USE_PREF_SIZE, USE_PREF_SIZE);
-            addToCategorie(name,this);
-//            this.setOnAction((ActionEvent ae)->{
-//                elemLayout.getChildren().clear();
-//                elements.forEach(data -> {
-//                    elemLayout.getChildren().add(data.getMarker());
-//                });
-//            });
-            this.focusedProperty().addListener((asd,old,newval)->{
-                elemLayout.getChildren().clear();
-                elements.forEach(data -> {
-                    elemLayout.getChildren().add(data.getView());
-                });
-            });
+                        Class<?> clas=Class.forName(className);
+                        Constructor ctor=clas.getConstructor(boolean.class);
+                        Element elem=(Element)ctor.newInstance(true);
+                        view.add(elem.getView());
+                    }
+                }
 
+            }catch (Exception x) {
+                // IOException can never be thrown by the iteration.
+                // In this snippet, it can only be thrown by newDirectoryStream.
+                x.printStackTrace(System.err);
+            }
         }
 
+        List<Node> getView(){
+            return view;
+        }
+
+        @Override
+        public String toString(){
+            return "";
+        }
     }
 }
 
