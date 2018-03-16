@@ -58,7 +58,7 @@ public class Rechatel extends Task<Integer>{
             this.updateProgress(0, tEnd);
             solver.init(sys,state,this);
             long start=System.currentTimeMillis();
-            solver.progress.addListener((t,o,n)->{
+            Solver.progress.addListener((t, o, n)->{
                 this.updateProgress(n.doubleValue(), tEnd);
             });
             //for(time=dt;time<=tEnd;time=time+dt){

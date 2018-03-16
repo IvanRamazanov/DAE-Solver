@@ -86,9 +86,7 @@ public class MathFunction {
     }
 
     static boolean isSimple(MathFunction inp){
-        if(inp.function instanceof  Summa||inp.function instanceof  Multiplex){
-            return true;
-        }else return false;
+        return inp.function instanceof Summa || inp.function instanceof Multiplex;
     }
 
     public void inverse(int index){

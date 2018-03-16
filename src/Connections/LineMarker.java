@@ -19,7 +19,6 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
@@ -152,9 +151,9 @@ public abstract class LineMarker{
                 LineMarker wc=getWire().addLineMarker(getWire(),this.getStartX().get(),this.getStartY().get());
                 activeWireConnect=wc;
                 //wc.setElemContact(this.getElemContact());
-                wc.bindStartTo(bindX,bindY);
-                this.bindStartTo(wc.getBindX(),wc.getBindY());
-                this.hide();
+                wc.bindStartTo(getBindX(),getBindX());
+                this.bindStartTo(getBindX(),getBindY());
+//                this.hide();
                 break;
             case 2:
                 //System.out.println("Unplug in WireMarker case 2");
@@ -201,9 +200,9 @@ public abstract class LineMarker{
         this.itsLines.Draw();
     }
 
-    public void hide(){
-        this.itsLines.hide();
-    }
+//    public void hide(){
+//        this.itsLines.hide();
+//    }
 
     void unBindStartPoint(){
         itsLines.getStartX().unbind();
@@ -328,14 +327,15 @@ public abstract class LineMarker{
                         // bind to each other
                         major.getItsLine().getStartX().bind(minor.getBindX());
                         major.getItsLine().getStartY().bind(minor.getBindY());
-                        minor.getItsLine().getStartX().bind(major.getBindX());
-                        minor.getItsLine().getStartY().bind(major.getBindY());
+                        minor.getItsLine().getStartX().bind(minor.getBindX());
+                        minor.getItsLine().getStartY().bind(minor.getBindY());
 
                         if(minor.getItsLine().isEasyDraw()){
-                            minor.hide();
+//                            minor.hide();
                             major.hideStartMarker();
                         }else{
-                            major.hide();
+//                            major.hide();
+
                             minor.hideStartMarker();
                         }
                     }

@@ -10,7 +10,7 @@ import ElementBase.MathOutPin;
 import ElementBase.SchemeElement;
 import ElementBase.Element.InitParam;
 import MathPackODE.DAE;
-import javafx.beans.property.SimpleBooleanProperty;
+import raschetkz.ModelState;
 
 import static MathPack.MatrixEqu.rank;
 import static MathPack.StringFunctionSystem.parseInt;
@@ -37,7 +37,6 @@ public class StringFunctionSystem {
     List<MathOutPin> outputs;
     List<Integer> xPryor;
     List<Double> initials=new ArrayList();
-    public static SimpleBooleanProperty simplyfingFlag=new SimpleBooleanProperty(false);
     private static int
             electricPotentialCount =0,
             electricCurrentCount=0,
@@ -607,7 +606,7 @@ public class StringFunctionSystem {
         }
 
         // Try to reduce alg system
-        if(simplyfingFlag.get())
+        if(ModelState.getSimplyfingFlag().get())
             for(i=system.rightSides.size()-1;i>=0;i--){
                 StringGraph rp=system.rightSides.get(i);
                 Set vars=rp.getVariableSet();

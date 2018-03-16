@@ -7,7 +7,7 @@ package ElementBase;
 
 import java.util.List;
 
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import raschetkz.RaschetKz;
 
 /**
@@ -28,10 +28,6 @@ public abstract class SchemeElement extends Element{
     }
 
     public abstract String[] getStringFunction();
-
-    public List<MechPin> getMechContactList(){
-        return mechContacts;
-    }
 
     /**
      * Удаляет элемент
@@ -63,7 +59,7 @@ public abstract class SchemeElement extends Element{
     }
 
     @Override
-    public void init(){};
+    public void init(){}
 
     /**
      * @return the inputs

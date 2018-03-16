@@ -6,7 +6,7 @@
 package Connections;
 
 import ElementBase.Pin;
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
@@ -65,12 +65,12 @@ public class MechWire extends Wire {
         MechMarker wc1 = new MechMarker(this, EleCont1);
         MechMarker wc2 = new MechMarker(this, EleCont2);
 
-        wc2.bindStartTo(wc1.getBindX(),wc1.getBindY());
+        wc2.bindStartTo(wc2.getBindX(),wc2.getBindY());
         wc1.bindStartTo(wc2.getBindX(),wc2.getBindY());
 
         wc1.bindElemContact(EleCont1);
         wc2.bindElemContact(EleCont2);
-        wc2.hide();
+//        wc2.hide();
     }
 
     /**
@@ -85,8 +85,8 @@ public class MechWire extends Wire {
                 activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
                 MechMarker wcNew=new MechMarker(this); // ? bind?      // <---O новый
                 wcNew.bindElemContact(oldEc);                 // OX--->O  цепляем
-                wcNew.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
-                wcNew.hide();
+                wcNew.bindStartTo(wcNew.getBindX(),wcNew.getBindY());
+//                wcNew.hide();
                 break;
             case 2:
                 if(!getWireContacts().get(0).isPlugged()&&!getWireContacts().get(1).isPlugged()) {   // free floating wire case

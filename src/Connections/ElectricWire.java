@@ -6,7 +6,7 @@
 package Connections;
 
 import ElementBase.Pin;
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
@@ -68,12 +68,13 @@ public class ElectricWire extends Wire{
         WireMarker wc1=new WireMarker(this,EleCont1);
         WireMarker wc2=new WireMarker(this,EleCont2);
 
-        wc2.bindStartTo(wc1.getBindX(),wc1.getBindY());
+        wc2.bindStartTo(wc2.getBindX(),wc2.getBindY());
         wc1.bindStartTo(wc2.getBindX(),wc2.getBindY());
 
         wc1.bindElemContact(EleCont1);
         wc2.bindElemContact(EleCont2);
-        wc2.hide();
+
+//        wc2.hide();
     }
 
     /**
@@ -89,8 +90,8 @@ public class ElectricWire extends Wire{
                 activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
                 LineMarker wcNew=addLineMarker(this); // ? bind?      // <---O новый
                 wcNew.bindElemContact(oldEc);
-                wcNew.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
-                wcNew.hide();
+                wcNew.bindStartTo(wcNew.getBindX(),wcNew.getBindY());
+//                wcNew.hide();
                 break;
             case 2:
                 //System.out.println("Set end case 2");

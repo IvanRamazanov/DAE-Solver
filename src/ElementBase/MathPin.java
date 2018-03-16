@@ -11,17 +11,7 @@ import Connections.MathWire;
 //import static ElementBase.MathElement.mathCont;
 
 import Connections.Wire;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseButton;
 
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
 /**
@@ -153,7 +143,7 @@ abstract public class MathPin extends Pin{
 
     @Override
     protected Wire createWire(Pin pin, double x, double y) {
-        return new MathWire(getOwner().getItsSystem(), pin, x, y);
+        return new MathWire(getSystem(), pin, x, y);
     }
 
 }

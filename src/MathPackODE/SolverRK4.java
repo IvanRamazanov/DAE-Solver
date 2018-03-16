@@ -1,6 +1,5 @@
 package MathPackODE;
 
-import ElementBase.OutputElement;
 import MathPack.WorkSpace;
 
 import java.util.List;

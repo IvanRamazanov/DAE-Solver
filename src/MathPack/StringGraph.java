@@ -889,7 +889,7 @@ class Variable implements Uzel{
     @Override
     public void getVariables(Set inp){
         inp.add(name);
-    };
+    }
 
     @Override
     public int getOrder(){
@@ -1154,7 +1154,7 @@ class FuncUzel implements Uzel{
         for(Uzel uz:getInputs()){
             uz.getVariables(inp);
         }
-    };
+    }
 
     @Override
     public Uzel differ(String varName){

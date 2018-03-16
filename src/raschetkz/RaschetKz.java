@@ -6,11 +6,9 @@
 package raschetkz;
 
 import Connections.Wire;
-import Elements.Environment.Subsystem;
 import MathPackODE.Rechatel;
 import ElementBase.Element;
 import ElementBase.ListOfElements;
-import MathPack.StringFunctionSystem;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
@@ -47,7 +45,6 @@ public class RaschetKz extends Application{
     public SimpleStringProperty solverType;
     public static List<Element> elementList;
     public static List<Wire> wireList;
-    private Subsystem mainSystem;
     public static ProgressBar progBar=new ProgressBar(0);
     public SimpleDoubleProperty dt,t_end,absTol,relTol;
     private ModelState state;
@@ -62,6 +59,8 @@ public class RaschetKz extends Application{
         //System.setErr(new PrintStream(myLog));
 
         state=new ModelState();
+        state.getMainSystem().setStage(primaryStage);
+
         dt=state.getDt();
         dt.set(1e-4);
         t_end=state.getTend();
@@ -72,7 +71,6 @@ public class RaschetKz extends Application{
         relTol.set(1e-3);
         solverType=state.getSolver();
         parentStage=primaryStage;
-        mainSystem=state.getMainSystem();
         elementList=state.getElementList();
         wireList=state.getWireList();
         switch(arguments.length) {
@@ -187,14 +185,14 @@ public class RaschetKz extends Application{
         bottomBox.add(errBtn,6,0);
         rootBp.setBottom(bottomBox);
 
-        rootBp.setCenter(mainSystem.getScrollPane());
+        rootBp.setCenter(state.getMainSystem().getScrollPane());
     }
 
     void createElementCatalog(){
         Stage elementStage=new Stage();
         elementStage.setTitle("Element catalogue");
-        elementStage.initOwner(parentStage);
-        HBox root=new HBox(10);
+        //elementStage.initOwner(parentStage);
+        SplitPane root=new SplitPane();
         root.setStyle("-fx-border-style: solid");
         Scene scene=new Scene(root,400, 400,Color.ANTIQUEWHITE);
         VBox cats=new VBox(0);
@@ -231,7 +229,7 @@ public class RaschetKz extends Application{
             elems.setTranslateY(-n.doubleValue());
         });
 
-        root.getChildren().addAll(cats,elems,sc);
+        root.getItems().addAll(cats,elems,sc);
         ListOfElements list=new ListOfElements();
         cats.getChildren().addAll(list.getCategories());
         list.setElemPane(elems);
@@ -366,7 +364,7 @@ public class RaschetKz extends Application{
         top.add(jacobEstType,1,5);
         top.add(new Label("Try to reduce system size"),0,6);
         CheckBox cb=new CheckBox();
-        StringFunctionSystem.simplyfingFlag.bind(cb.selectedProperty());
+        ModelState.getSimplyfingFlag().bind(cb.selectedProperty());
         top.add(cb,1,6);
         root.setTop(top);
         HBox bot=new HBox();

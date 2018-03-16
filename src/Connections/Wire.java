@@ -29,7 +29,7 @@ import java.util.List;
 
 import ElementBase.Element;
 import ElementBase.Pin;
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import MathPack.Parser;
 import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
@@ -37,8 +37,6 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.PickResult;
-import javafx.scene.layout.Pane;
-import raschetkz.RaschetKz;
 
 /**
  *

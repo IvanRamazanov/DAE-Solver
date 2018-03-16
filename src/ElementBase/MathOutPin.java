@@ -6,7 +6,6 @@
 package ElementBase;
 
 import Connections.LineMarker;
-import Connections.MathMarker;
 import Connections.MathWire;
 
 import java.util.List;

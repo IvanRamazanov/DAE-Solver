@@ -11,10 +11,8 @@ import Connections.ElectricWire;
 import Connections.MechWire;
 import Connections.Wire;
 import ElementBase.*;
-import ElementBase.SchemeElement;
 
 import java.io.*;
-import java.lang.ref.Reference;
 import java.lang.reflect.Constructor;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -22,11 +20,11 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
 
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 import MathPack.Parser;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.layout.Pane;
 
 /**
  *
@@ -40,6 +38,7 @@ public class ModelState{
     private SimpleDoubleProperty dt,tend,AbsTol,RelTol;
     private int jacobianEstimationType;
     private String filePath;
+    private final static SimpleBooleanProperty simplyfingFlag=new SimpleBooleanProperty(false);
 
     ModelState(){
         elementList=new ArrayList();
@@ -52,6 +51,10 @@ public class ModelState{
         RelTol=new SimpleDoubleProperty();
         solver.setValue("Adams4");
         jacobianEstimationType=2;
+    }
+
+    public static SimpleBooleanProperty getSimplyfingFlag() {
+        return simplyfingFlag;
     }
 
     public void save(){
@@ -74,7 +77,21 @@ public class ModelState{
             bw.write(Integer.toString(getJacobianEstimationType()));
             bw.write("</JacobEsim>");bw.newLine();
 
+            bw.write("<AbsTolerance>");
+            bw.write(Double.toString(getAbsTol().get()));
+            bw.write("</AbsTolerance>");bw.newLine();
 
+            bw.write("<RelativeTolerance>");
+            bw.write(Double.toString(getRelTol().get()));
+            bw.write("</RelativeTolerance>");bw.newLine();
+
+            bw.write("<TryReduce>");
+            bw.write(getSimplyfingFlag().getValue().toString());
+            bw.write("</TryReduce>");bw.newLine();
+
+            bw.write("<WindowSize>");
+            bw.write("["+getMainSystem().getWindowWidth()+" "+getMainSystem().getWindowHeight()+"]");
+            bw.write("</WindowSize>");bw.newLine();
 
             bw.write("</config>");bw.newLine();
 
@@ -83,7 +100,7 @@ public class ModelState{
             int cnt=0;
             for(Element elem:getElementList()){
                 //bw.write("<Elem"+cnt+">");bw.newLine();
-                elem.save(bw);
+                bw.write(elem.save().toString());
                 //bw.write("</Elem"+cnt+">");bw.newLine();
                 //cnt++;
             }
@@ -185,6 +202,24 @@ public class ModelState{
 
         String jac=Parser.getKeyValue(lines,"<JacobEsim>");
         setJacobianEstimationType(Integer.valueOf(jac));
+
+        String aTol=Parser.getKeyValue(lines,"<AbsTolerance>");
+        if(aTol!=null)
+            getAbsTol().set(Double.valueOf(aTol));
+
+        String rTol=Parser.getKeyValue(lines,"<RelativeTolerance>");
+        if(rTol!=null)
+            getRelTol().set(Double.valueOf(rTol));
+
+        String reduceFlag=Parser.getKeyValue(lines,"<TryReduce>");
+        if(reduceFlag!=null)
+            getSimplyfingFlag().set(Boolean.valueOf(reduceFlag));
+
+        double[] wxy=Parser.parseRow(Parser.getKeyValue(lines,"<WindowSize>"));
+        if(wxy!=null) {
+            getMainSystem().getStage().setWidth(wxy[0]);
+            getMainSystem().getStage().setHeight(wxy[0]);
+        }
     }
 
     private void parseWire(String wireInfo){

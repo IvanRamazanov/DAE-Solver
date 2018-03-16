@@ -9,19 +9,7 @@ import Connections.ElectricWire;
 import Connections.LineMarker;
 import Connections.Wire;
 import Connections.WireMarker;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
-import javafx.scene.Cursor;
-import javafx.scene.effect.BlurType;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import raschetkz.RaschetKz;
 
 
 /**
@@ -30,7 +18,7 @@ import raschetkz.RaschetKz;
  */
 public class ElectricPin extends Pin{
 
-//    public ElectricPin(SchemeElement owner){
+//    public ElectricPass(SchemeElement owner){
 //        super(owner);
 //    }
 
@@ -47,7 +35,7 @@ public class ElectricPin extends Pin{
 
     @Override
     protected Wire createWire(Pin pin, double x, double y) {
-        return new ElectricWire(getOwner().getItsSystem(),pin,x,y);
+        return new ElectricWire(getSystem(),pin,x,y);
     }
 }
 

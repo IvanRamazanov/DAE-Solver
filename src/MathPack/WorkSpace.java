@@ -52,11 +52,7 @@ public class WorkSpace {
     }
 
     public static boolean isRealVariable(String name){
-        if(!name.startsWith("I.")&&!name.startsWith("time")){
-            return true;
-        }else{
-            return false;
-        }
+        return !name.startsWith("I.") && !name.startsWith("time");
     }
 
     public ArrayList<String> getVarNameList(){

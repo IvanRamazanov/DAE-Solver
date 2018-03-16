@@ -5,9 +5,8 @@
  */
 package ElementBase;
 
-import Elements.Environment.Subsystem;
+import Elements.Environment.Subsystem.Subsystem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
