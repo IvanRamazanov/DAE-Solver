@@ -5,13 +5,12 @@
  */
 package ElementBase;
 
+
 import Connections.LineMarker;
 import Connections.MathMarker;
 import Connections.MathWire;
-//import static ElementBase.MathElement.mathCont;
-
 import Connections.Wire;
-
+import Elements.Environment.Subsystem.Subsystem;
 import javafx.scene.shape.Polygon;
 
 /**
@@ -26,8 +25,8 @@ abstract public class MathPin extends Pin{
 
     public MathPin(Element owner){
         super(owner);
-        height=8;
-        width=6;
+        double height=8;
+        double width=6;
         setView(new Polygon(0,0,0,height,width,height/2));
         getView().setTranslateX(-2.0);
         getView().setTranslateY(-3.0);
@@ -144,6 +143,11 @@ abstract public class MathPin extends Pin{
     @Override
     protected Wire createWire(Pin pin, double x, double y) {
         return new MathWire(getSystem(), pin, x, y);
+    }
+
+    @Override
+    public Wire createWire(Subsystem sys, Pin pin1, Pin pin2) {
+        return new MathWire(sys,pin1,pin2);
     }
 
 }

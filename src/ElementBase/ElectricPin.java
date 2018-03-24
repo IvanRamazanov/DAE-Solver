@@ -5,10 +5,11 @@
  */
 package ElementBase;
 
+import Connections.ElectricMarker;
 import Connections.ElectricWire;
 import Connections.LineMarker;
 import Connections.Wire;
-import Connections.WireMarker;
+import Elements.Environment.Subsystem.Subsystem;
 import javafx.scene.shape.Circle;
 
 
@@ -18,24 +19,25 @@ import javafx.scene.shape.Circle;
  */
 public class ElectricPin extends Pin{
 
-//    public ElectricPass(SchemeElement owner){
-//        super(owner);
-//    }
-
     public ElectricPin(Element owner, int x, int y){
         super(owner,x,y);
-        setView(new Circle());
-        ((Circle) getView()).setRadius(height);
+        setView(new Circle(4));
+
     }
 
     @Override
     protected boolean isProperInstance(LineMarker lm) {
-        return lm instanceof WireMarker;
+        return lm instanceof ElectricMarker;
     }
 
     @Override
     protected Wire createWire(Pin pin, double x, double y) {
         return new ElectricWire(getSystem(),pin,x,y);
+    }
+
+    @Override
+    public Wire createWire(Subsystem sys, Pin pin1, Pin pin2) {
+        return new ElectricWire(sys,pin1,pin2);
     }
 }
 

@@ -1,44 +1,20 @@
 package Connections;
 
 import ElementBase.Pin;
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 
-import static Connections.MechWire.*;
-
 public class MechMarker extends LineMarker{
-//    private Wire itsWire;
-    //private MechPin itsElemCont;
-    //private ReadOnlyObjectProperty<Transform> eleContTransf;
-
 
     MechMarker(Wire thisWire){
         super(thisWire);
+
         Circle view=new Circle();
         view.layoutXProperty().bind(bindX);
         view.layoutYProperty().bind(bindY);
         view.setRadius(4);
         setMarker(view);
 
-        EventHandler dragMouseReleas = (EventHandler<MouseEvent>)(MouseEvent me) -> {
-            activeWireConnect=null;
-            me.consume();
-        };
-
-        view.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
-            activeWireConnect=this;
-            view.toFront();
-            e.consume();
-        });
-        view.addEventHandler(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
-        view.addEventHandler(MouseDragEvent.MOUSE_RELEASED, dragMouseReleas);
-        //-------------
-
-        itsLines.setColor(thisWire.getWireColor());
         getWire().getWireContacts().add(this);
-        pushToBack();
     }
 
     /**
@@ -55,14 +31,13 @@ public class MechMarker extends LineMarker{
     }
 
     /**
-     * Create WireMarker that goes from 'ec'
+     * Create ElectricMarker that goes from 'ec'
      * @param thisWire
      * @param ec
      */
-    MechMarker(MechWire thisWire,Pin ec){
+    MechMarker(Wire thisWire,Pin ec){
         this(thisWire);
         this.setIsPlugged(false);
-//            ec.bindWCstartProp(this);
         bindStartTo(ec.getBindX(),ec.getBindY());
         ec.setWirePointer(this);
         setItsConnectedPin(ec);
@@ -88,10 +63,5 @@ public class MechMarker extends LineMarker{
     protected boolean isProperInstance(LineMarker lm) {
         return lm instanceof MechMarker;
     }
-
-//    public void setWire(MechWire wire) {
-//        getWire()=wire;
-//    }
-
 
 }

@@ -1,13 +1,13 @@
 package Elements.Environment.MathInPass;
 
-import ElementBase.MathElement;
-import ElementBase.MathInPin;
-import ElementBase.MathOutPin;
+import Connections.LineMarker;
+import ElementBase.*;
 import Elements.Environment.Subsystem.Subsystem;
+import raschetkz.RaschetKz;
 
 import java.util.List;
 
-public class MathInPass extends MathElement {
+public class MathInPass extends MathElement implements Pass {
     private MathInPin outside;
     private MathOutPin inner;
 
@@ -38,7 +38,10 @@ public class MathInPass extends MathElement {
 
     @Override
     public void delete() {
-
+//        getItsSystem().getPasses().remove(this);
+//        getItsSystem().getInputs().remove(getOutside());
+//        outside.delete();
+        super.delete();
     }
 
     @Override
@@ -60,15 +63,16 @@ public class MathInPass extends MathElement {
         return outside;
     }
 
-    public void setOutside(MathInPin outside) {
-        this.outside = outside;
-    }
-
     public MathOutPin getInner() {
         return inner;
     }
 
-    public void setInner(MathOutPin inner) {
-        this.inner = inner;
+    public void setPass(Subsystem oldSys, LineMarker lm) {
+//        RaschetKz.elementList.add(this);
+
+        //reconnect
+        Pin oldPin=lm.getItsConnectedPin();
+        lm.bindElemContact(getInner());
+        oldPin.createWire(oldSys,oldPin,getOutside());
     }
 }

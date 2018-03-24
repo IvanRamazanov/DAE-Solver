@@ -35,6 +35,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Shape;
 import raschetkz.RaschetKz;
 
+import java.util.List;
+
 /**
  *
  * @author Ivan
@@ -43,6 +45,8 @@ public class MathWire extends Wire{
     private MathMarker sourceMarker;
     private static Shape dragSource;
     private MathOutPin source;
+
+    private List<Double> value;
 
     public static final EventHandler MC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
         @Override
@@ -69,7 +73,7 @@ public class MathWire extends Wire{
         setItsSystem(sys);
         setWireColor("#000000");
 
-        RaschetKz.wireList.add(this);
+        sys.getWireList().add(this);
     }
 
     /**
@@ -157,14 +161,14 @@ public class MathWire extends Wire{
         return new MathMarker(wire,x,y);
     }
 
-    /**
-     * Разбиндивает все узлы
-     */
-    public void unBindAll(){
-        for(LineMarker wc:this.getWireContacts()){
-            wc.unBindStartPoint();
-        }
-    }
+//    /**
+//     * Разбиндивает все узлы
+//     */
+//    public void unBindAll(){
+//        for(LineMarker wc:this.getWireContacts()){
+//            wc.unBindStartPoint();
+//        }
+//    }
 
     /**
      * @return the source
@@ -187,7 +191,7 @@ public class MathWire extends Wire{
 
 
     public void delete(){
-        RaschetKz.wireList.remove(this);
+        getItsSystem().getWireList().remove(this);
         if(!getWireContacts().isEmpty()){
             activeWireConnect= getWireContacts().get(0);// for prevent dead loop
             int i=getWireContacts().size()-1;
@@ -215,6 +219,17 @@ public class MathWire extends Wire{
 
     public void setSource(MathOutPin source) {
         this.source = source;
+    }
+
+    public List<Double> getValue() {
+        if(value==null){
+            value=getSource().getValue();
+        }
+        return value;
+    }
+
+    public void resetValue() {
+        value=null;
     }
 }
 

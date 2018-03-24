@@ -5,11 +5,8 @@
  */
 package raschetkz;
 
-import Connections.MathWire;
+import Connections.*;
 
-import Connections.ElectricWire;
-import Connections.MechWire;
-import Connections.Wire;
 import ElementBase.*;
 
 import java.io.*;
@@ -31,8 +28,6 @@ import javafx.beans.property.SimpleStringProperty;
  * @author Иван
  */
 public class ModelState{
-    private List<Element> elementList;
-    private ArrayList<Wire> wireList;
     private Subsystem mainSystem;
     private SimpleStringProperty solver;
     private SimpleDoubleProperty dt,tend,AbsTol,RelTol;
@@ -41,8 +36,6 @@ public class ModelState{
     private final static SimpleBooleanProperty simplyfingFlag=new SimpleBooleanProperty(false);
 
     ModelState(){
-        elementList=new ArrayList();
-        wireList=new ArrayList<>();
         mainSystem=new Subsystem();
         dt=new SimpleDoubleProperty();
         tend=new SimpleDoubleProperty();
@@ -59,64 +52,49 @@ public class ModelState{
 
     public void save(){
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(filePath)))) {
-            bw.write("<config>");bw.newLine();
+            StringBuilder sb=new StringBuilder();
+            sb.append("<config>");sb.append("\r\n");
 
-            bw.write("<Solver>");
-            bw.write(getSolver().getValue());
-            bw.write("</Solver>");bw.newLine();
+            sb.append("<Solver>");
+            sb.append(getSolver().getValue());
+            sb.append("</Solver>");sb.append("\r\n");
 
-            bw.write("<tEnd>");
-            bw.write(Double.toString(getTend().doubleValue()));
-            bw.write("</tEnd>");bw.newLine();
+            sb.append("<tEnd>");
+            sb.append(Double.toString(getTend().doubleValue()));
+            sb.append("</tEnd>");sb.append("\r\n");
 
-            bw.write("<dt>");
-            bw.write(Double.toString(getDt().doubleValue()));
-            bw.write("</dt>");bw.newLine();
+            sb.append("<dt>");
+            sb.append(Double.toString(getDt().doubleValue()));
+            sb.append("</dt>");sb.append("\r\n");
 
-            bw.write("<JacobEsim>");
-            bw.write(Integer.toString(getJacobianEstimationType()));
-            bw.write("</JacobEsim>");bw.newLine();
+            sb.append("<JacobEsim>");
+            sb.append(Integer.toString(getJacobianEstimationType()));
+            sb.append("</JacobEsim>");sb.append("\r\n");
 
-            bw.write("<AbsTolerance>");
-            bw.write(Double.toString(getAbsTol().get()));
-            bw.write("</AbsTolerance>");bw.newLine();
+            sb.append("<AbsTolerance>");
+            sb.append(Double.toString(getAbsTol().get()));
+            sb.append("</AbsTolerance>");sb.append("\r\n");
 
-            bw.write("<RelativeTolerance>");
-            bw.write(Double.toString(getRelTol().get()));
-            bw.write("</RelativeTolerance>");bw.newLine();
+            sb.append("<RelativeTolerance>");
+            sb.append(Double.toString(getRelTol().get()));
+            sb.append("</RelativeTolerance>");sb.append("\r\n");
 
-            bw.write("<TryReduce>");
-            bw.write(getSimplyfingFlag().getValue().toString());
-            bw.write("</TryReduce>");bw.newLine();
+            sb.append("<TryReduce>");
+            sb.append(getSimplyfingFlag().getValue().toString());
+            sb.append("</TryReduce>");sb.append("\r\n");
 
-            bw.write("<WindowSize>");
-            bw.write("["+getMainSystem().getWindowWidth()+" "+getMainSystem().getWindowHeight()+"]");
-            bw.write("</WindowSize>");bw.newLine();
+            sb.append("<WindowSize>");
+            sb.append("["+getMainSystem().getWindowWidth()+" "+getMainSystem().getWindowHeight()+"]");
+            sb.append("</WindowSize>");sb.append("\r\n");
 
-            bw.write("</config>");bw.newLine();
+            sb.append("</config>");sb.append("\r\n");
+            bw.write(Parser.formatBlock(sb.toString()));
 
-
-            bw.write("<Elements>");bw.newLine();
-            int cnt=0;
-            for(Element elem:getElementList()){
-                //bw.write("<Elem"+cnt+">");bw.newLine();
-                bw.write(elem.save().toString());
-                //bw.write("</Elem"+cnt+">");bw.newLine();
-                //cnt++;
-            }
-            bw.write("</Elements>");bw.newLine();
-
-            bw.write("<WireList>");bw.newLine();
-
-            cnt=0;
-            for(Wire w: getWireList()){
-                bw.write("<wire"+cnt+">");bw.newLine();
-                bw.write(w.save());
-                bw.write("</wire"+cnt+">");bw.newLine();
-                cnt++;
-            }
-
-            bw.write("</WireList>");bw.newLine();
+            // main subsystem
+            sb=new StringBuilder("<MainSystem>");sb.append("\r\n");
+            sb.append(getMainSystem().save());
+            sb.append("</MainSystem>");
+            bw.write(Parser.formatBlock(sb.toString()));
 
         }catch(Exception ex){
             ex.printStackTrace(System.err);
@@ -129,10 +107,12 @@ public class ModelState{
     }
 
     public void clearState(){
-        for(int i=getElementList().size()-1;i>=0;i--)
-            getElementList().get(i).delete();
-        for(int i = getWireList().size()-1; i>=0; i--)
-            getWireList().get(i).delete();
+        getMainSystem().delete();
+
+//        for(int i=getMainSystem().getElementList().size()-1;i>=0;i--)
+//            getMainSystem().getElementList().get(i).delete();
+//        for(int i = getMainSystem().getAllWires().size()-1; i>=0; i--)  // TODO empty list?
+//            getMainSystem().getAllWires().get(i).delete();
         setFileName(null);
     }
 
@@ -145,153 +125,61 @@ public class ModelState{
 
             parseConfig(Parser.getBlock(p,"<config>"));
 
-            AtomicReference<String> elems=new AtomicReference<>(Parser.getBlock(p,"<Elements>"));
-            if(!elems.get().isEmpty()){
-                while(!elems.get().isEmpty()){
-                    String blockName=elems.get().substring(0,elems.get().indexOf('>')+1),
-                    elemName=blockName.substring(1,blockName.length()-1),
-                            elemInfo=Parser.getBlock(p,blockName);
+            getMainSystem().configurate(Parser.getBlock(p,"<MainSystem>"));
 
-                    Element elem=parseElement(elemName,elemInfo,elems);
-                }
-            }
-
-
-            br.useDelimiter(System.lineSeparator());
-            String line;
-            while(br.hasNext()){
-                line=br.next();
-                if(line.equals("<WireList>")){
-                    while(!(line=br.next()).equals("</WireList>")) {
-                        String wire=line,end="</"+wire.substring(1);
-                        StringBuilder wireInfo=new StringBuilder();
-                        while (!(line=br.next()).equals(end)){
-                            wireInfo.append(line+System.lineSeparator());
-                        }
-
-
-                        parseWire(wireInfo.toString());
-                    }
-                }
-            }
         }catch(IOException io){
             io.printStackTrace(System.err);
         }
     }
 
-    public List<ElectricWire> getElectroWires() {
-        List<ElectricWire> out=new ArrayList<>();
-        for(Wire w:getWireList()){
-            if(w instanceof ElectricWire)
-                out.add((ElectricWire)w);
+    public List<Wire> getElectroWires() {
+        List<Wire> out=new ArrayList<>();
+        for(Wire w:getMainSystem().getAllWires()){
+            if(w instanceof ElectricWire || w instanceof ThreePhaseWire)
+                out.add(w);
         }
         return out;
     }
 
     private void parseConfig(String config){
-        String[] lines = config.split(System.getProperty("line.separator"));
+//        String[] lines = config.split("\r\n");
 
-        String solverName=Parser.getKeyValue(lines,"<Solver>");
+        String solverName=Parser.getKeyValue(config,"<Solver>");
         solver.set(solverName);
 
-        String tEnd=Parser.getKeyValue(lines,"<tEnd>");
+        String tEnd=Parser.getKeyValue(config,"<tEnd>");
         tend.set(Double.valueOf(tEnd));
 
-        String dts=Parser.getKeyValue(lines,"<dt>");
+        String dts=Parser.getKeyValue(config,"<dt>");
         dt.set(Double.valueOf(dts));
 
-        String jac=Parser.getKeyValue(lines,"<JacobEsim>");
+        String jac=Parser.getKeyValue(config,"<JacobEsim>");
         setJacobianEstimationType(Integer.valueOf(jac));
 
-        String aTol=Parser.getKeyValue(lines,"<AbsTolerance>");
+        String aTol=Parser.getKeyValue(config,"<AbsTolerance>");
         if(aTol!=null)
             getAbsTol().set(Double.valueOf(aTol));
 
-        String rTol=Parser.getKeyValue(lines,"<RelativeTolerance>");
+        String rTol=Parser.getKeyValue(config,"<RelativeTolerance>");
         if(rTol!=null)
             getRelTol().set(Double.valueOf(rTol));
 
-        String reduceFlag=Parser.getKeyValue(lines,"<TryReduce>");
+        String reduceFlag=Parser.getKeyValue(config,"<TryReduce>");
         if(reduceFlag!=null)
             getSimplyfingFlag().set(Boolean.valueOf(reduceFlag));
 
-        double[] wxy=Parser.parseRow(Parser.getKeyValue(lines,"<WindowSize>"));
+        double[] wxy=Parser.parseRow(Parser.getKeyValue(config,"<WindowSize>"));
         if(wxy!=null) {
             getMainSystem().getStage().setWidth(wxy[0]);
-            getMainSystem().getStage().setHeight(wxy[0]);
+            getMainSystem().getStage().setHeight(wxy[1]);
         }
     }
 
-    private void parseWire(String wireInfo){
-        String className=wireInfo.substring(wireInfo.lastIndexOf("<ClassName>")+"<ClassName>".length(),wireInfo.indexOf("</ClassName>"));
 
-        String sysName=Parser.getFirstKeyValue(wireInfo,"<Subsystem>");
-
-        Subsystem sys;
-
-        if(sysName.isEmpty()){
-            sys=mainSystem;
-        }else{
-            Element e=Element.findElement(sysName);
-            sys=(Subsystem) e;
-        }
-
-        Class<?> clas= null;
-        try {
-            clas = Class.forName(className);
-            Constructor<?> ctor=clas.getConstructor(Subsystem.class);
-            Wire w=(Wire)ctor.newInstance(sys);
-//            getWireList().add(w);
-            w.configure(wireInfo);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
-    }
-
-    private Element parseElement(String name, String elemInfo, AtomicReference<String> elemBlock){
-//        String className=elemInfo.substring(elemInfo.indexOf("<ClassName>")+"<ClassName>".length(),elemInfo.indexOf("</ClassName>"));
-        String className=Parser.getFirstKeyValue(elemInfo,"<ClassName>");
-
-        String sysName=Parser.getFirstKeyValue(elemInfo,"<Subsystem>");
-
-        Subsystem sys;
-
-        if(sysName.isEmpty()){
-            sys=mainSystem;
-        }else{
-            Element e=Element.findElement(sysName);
-            if(e==null){
-                // create subsys
-                String sysInfo=Parser.getBlock(elemBlock.get(),"<"+sysName+">");
-                Element subsys=parseElement(sysName,sysInfo,elemBlock);
-                sys=(Subsystem)subsys;
-            }else
-                sys=(Subsystem) e;
-        }
-
-        Element elem=null;
-        try {
-            Class<?> clas = Class.forName(className);
-            Constructor<?> ctor=clas.getConstructor(Subsystem.class);
-            elem=(Element)ctor.newInstance(sys);
-            elem.configurate(name,elemInfo);
-
-            getElementList().add(elem);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
-
-        // reduce block
-        String ls=System.lineSeparator();
-        String rep="<"+name+">"+ls+elemInfo+"</"+name+">"+ls;
-        elemBlock.set(elemBlock.get().replace(rep,""));
-
-        return elem;
-    }
 
     public List<MathElement> getMathElements(){
         List<MathElement> out=new ArrayList<>();
-        for(Element elem:getElementList()){
+        for(Element elem:getMainSystem().getAllElements()){
             if(elem instanceof MathElement)
                 out.add((MathElement) elem);
         }
@@ -300,20 +188,16 @@ public class ModelState{
 
     public List<MechWire> getMechWires(){
         List<MechWire> out=new ArrayList<>();
-        for(Wire w:getWireList()){
+        for(Wire w:getMainSystem().getAllWires()){
             if(w instanceof MechWire)
                 out.add((MechWire) w);
         }
         return out;
     }
 
-    public List<Element> getElementList() {
-        return(this.elementList);
-    }
-
     public List<SchemeElement> getSchemeElements(){
         List<SchemeElement> out=new ArrayList<>();
-        for(Element elem:getElementList()){
+        for(Element elem:getMainSystem().getAllElements()){
             if(elem instanceof SchemeElement)
                 out.add((SchemeElement) elem);
         }
@@ -329,7 +213,7 @@ public class ModelState{
      */
     public List<MathWire> getMathConnList() {
         List<MathWire> out=new ArrayList<>();
-        for(Wire w:getWireList()){
+        for(Wire w:getMainSystem().getAllWires()){
             if(w instanceof MathWire)
                 out.add((MathWire) w);
         }
@@ -387,8 +271,5 @@ public class ModelState{
         return RelTol;
     }
 
-    public ArrayList<Wire> getWireList() {
-        return wireList;
-    }
 }
 

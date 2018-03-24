@@ -1,14 +1,11 @@
 package Connections;
 
 import ElementBase.Pin;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Circle;
 
-import static Connections.ElectricWire.*;
+public class ThreePhaseMarker extends LineMarker{
 
-public class WireMarker extends LineMarker{
-
-    public WireMarker(Wire thisWire){
+    public ThreePhaseMarker(Wire thisWire){
         super(thisWire);
 
         Circle view=new Circle();
@@ -17,32 +14,15 @@ public class WireMarker extends LineMarker{
         view.setRadius(4);
         setMarker(view);
 
-
-        view.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
-            activeWireConnect=this;
-            System.out.println("pressed");
-            e.consume();
-
-            view.setOnMouseDragged(WC_MOUSE_DRAG);
-            view.setOnMouseDragReleased(WC_MOUSE_RELEAS);
-
-//            view.addEventHandler(MouseDragEvent.MOUSE_DRAGGED, WC_MOUSE_DRAG);
-//            view.addEventHandler(MouseDragEvent.MOUSE_RELEASED, WC_MOUSE_RELEAS);
-        });
-
-
-        itsLines.setColor(thisWire.getWireColor());
         getWire().getWireContacts().add(this);
-        pushToBack();
     }
-
 
     /**
      * Creates contact that starts in (x,y) ends in (x,y)
      * @param sx start x point
      * @param sy start y point
      */
-    protected WireMarker(Wire thisWire,double sx,double sy){
+    protected ThreePhaseMarker(Wire thisWire, double sx, double sy){
         this(thisWire);
         itsLines.setStartXY(sx, sy);
         bindX.set(sx);
@@ -51,20 +31,19 @@ public class WireMarker extends LineMarker{
     }
 
     /**
-     * Create WireMarker that goes from 'ec'
+     * Create ElectricMarker that goes from 'ec'
      * @param thisWire
      * @param ec
      */
-    WireMarker(ElectricWire thisWire,Pin ec){
+    ThreePhaseMarker(Wire thisWire, Pin ec){
         this(thisWire);
         this.setIsPlugged(false);
-//            ec.bindWCstartProp(this);
         bindStartTo(ec.getBindX(),ec.getBindY());
         ec.setWirePointer(this);
         setItsConnectedPin(ec);
     }
 
-    protected WireMarker(Wire thisWire,double startX,double startY,double endX,double endY,boolean isHorizontal,double[] constrList){
+    protected ThreePhaseMarker(Wire thisWire, double startX, double startY, double endX, double endY, boolean isHorizontal, double[] constrList){
         this(thisWire);
         itsLines.setStartXY(startX, startY);
         bindX.set(endX);
@@ -75,13 +54,13 @@ public class WireMarker extends LineMarker{
     /**
      * @return the itsBranch
      */
-    public ElectricWire getWire() {
-        return (ElectricWire) super.getWire();
+    @Override
+    public ThreePhaseWire getWire() {
+        return (ThreePhaseWire) super.getWire();
     }
 
     @Override
     protected boolean isProperInstance(LineMarker lm) {
-        return lm instanceof WireMarker;
+        return lm instanceof ThreePhaseMarker;
     }
-
 }

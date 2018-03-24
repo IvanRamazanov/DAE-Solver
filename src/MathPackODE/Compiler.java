@@ -8,6 +8,7 @@ package MathPackODE;
 import java.util.List;
 
 import Connections.MechWire;
+import Connections.Wire;
 import ElementBase.*;
 import Connections.ElectricWire;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -24,7 +25,7 @@ public class Compiler {
     List<SchemeElement> elemList=new ArrayList();
     List<DynamMathElem> dynMathElemList=new ArrayList();
     List<OutputElement> outputs=new ArrayList();
-    List<ElectricWire> wireList=new ArrayList();
+    List<Wire> wireList=new ArrayList();
     List<MechWire> mechWires=new ArrayList<>();
     SimpleBooleanProperty recompile;
     DAE DAEsys;

@@ -19,31 +19,10 @@ import raschetkz.RaschetKz;
  */
 public class MechWire extends Wire {
 
-    public static final EventHandler MeC_MOUSE_DRAG = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent me) {
-            if (activeWireConnect != null)
-                if (!activeWireConnect.getIsPlugged().get()) {
-                    activeWireConnect.setEndPropInSceneCoordinates(me.getSceneX(), me.getSceneY());
-                }
-            me.consume();
-        }
-    };
-    public static final EventHandler MeC_MOUSE_RELEAS = new EventHandler<MouseEvent>() {
-        @Override
-        public void handle(MouseEvent me) {
-            activeWireConnect.toFront();
-            activeWireConnect = null;
-            ((Node) me.getSource()).removeEventFilter(MouseEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
-            ((Node) me.getSource()).removeEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
-            me.consume();
-        }
-    };
-
     public MechWire(Subsystem sys) {
         setItsSystem(sys);
         setWireColor("#949899");
-        RaschetKz.wireList.add(this);
+        sys.getWireList().add(this);
     }
 
     /**
@@ -71,42 +50,6 @@ public class MechWire extends Wire {
         wc1.bindElemContact(EleCont1);
         wc2.bindElemContact(EleCont2);
 //        wc2.hide();
-    }
-
-    /**
-     * Биндит линию к контакту элемента
-     * @param elemCont контакт элемента
-     */
-    @Override
-    public boolean setEnd(Pin elemCont){
-        switch(getWireContacts().size()){
-            case 1:
-                Pin oldEc=activeWireConnect.getItsConnectedPin();   // начальный O--->
-                activeWireConnect.bindElemContact(elemCont);           // --->О цепляем
-                MechMarker wcNew=new MechMarker(this); // ? bind?      // <---O новый
-                wcNew.bindElemContact(oldEc);                 // OX--->O  цепляем
-                wcNew.bindStartTo(wcNew.getBindX(),wcNew.getBindY());
-//                wcNew.hide();
-                break;
-            case 2:
-                if(!getWireContacts().get(0).isPlugged()&&!getWireContacts().get(1).isPlugged()) {   // free floating wire case
-                    LineMarker loser;
-                    if(getWireContacts().get(0).equals(activeWireConnect))
-                        loser=getWireContacts().get(1);
-                    else
-                        loser=getWireContacts().get(0);
-                    activeWireConnect.setEndPoint(loser.getBindX().get(),loser.getBindY().get());
-                    activeWireConnect.bindStartTo(elemCont.getBindX(),elemCont.getBindY());
-                    elemCont.setWirePointer(activeWireConnect);
-                    loser.delete();
-                }else{
-                    throw new Error("Unexpected case!");
-                }
-                break;
-            default:
-                activeWireConnect.bindElemContact(elemCont);
-        }
-        return true;
     }
 
     @Override
@@ -217,33 +160,33 @@ public class MechWire extends Wire {
 //
 //    }
 
-    MechMarker addContact(){
-        MechMarker wc=new MechMarker(this);
-        return wc;
-    }
+//    MechMarker addContact(){
+//        MechMarker wc=new MechMarker(this);
+//        return wc;
+//    }
 
-    public void delete(){
-        RaschetKz.wireList.remove(this);
-        if(!getWireContacts().isEmpty()){
-            activeWireConnect=getWireContacts().get(0);// for prevent dead loop
-            int i=getWireContacts().size()-1;
-            for(;i>=0;i--){
-                if(!getWireContacts().isEmpty())
-                    getWireContacts().get(i).delete();
-            }
-            activeWireConnect=null;
-        }
-        for(int i=getContContList().size()-1;i>=0;i--){
-            if(!getContContList().isEmpty())
-                getContContList().get(i).delete();
-        }
-        getDotList().clear();
-    }
+//    public void delete(){
+//        RaschetKz.wireList.remove(this);
+//        if(!getWireContacts().isEmpty()){
+//            activeWireConnect=getWireContacts().get(0);// for prevent dead loop
+//            int i=getWireContacts().size()-1;
+//            for(;i>=0;i--){
+//                if(!getWireContacts().isEmpty())
+//                    getWireContacts().get(i).delete();
+//            }
+//            activeWireConnect=null;
+//        }
+//        for(int i=getContContList().size()-1;i>=0;i--){
+//            if(!getContContList().isEmpty())
+//                getContContList().get(i).delete();
+//        }
+//        getDotList().clear();
+//    }
 
-    @Override
-    public void setStaticEventFilters(Node source) {
-        source.addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
-        source.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
-    }
+//    @Override
+//    public void setStaticEventFilters(Node source) {
+//        source.addEventFilter(MouseDragEvent.MOUSE_DRAGGED, MeC_MOUSE_DRAG);
+//        source.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MeC_MOUSE_RELEAS);
+//    }
 }
 

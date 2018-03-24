@@ -1,13 +1,13 @@
 package Elements.Environment.MathOutPass;
 
-import ElementBase.MathElement;
-import ElementBase.MathInPin;
-import ElementBase.MathOutPin;
+import Connections.LineMarker;
+import ElementBase.*;
 import Elements.Environment.Subsystem.Subsystem;
+import raschetkz.RaschetKz;
 
 import java.util.List;
 
-public class MathOutPass extends MathElement {
+public class MathOutPass extends MathElement implements Pass{
     private MathOutPin outside;
     private MathInPin inner;
 
@@ -27,7 +27,6 @@ public class MathOutPass extends MathElement {
         getView().setLayoutY(sys.getRightPinCnt()*30);
 
         sys.setRightPinCnt(sys.getRightPinCnt()+1);
-
     }
 
     public MathOutPass(boolean val){
@@ -41,7 +40,10 @@ public class MathOutPass extends MathElement {
 
     @Override
     public void delete() {
-
+//        getItsSystem().getPasses().remove(this);
+//        getItsSystem().getOutputs().remove(outside);
+//        outside.delete();
+        super.delete();
     }
 
     @Override
@@ -59,19 +61,20 @@ public class MathOutPass extends MathElement {
         setName("MathOut");
     }
 
-    public MathOutPin getOutside() {
+    public Pin getOutside() {
         return outside;
     }
 
-    public void setOutside(MathOutPin outside) {
-        this.outside = outside;
-    }
-
-    public MathInPin getInner() {
+    public Pin getInner() {
         return inner;
     }
 
-    public void setInner(MathInPin inner) {
-        this.inner = inner;
+    public void setPass(Subsystem oldSys, LineMarker lm) {
+//        RaschetKz.elementList.add(this);
+
+        //reconnect
+        Pin oldPin=lm.getItsConnectedPin();
+        lm.bindElemContact(getInner());
+        oldPin.createWire(oldSys,oldPin,getOutside());
     }
 }

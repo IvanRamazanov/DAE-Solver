@@ -5,9 +5,7 @@
  */
 package raschetkz;
 
-import Connections.Wire;
 import MathPackODE.Rechatel;
-import ElementBase.Element;
 import ElementBase.ListOfElements;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
@@ -20,10 +18,10 @@ import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import java.io.File;
 import javafx.application.Platform;
@@ -43,8 +41,6 @@ public class RaschetKz extends Application{
     private static String[] arguments;
     private Button stopBtn;
     public SimpleStringProperty solverType;
-    public static List<Element> elementList;
-    public static List<Wire> wireList;
     public static ProgressBar progBar=new ProgressBar(0);
     public SimpleDoubleProperty dt,t_end,absTol,relTol;
     private ModelState state;
@@ -56,7 +52,7 @@ public class RaschetKz extends Application{
 
     @Override
     public void start(Stage primaryStage) {
-        //System.setErr(new PrintStream(myLog));
+        System.setErr(new PrintStream(myLog));
 
         state=new ModelState();
         state.getMainSystem().setStage(primaryStage);
@@ -71,8 +67,6 @@ public class RaschetKz extends Application{
         relTol.set(1e-3);
         solverType=state.getSolver();
         parentStage=primaryStage;
-        elementList=state.getElementList();
-        wireList=state.getWireList();
         switch(arguments.length) {
             case 2:
                 if (arguments[0].equals("-o")) {
@@ -188,14 +182,14 @@ public class RaschetKz extends Application{
         rootBp.setCenter(state.getMainSystem().getScrollPane());
     }
 
-    void createElementCatalog(){
+    Stage createElementCatalog(){
         Stage elementStage=new Stage();
         elementStage.setTitle("Element catalogue");
         //elementStage.initOwner(parentStage);
         SplitPane root=new SplitPane();
         root.setStyle("-fx-border-style: solid");
-        Scene scene=new Scene(root,400, 400,Color.ANTIQUEWHITE);
-        VBox cats=new VBox(0);
+        Scene scene=new Scene(root,600, 400,Color.ANTIQUEWHITE);
+        //VBox cats=new VBox(0);
         scene.getStylesheets().add("raschetkz/mod.css");
 
         TilePane elems=new TilePane(Orientation.HORIZONTAL, 5, 5);
@@ -229,12 +223,13 @@ public class RaschetKz extends Application{
             elems.setTranslateY(-n.doubleValue());
         });
 
-        root.getItems().addAll(cats,elems,sc);
-        ListOfElements list=new ListOfElements();
-        cats.getChildren().addAll(list.getCategories());
+        final ListOfElements list=new ListOfElements();
+        root.getItems().addAll(list.getCategories(),elems,sc);
+        root.getDividers().get(0).setPosition(0.1);
         list.setElemPane(elems);
         elementStage.setScene(scene);
-        elementStage.show();
+
+        return elementStage;
     }
 
     MenuBar createMenu(){
@@ -307,8 +302,10 @@ public class RaschetKz extends Application{
         Menu catMenu = new Menu("Element catalogue");
         MenuItem item=new MenuItem("Open catalogue");
         item.setAccelerator(KeyCombination.keyCombination(KeyCombination.CONTROL_DOWN+"+l"));
+        Stage st=createElementCatalog();
         item.setOnAction((ActionEvent ae)->{
-            createElementCatalog();
+            st.show();
+            st.toFront();
         });
         catMenu.getItems().add(item);
         menuBar.getMenus().add(catMenu);

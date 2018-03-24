@@ -101,6 +101,27 @@ public abstract class Wire{
             eventCross.removeEventFilter(MouseDragEvent.MOUSE_DRAG_RELEASED,this);
         }
     };
+    public static final EventHandler WC_MOUSE_DRAG = new EventHandler<MouseEvent>(){
+        @Override
+        public void handle(MouseEvent me) {
+            if(activeWireConnect!=null)
+                if(!activeWireConnect.getIsPlugged().get()){
+                    activeWireConnect.setEndPropInSceneCoordinates(me.getSceneX(), me.getSceneY());
+                }
+            me.consume();
+        }
+    };
+    public static final EventHandler WC_MOUSE_RELEAS= new EventHandler<MouseDragEvent>() {
+        @Override
+        public void handle(MouseDragEvent me){
+            if(activeWireConnect!=null)
+                activeWireConnect.toFront();
+            activeWireConnect=null;
+            ((Node)me.getGestureSource()).setOnMouseDragged(null);
+            ((Node)me.getGestureSource()).setOnMouseDragReleased(null);
+            me.consume();
+        }
+    };
 
     public List<CrossToCrossLine> getContContList() {
         return ContContList;
@@ -119,8 +140,8 @@ public abstract class Wire{
     }
     /**
      *
-     * @param wc1 Strat marker of first WireMarker
-     * @param wc2 Strat marker of second WireMarker
+     * @param wc1 Strat marker of first ElectricMarker
+     * @param wc2 Strat marker of second ElectricMarker
      */
     protected void addContToCont(Cross wc1,Cross wc2){
         CrossToCrossLine contToContLine = new CrossToCrossLine(this, wc1, wc2);
@@ -154,31 +175,31 @@ public abstract class Wire{
     public void configure(String info){
         // SubWire cycle
         int cnt=0,stIndex,endIndex;
-        String swkey="<SubWire"+cnt+">",endswKey="</SubWire"+cnt+">";
-        while((stIndex=info.indexOf(swkey))!=-1){
-            endIndex=info.lastIndexOf(endswKey);
-            String wireMarkerInfo=info.substring(stIndex+swkey.length()+System.lineSeparator().length(),endIndex);
+        String swkey="<SubWire"+cnt+">";
+//        endswKey="</SubWire"+cnt+">";
+        String wireMarkerInfo;
 
-            String[] lines = wireMarkerInfo.split(System.getProperty("line.separator"));
+        while(!(wireMarkerInfo=Parser.getBlock(info,swkey)).isEmpty()){
 
-            boolean isEasyDraw;
+//            String[] lines = wireMarkerInfo.split("\r\n");
+
             double[] constraints,startEnd;
-            String connectedElem= Parser.getKeyValue(lines,"<ConnectTo>"),pinIndex=null;
-            startEnd=Parser.parseRow(Parser.getKeyValue(lines,"<StartEnd>"));
+            String connectedElem= Parser.getKeyValue(wireMarkerInfo,"<ConnectTo>"),pinIndex=null;
+            startEnd=Parser.parseRow(Parser.getKeyValue(wireMarkerInfo,"<StartEnd>"));
             double ax=startEnd[0],
                     ay=startEnd[1],
                     ex=startEnd[2],
                     ey=startEnd[3];
 
-            String dotlistpoint=Parser.getKeyValue(lines,"<DotListIndex>");
+            String dotlistpoint=Parser.getKeyValue(wireMarkerInfo,"<DotListIndex>");
 
             if(!connectedElem.equals("null")){
-                pinIndex=Parser.getKeyValue(lines,"<PinIndex>");
+                pinIndex=Parser.getKeyValue(wireMarkerInfo,"<PinIndex>");
             }
 
-            boolean isEasy=Boolean.valueOf(Parser.getKeyValue(lines,"<EasyDraw>")),
-                    isHorizontal=Boolean.valueOf(Parser.getKeyValue(lines,"<Horizontal>"));
-            constraints=Parser.parseRow(Parser.getKeyValue(lines,"<Constraints>"));
+            boolean isEasy=Boolean.valueOf(Parser.getKeyValue(wireMarkerInfo,"<EasyDraw>")),
+                    isHorizontal=Boolean.valueOf(Parser.getKeyValue(wireMarkerInfo,"<Horizontal>"));
+            constraints=Parser.parseRow(Parser.getKeyValue(wireMarkerInfo,"<Constraints>"));
 
             LineMarker wm;
 
@@ -201,7 +222,16 @@ public abstract class Wire{
 
             //set up wireCont
             if(!connectedElem.equals("null")) {
-                Element elem=Element.findElement(connectedElem);
+                Element elem;
+                if(connectedElem.contains("$")){
+                    String sysName=connectedElem.substring(0,connectedElem.indexOf("$"));
+                    Subsystem sys=(Subsystem) Element.findElement(getItsSystem(), sysName);
+                    sysName=connectedElem.substring(connectedElem.indexOf("$")+1);
+                    elem=Element.findElement(sys, sysName);
+
+                }else {
+                    elem = Element.findElement(getItsSystem(), connectedElem);
+                }
                 Pin ECofWC = elem.getPin(pinIndex);
                 wm.bindElemContact(ECofWC);
                 ECofWC.setWirePointer(wm);
@@ -209,7 +239,7 @@ public abstract class Wire{
 
             cnt++;
             swkey="<SubWire"+cnt+">";
-            endswKey="</SubWire"+cnt+">";
+//            endswKey="</SubWire"+cnt+">";
         }
 
         switch(cnt) { // 2 subWireCase
@@ -262,29 +292,27 @@ public abstract class Wire{
 
         cnt=0;
         swkey="<CrossToCrossLine"+cnt+">";
-        endswKey="</CrossToCrossLine"+cnt+">";
-        while((stIndex=info.indexOf(swkey))!=-1){
-            endIndex=info.lastIndexOf(endswKey);
-            String wireMarkerInfo=info.substring(stIndex,endIndex);
-            String[] lines = wireMarkerInfo.split(System.getProperty("line.separator"));
+        while(!(wireMarkerInfo=Parser.getBlock(info,swkey)).isEmpty()){
 
-            double[] startEnd=Parser.parseRow(Parser.getKeyValue(lines,"<StartEnd>"));
+//            String[] lines = wireMarkerInfo.split("\r\n");
+
+            double[] startEnd=Parser.parseRow(Parser.getKeyValue(wireMarkerInfo,"<StartEnd>"));
             double ax=startEnd[0],
                     ay=startEnd[1],
                     ex=startEnd[2],
                     ey=startEnd[3];
-            boolean easyDraw=Boolean.valueOf(Parser.getKeyValue(lines,"<EasyDraw>"));
+            boolean easyDraw=Boolean.valueOf(Parser.getKeyValue(wireMarkerInfo,"<EasyDraw>"));
 
             CrossToCrossLine line=addContToCont(ax,ay,ex,ey);
             if(!easyDraw){
-                boolean isHrizon=Boolean.valueOf(Parser.getKeyValue(lines,"<Horizontal>"));
-                double[] constraints=Parser.parseRow(Parser.getKeyValue(lines,"<Constraints>"));
+                boolean isHrizon=Boolean.valueOf(Parser.getKeyValue(wireMarkerInfo,"<Horizontal>"));
+                double[] constraints=Parser.parseRow(Parser.getKeyValue(wireMarkerInfo,"<Constraints>"));
                 line.rearrange(isHrizon, constraints);
             }
 
 
             // indexes in dotList
-            double[] points=Parser.parseRow(Parser.getKeyValue(lines,"<DotListIndex>"));
+            double[] points=Parser.parseRow(Parser.getKeyValue(wireMarkerInfo,"<DotListIndex>"));
             int sti=(int)points[0];
             int stj=(int)points[1];
             int eni=(int)points[2];
@@ -303,7 +331,6 @@ public abstract class Wire{
 
             cnt++;
             swkey="<CrossToCrossLine"+cnt+">";
-            endswKey="</CrossToCrossLine"+cnt+">";
         }
         bindCrosses();
     }
@@ -314,7 +341,36 @@ public abstract class Wire{
 
     abstract protected LineMarker addLineMarker(Wire wire);
 
-    abstract public boolean setEnd(Pin pin);
+    public boolean setEnd(Pin pin){
+        switch(getWireContacts().size()){
+            case 1:
+                Pin oldEc=activeWireConnect.getItsConnectedPin();   // начальный O--->
+                activeWireConnect.bindElemContact(pin);           // --->О цепляем
+                LineMarker wcNew=addLineMarker(this); // ? bind?      // <---O новый
+                wcNew.bindElemContact(oldEc);
+                wcNew.bindStartTo(oldEc.getBindX(),oldEc.getBindY());
+                break;
+            case 2:
+                if(!getWireContacts().get(0).isPlugged()&&!getWireContacts().get(1).isPlugged()) {   // free floating wire case
+                    LineMarker loser;
+                    if(getWireContacts().get(0).equals(activeWireConnect))
+                        loser=getWireContacts().get(1);
+                    else
+                        loser=getWireContacts().get(0);
+                    activeWireConnect.setEndPoint(loser.getBindX().get(),loser.getBindY().get());
+                    activeWireConnect.bindStartTo(pin.getBindX(),pin.getBindY());
+                    pin.setWirePointer(activeWireConnect);
+                    activeWireConnect.setItsConnectedPin(pin);
+                    loser.delete();
+                }else{
+                    throw new Error("Unexpected case!");
+                }
+                break;
+            default:
+                activeWireConnect.bindElemContact(pin);
+        }
+        return true;
+    }
 
     protected String getWireColor(){
         return wireColor;
@@ -333,7 +389,7 @@ public abstract class Wire{
     }
 
     public void delete(){
-        raschetkz.RaschetKz.wireList.remove(this);
+        getItsSystem().getWireList().remove(this);
         if(!getWireContacts().isEmpty()){
             activeWireConnect=getWireContacts().get(0);// for prevent dead loop
             int i=getWireContacts().size()-1;
@@ -352,15 +408,15 @@ public abstract class Wire{
 
     public String save(){
         StringBuilder bw=new StringBuilder();
-        String eol=System.lineSeparator();
+        String eol="\r\n";
 
         bw.append("<ClassName>");
         bw.append(getClass().getName());
         bw.append("</ClassName>");bw.append(eol);
 
-        bw.append("<Subsystem>");
-        bw.append(getItsSystem().getName());
-        bw.append("</Subsystem>");bw.append(eol);
+//        bw.append("<Subsystem>");
+//        bw.append(getItsSystem().getName());
+//        bw.append("</Subsystem>");bw.append(eol);
 
         int i=0;
         for(LineMarker lm:getWireContacts()){
@@ -371,7 +427,7 @@ public abstract class Wire{
             int pinIndex=-1;
             if(p!=null) {
                 elem = p.getOwner();
-                 pinIndex = elem.findPin(p);
+                pinIndex = elem.findPin(p);
             }
 
             bw.append("<ConnectTo>");
@@ -380,7 +436,16 @@ public abstract class Wire{
                 bw.append("</ConnectTo>");
                 bw.append(eol);
             }else{
-                bw.append(elem.getName());
+                Subsystem sys=getItsSystem();
+                if(sys.getElementList().indexOf(elem)==-1){
+                    Subsystem sys2=elem.getItsSystem();
+                    if(sys.getElementList().indexOf(elem.getItsSystem())==-1){
+                        throw new Error("Strange, connect to somewhere");
+                    }else{
+                        bw.append(sys2.getName()+"$"+elem.getName());
+                    }
+                }else
+                    bw.append(elem.getName());
                 bw.append("</ConnectTo>");bw.append(eol);
 
                 bw.append("<PinIndex>");
@@ -660,8 +725,6 @@ public abstract class Wire{
         ((Node)mde.getGestureSource()).fireEvent(nEvent);
     }
 
-    abstract public void setStaticEventFilters(Node source);
-
     public List<LineMarker> getWireContacts(){
         return wireContList;
     }
@@ -690,6 +753,11 @@ public abstract class Wire{
      */
     public final int getRank(){
         return(this.getWireContacts().size());
+    }
+
+    public void setStaticEventFilters(Node source) {
+        source.setOnMouseDragged(WC_MOUSE_DRAG);
+        source.setOnMouseDragReleased( WC_MOUSE_RELEAS);
     }
 }
 

@@ -28,21 +28,21 @@ public abstract class MathElement extends Element{
         super(catalog);
     }
 
-    @Override
-    public void delete(){
-        getInputs().forEach(elemCont->{
-            elemCont.delete();
-        });
-        getInputs().clear();
-
-        getOutputs().forEach(elemCont->{
-            elemCont.delete();
-        });
-        getOutputs().clear();
-
-        RaschetKz.elementList.remove(this);
-        getItsSystem().getDrawBoard().getChildren().remove(this.getView());
-    }
+//    @Override
+//    public void delete(){
+//        getInputs().forEach(elemCont->{
+//            elemCont.delete();
+//        });
+//        getInputs().clear();
+//
+//        getOutputs().forEach(elemCont->{
+//            elemCont.delete();
+//        });
+//        getOutputs().clear();
+//
+//        getItsSystem().getElementList().remove(this);
+//        getItsSystem().getDrawBoard().getChildren().remove(this.getView());
+//    }
 
     abstract protected List<Double> getValue(int outIndex);
 
@@ -54,19 +54,5 @@ public abstract class MathElement extends Element{
 //            List<Double> in=mip.getValue();
 //            presentIn.add(in);
 //        }
-    }
-
-    /**
-     * @return the inputs
-     */
-    public List<MathInPin> getInputs() {
-        return mathInputs;
-    }
-
-    /**
-     * @return the outputs
-     */
-    public List<MathOutPin> getOutputs() {
-        return mathOutputs;
     }
 }

@@ -57,7 +57,7 @@ public abstract class Pin {
     private ChangeListener<Transform> transform;
     private double layoutX,layoutY;
 
-    protected double width=4,height=4;
+//    protected double width=4,height=4;
 
     Pin(){}
 
@@ -129,9 +129,9 @@ public abstract class Pin {
         };
 
         transform = (aza, oldVal, newVal) -> {
-            double xx = width / 2;
-            double yy = height / 2;
-            Point2D point = newVal.transform(xx, yy);
+            double x=(getView().getLayoutBounds().getMaxX()+getView().getLayoutBounds().getMinX())/2;
+            double y=(getView().getLayoutBounds().getMaxY()+getView().getLayoutBounds().getMinY())/2;
+            Point2D point = newVal.transform(x, y);
             point = getSystem().getDrawBoard().sceneToLocal(point);
 
             getBindX().set(point.getX());
@@ -247,6 +247,8 @@ public abstract class Pin {
     abstract protected boolean isProperInstance(LineMarker lm);
 
     abstract protected Wire createWire(Pin pin,double x,double y);
+
+    abstract public Wire createWire(Subsystem sys,Pin pin1,Pin pin2);
 
     public Subsystem getSystem() {
         return system;

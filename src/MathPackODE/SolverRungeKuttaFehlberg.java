@@ -55,7 +55,7 @@ public class SolverRungeKuttaFehlberg extends Solver{
 
         double err= MatrixEqu.norm(error);
         double alpha = Math.pow(absTol/err,1.0/(ORDER+1.0));
-        if(alpha<1.00){
+        if(alpha<0.97){
             //Bad try. Recalculate
             time=bTime;
             for(int i=0;i<diffRank;i++){

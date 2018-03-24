@@ -23,6 +23,8 @@
  */
 package MathPack;
 
+import ElementBase.MathInPin;
+
 import java.util.ArrayList;
 
 /**
@@ -31,23 +33,14 @@ import java.util.ArrayList;
  */
 public class WorkSpace {
     private ArrayList<Variable> variableList;
+    private ArrayList<MathInPin> inputs;
 
     public WorkSpace(){
         variableList=new ArrayList<>();
 
     }
 
-//    public double get(String name){
-//        return varValues.get(varnames.indexOf(name));
-//    }
-
     public double get(int indx){
-//        try{
-//            return getVarList().get(name);
-//        }catch(Exception ex){
-//            System.err.println("No such variable: "+name);
-//            return 0.0;
-//        }
         return variableList.get(indx).getValue();
     }
 
@@ -66,16 +59,23 @@ public class WorkSpace {
         return variableList.get(i).name;
     }
 
-//    public void setValue(String name,double value){
-//        varValues.set(varnames.indexOf(name), value);
-//    }
-
     public Variable add(String name,Double value){
-        Variable newVar=null;
-        if(contains(name)){
-            //System.err.println("Variable "+name+" is alredy contains in workspace!");
-        }else{
+        Variable newVar=get(name);
+        if(newVar==null){
             newVar=new Variable(name,value);
+            getVarList().add(newVar);
+        }
+        return newVar;
+    }
+
+    public Variable set(String name, StringGraph value){
+        Variable newVar;
+        if((newVar=get(name))!=null){
+            getVarList().remove(newVar);
+            newVar=new StringFuncVar(name,value,this);
+            getVarList().add(newVar);
+        }else{
+            newVar=new StringFuncVar(name,value,this);
             getVarList().add(newVar);
         }
         return newVar;
@@ -96,13 +96,34 @@ public class WorkSpace {
         return false;
     }
 
+    private Variable get(String name){
+        for(Variable var:variableList){
+            if(var.name.equals(name))
+                return var;
+        }
+        return null;
+    }
+
+    public ArrayList<MathInPin> getInputs() {
+        return inputs;
+    }
+
+    public void setInputs(ArrayList<MathInPin> inputs) {
+        this.inputs = inputs;
+    }
+
     public class Variable{
         String name;
         double value;
+        int index;
+
+        protected Variable(){}
 
         private Variable(String name,double value){
             this.name=name;
             this.value=value;
+
+            index=Integer.valueOf(name.substring(name.lastIndexOf(".")+1))-1;
         }
 
         public void set(double val){
@@ -115,6 +136,28 @@ public class WorkSpace {
 
         public String getName() {
             return name;
+        }
+
+        public int getIndex(){
+            return index;
+        }
+    }
+
+    public class StringFuncVar extends Variable{
+        StringGraph value;
+        WorkSpace ws;
+
+        private StringFuncVar(String name,StringGraph value, WorkSpace ws){
+            this.name=name;
+            this.value=value;
+            this.ws=ws;
+
+            index=Integer.valueOf(name.substring(name.lastIndexOf(".")+1))-1;
+        }
+
+        @Override
+        public double getValue(){
+            return value.evaluate(ws);
         }
     }
 }

@@ -52,6 +52,9 @@ public class MathOutPin extends MathPin{
         ((MathWire)itsConnection.getWire()).setSourcePointer(this);
     }
 
+    public void setIndex(int index) {
+        this.index = index;
+    }
 }
 
 
