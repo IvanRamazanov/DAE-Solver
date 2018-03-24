@@ -29,35 +29,6 @@ public abstract class SchemeElement extends Element{
 
     public abstract String[] getStringFunction();
 
-    /**
-     * Удаляет элемент
-     */
-    @Override
-    public void delete(){
-        getElemContactList().forEach(elemCont->{
-            elemCont.delete();
-        });
-        getElemContactList().clear();
-
-        getMechContactList().forEach(elemCont->{
-            elemCont.delete();
-        });
-        getMechContactList().clear();
-
-        getInputs().forEach(elemCont->{
-            elemCont.delete();
-        });
-        getInputs().clear();
-
-        getOutputs().forEach(elemCont->{
-            elemCont.delete();
-        });
-        getOutputs().clear();
-
-        RaschetKz.elementList.remove(this);
-        getItsSystem().getDrawBoard().getChildren().remove(this.getView());
-    }
-
     @Override
     public void init(){}
 

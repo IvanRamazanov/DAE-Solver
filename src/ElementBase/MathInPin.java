@@ -5,6 +5,8 @@
  */
 package ElementBase;
 
+import Connections.MathWire;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class MathInPin extends MathPin{
 
     public List<Double> getValue(){
         if(getSource()!=null){
+//            return ((MathWire)getItsConnection().getWire()).getValue();
             return getSource().getValue();
         }else{
             List<Double> out=new ArrayList();

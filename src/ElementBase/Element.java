@@ -56,8 +56,9 @@ public abstract class Element {
     protected Label name;
     protected List<MathInPin> mathInputs=new ArrayList();
     protected List<MathOutPin> mathOutputs=new ArrayList();
-    protected List<ElectricPin> electricContacts =new ArrayList();
+    private List<ElectricPin> electricContacts =new ArrayList();
     protected List<MechPin> mechContacts=new ArrayList();
+    private List<ThreePhasePin> threePhaseContacts=new ArrayList();
     private static double HEIGHT_FIT=5;
     private Subsystem itsSystem;
     private View view;
@@ -94,7 +95,7 @@ public abstract class Element {
             }
             if(me.getButton()==MouseButton.PRIMARY){
                 if(me.getClickCount()==2){
-                    catElemCreation();
+                    //catElemCreation();
                 }
             }
             me.consume();
@@ -112,11 +113,8 @@ public abstract class Element {
         MenuItem rotate=new MenuItem("Поворот");
         rotate.setOnAction(ae-> rotate());
         cm.getItems().addAll(deleteMenu,paramMenu,rotate);
-//        imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
         imagePath=getClass().getResource(this.getClass().getSimpleName()+".png").toString();
 
-        //drawBoard.getChildren().add(this.getView());
-//        getView(); // for init
         this.setItsSystem(sys);
         setParams();
 
@@ -125,6 +123,8 @@ public abstract class Element {
                 initDND();
             }
         });
+
+        sys.getElementList().add(this);
     }
 
     public Element(boolean catalog){
@@ -133,10 +133,9 @@ public abstract class Element {
             MenuItem menu =new MenuItem("Добавить");
             menu.setOnAction((ActionEvent ae)->{
                 catCm.hide();
-                catElemCreation();
+                //catElemCreation();
             });
             catCm.getItems().add(menu);
-//            imagePath="Elements/images/"+this.getClass().getSimpleName()+".png";
 
             imagePath=getClass().getResource(this.getClass().getSimpleName()+".png").toString();
             catalogFlag=catalog;
@@ -162,24 +161,24 @@ public abstract class Element {
         db.setContent(content);
     }
 
-    private void catElemCreation(){
-        try{
-            Class<?> clas=this.getClass();
-            Constructor<?> ctor = clas.getConstructor();
-            Element elem=(Element)ctor.newInstance(new Object[] {});
-            double x=0;
-            elem.getView().setLayoutX(x);
-            double y=0;
-            elem.getView().setLayoutY(y);
-
-            RaschetKz.elementList.add(elem);
-
-//            if(elem instanceof SchemeElement)    raschetkz.RaschetKz.ElementList.add((SchemeElement)elem);
-//            if(elem instanceof MathElement) raschetkz.RaschetKz.MathElemList.add((MathElement)elem);
-        }catch(NoSuchMethodException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException ex){
-            Logger.getLogger(Element.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
-        }
-    }
+//    private void catElemCreation(){
+//        try{
+//            Class<?> clas=this.getClass();
+//            Constructor<?> ctor = clas.getConstructor();
+//            Element elem=(Element)ctor.newInstance(new Object[] {});
+//            double x=0;
+//            elem.getView().setLayoutX(x);
+//            double y=0;
+//            elem.getView().setLayoutY(y);
+//
+//            RaschetKz.elementList.add(elem);
+//
+////            if(elem instanceof SchemeElement)    raschetkz.RaschetKz.ElementList.add((SchemeElement)elem);
+////            if(elem instanceof MathElement) raschetkz.RaschetKz.MathElemList.add((MathElement)elem);
+//        }catch(NoSuchMethodException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException ex){
+//            Logger.getLogger(Element.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+//        }
+//    }
 
     public void setHeight(double val){
         view.setPreserveRatio(false);
@@ -187,7 +186,7 @@ public abstract class Element {
     }
 
     final public Pane getView(){
-        if(viewPane==null){
+        if(viewPane==null&&imagePath!=null){
             viewPane=new Pane();
 
             layout=new VBox();
@@ -287,8 +286,8 @@ public abstract class Element {
      * @param name
      * @return
      */
-    public static Element findElement(String name){
-        for(Element elem:RaschetKz.elementList){
+    public static Element findElement(Subsystem sys,String name){
+        for(Element elem:sys.getElementList()){
             if(elem.getName().equals(name))
                 return elem;
         }
@@ -305,6 +304,8 @@ public abstract class Element {
             index=electricContacts.indexOf(pin);
         else if(pin instanceof MechPin)
             index=mechContacts.indexOf(pin);
+        else if(pin instanceof ThreePhasePin)
+            index=threePhaseContacts.indexOf(pin);
         return index;
     }
 
@@ -325,6 +326,8 @@ public abstract class Element {
             out=electricContacts.get(index);
         else if(pin.startsWith("MechPin"))
             out=mechContacts.get(index);
+        else if(pin.startsWith("ThreePhasePin"))
+            out=threePhaseContacts.get(index);
         return out;
     }
 
@@ -365,52 +368,61 @@ public abstract class Element {
             int num=mathOutputs.size();
             out=new MathOutPin(this,maxX,num*contStep+mathContOffset);
             mathOutputs.add((MathOutPin)out);
+            ((MathOutPin)out).setIndex(mathOutputs.indexOf(out));
             viewPane.getChildren().add(out.getView());
         }
         return out;
     }
 
-    public void configurate(String name,String elemInfo){
-        setName(name);
+    public void configurate(String elemInfo){
+        String name=Parser.getKeyValue(elemInfo,"<Name>");
+        if(!name.isEmpty())
+            setName(name);
 
-        String[] lines = elemInfo.split(System.getProperty("line.separator"));
-        double[] layout= Parser.parseRow(Parser.getKeyValue(lines,"<Layout>"));
-        double x=layout[0],
-                y=layout[1],
-                rotate=layout[2];
-        getView().setLayoutX(x);
-        getView().setLayoutY(y);
-        setRotation(rotate);
+        //String[] lines = elemInfo.split("\r\n");
+        String lay=Parser.getKeyValue(elemInfo,"<Layout>");
+        if(!lay.isEmpty()) {
+            double[] layout = Parser.parseRow(lay);
+            double x = layout[0],
+                    y = layout[1],
+                    rotate = layout[2];
+            getView().setLayoutX(x);
+            getView().setLayoutY(y);
+            setRotation(rotate);
+        }
 
         //parameter cycle
-        Integer pSt=null,pEn=null;
-        for(int i=0;i<lines.length;i++){
-            String l=lines[i];
-            if(l.equals("<Parameters>")){
-                pSt=Integer.valueOf(i+1);
-            }else if(l.equals("</Parameters>")){
-                pEn=Integer.valueOf(i);
-                break;
-            }
-        }
-        String[] pLines=Arrays.copyOfRange(lines,pSt,pEn);
+        String params=Parser.getBlock(elemInfo,"<Parameters>");
+//        Integer pSt=null,pEn=null;
+//        for(int i=0;i<lines.length;i++){
+//            String l=lines[i];
+//            if(l.equals("<Parameters>")){
+//                pSt=Integer.valueOf(i+1);
+//            }else if(l.equals("</Parameters>")){
+//                pEn=Integer.valueOf(i);
+//                break;
+//            }
+//        }
+//        String[] pLines=Arrays.copyOfRange(lines,pSt,pEn);
         for(Parameter param:getParameters()){
             String pName=param.getName();
 
-            pSt=null;
-            pEn=null;
-            for(int i=0;i<pLines.length;i++){
-                String l=pLines[i];
-                if(l.equals("<Param."+pName+">")){
-                    pSt=Integer.valueOf(i+1);
-                }else if(l.equals("</Param."+pName+">")){
-                    pEn=Integer.valueOf(i);
-                    break;
-                }
-            }
+//            pSt=null;
+//            pEn=null;
+//            for(int i=0;i<pLines.length;i++){
+//                String l=pLines[i];
+//                if(l.equals("<Param."+pName+">")){
+//                    pSt=Integer.valueOf(i+1);
+//                }else if(l.equals("</Param."+pName+">")){
+//                    pEn=Integer.valueOf(i);
+//                    break;
+//                }
+//            }
+            String pInfo=Parser.getBlock(params,"<Param."+pName+">");
 
-            if(pSt!=null&&pEn!=null){
-                String[] pInfo=Arrays.copyOfRange(pLines,pSt,pEn);
+//            if(pSt!=null&&pEn!=null){
+            if(!pInfo.isEmpty())    {
+//                String[] pInfo=Arrays.copyOfRange(pLines,pSt,pEn);
 
                 String type=Parser.getKeyValue(pInfo,"<Type>");
 
@@ -418,34 +430,38 @@ public abstract class Element {
             }
         }
 
-        pSt=null;pEn=null;
-        for(int i=0;i<lines.length;i++){
-            String l=lines[i];
-            if(l.equals("<InitParameters>")){
-                pSt=Integer.valueOf(i+1);
-            }else if(l.equals("</InitParameters>")){
-                pEn=Integer.valueOf(i);
-                break;
-            }
-        }
-        pLines=Arrays.copyOfRange(lines,pSt,pEn);
+//        pSt=null;pEn=null;
+//        for(int i=0;i<lines.length;i++){
+//            String l=lines[i];
+//            if(l.equals("<InitParameters>")){
+//                pSt=Integer.valueOf(i+1);
+//            }else if(l.equals("</InitParameters>")){
+//                pEn=Integer.valueOf(i);
+//                break;
+//            }
+//        }
+//        pLines=Arrays.copyOfRange(lines,pSt,pEn);
+
+        params=Parser.getBlock(elemInfo,"<InitParameters>");
         for(InitParam param:getInitials()){
             String pName=param.getName();
 
-            pSt=null;
-            pEn=null;
-            for(int i=0;i<pLines.length;i++){
-                String l=pLines[i];
-                if(l.equals("<Param."+pName+">")){
-                    pSt=Integer.valueOf(i+1);
-                }else if(l.equals("</Param."+pName+">")){
-                    pEn=Integer.valueOf(i);
-                    break;
-                }
-            }
+//            pSt=null;
+//            pEn=null;
+//            for(int i=0;i<pLines.length;i++){
+//                String l=pLines[i];
+//                if(l.equals("<Param."+pName+">")){
+//                    pSt=Integer.valueOf(i+1);
+//                }else if(l.equals("</Param."+pName+">")){
+//                    pEn=Integer.valueOf(i);
+//                    break;
+//                }
+//            }
 
-            if(pSt!=null&&pEn!=null){
-                String[] pInfo=Arrays.copyOfRange(pLines,pSt,pEn);
+            String pInfo=Parser.getBlock(params,"<Param."+pName+">");
+//            if(pSt!=null&&pEn!=null){
+            if(!pInfo.isEmpty())    {
+//                String[] pInfo=Arrays.copyOfRange(pLines,pSt,pEn);
 
                 String type=Parser.getKeyValue(pInfo,"<Type>");
 
@@ -457,21 +473,27 @@ public abstract class Element {
     public StringBuilder save(){
         StringBuilder bw=new StringBuilder();
 
-        String nl=System.lineSeparator();
-        
-        bw.append("<"+getName()+">");bw.append(nl);
+        String nl="\r\n";
+
+        bw.append("<Name>");
+        bw.append(getName());
+        bw.append("</Name>");bw.append(nl);
+//        bw.append("<"+getName()+">");bw.append(nl);
 
         bw.append("<ClassName>");
         bw.append(getClass().getName());
         bw.append("</ClassName>");bw.append(nl);
 
         bw.append("<Subsystem>");
-        bw.append(getItsSystem().getName());
+        if(getItsSystem()!=null)
+            bw.append(getItsSystem().getName());
         bw.append("</Subsystem>");bw.append(nl);
 
         bw.append("<Layout>");
-        String str="["+getView().getLayoutX()+" "+getView().getLayoutY()+" "+getRotation()+"]";
-        bw.append(str);
+        if(getView()!=null) {
+            String str = "[" + getView().getLayoutX() + " " + getView().getLayoutY() + " " + getRotation() + "]";
+            bw.append(str);
+        }
         bw.append("</Layout>");bw.append(nl);
 
         bw.append("<Parameters>");bw.append(nl);
@@ -516,7 +538,7 @@ public abstract class Element {
         }
         bw.append("</InitParameters>");bw.append(nl);
 
-        bw.append("</"+getName()+">");bw.append(nl);
+//        bw.append("</"+getName()+">");bw.append(nl);
 
         return bw;
     }
@@ -535,7 +557,7 @@ public abstract class Element {
         return viewPane.getRotate();
     }
 
-    final protected void addElemCont(ElectricPin input){
+    final protected void addElectricCont(ElectricPin input){
         this.electricContacts.add(input);
         this.viewPane.getChildren().add(input.getView());
     }
@@ -545,11 +567,58 @@ public abstract class Element {
         this.viewPane.getChildren().add(input.getView());
     }
 
+    final protected void addThreePhaseCont(ThreePhasePin input){
+        this.threePhaseContacts.add(input);
+        this.viewPane.getChildren().add(input.getView());
+    }
+
     public List<MechPin> getMechContactList(){
         return mechContacts;
     }
 
-    abstract public void delete();
+    /**
+     * @return the inputs
+     */
+    public List<MathInPin> getInputs() {
+        return mathInputs;
+    }
+
+    /**
+     * @return the outputs
+     */
+    public List<MathOutPin> getOutputs() {
+        return mathOutputs;
+    }
+
+    /**
+     * Удаляет элемент
+     */
+    public void delete(){
+        getElemContactList().forEach(elemCont->{
+            elemCont.delete();
+        });
+        getElemContactList().clear();
+
+        getMechContactList().forEach(elemCont->{
+            elemCont.delete();
+        });
+        getMechContactList().clear();
+
+        getInputs().forEach(elemCont->{
+            elemCont.delete();
+        });
+        getInputs().clear();
+
+        getOutputs().forEach(elemCont->{
+            elemCont.delete();
+        });
+        getOutputs().clear();
+
+        if(getItsSystem()!=null) {
+            getItsSystem().getElementList().remove(this);
+            getItsSystem().getDrawBoard().getChildren().remove(this.getView());
+        }
+    }
 
     protected void openDialogStage() {
         final Stage subWind=new Stage();
@@ -642,6 +711,7 @@ public abstract class Element {
         out.addAll(mechContacts);
         out.addAll(mathInputs);
         out.addAll(mathOutputs);
+        out.addAll(threePhaseContacts);
         return out;
     }
 
@@ -705,16 +775,25 @@ public abstract class Element {
     protected final void setName(String name) {
         int cnt=1;
         String nameTmp=name;
-        for(int i=0;i<RaschetKz.elementList.size();i++){
-            String elemName=RaschetKz.elementList.get(i).getName();
-            if(elemName.equals(nameTmp)){
-                nameTmp=name+cnt;
-                cnt++;
-                i=-1;
+        Subsystem sys=getItsSystem();
+        if(sys!=null)
+            for(int i=0;i<sys.getElementList().size();i++){
+                Element element=sys.getElementList().get(i);
+                if(!element.equals(this)) {
+                    String elemName = element.getName();
+                    if (elemName.equals(nameTmp)) {
+                        nameTmp = name + cnt;
+                        cnt++;
+                        i = -1;
+                    }
+                }
             }
-        }
 
         this.name.setText(nameTmp);
+    }
+
+    public List<ThreePhasePin> getThreePhaseContacts() {
+        return threePhaseContacts;
     }
 
 
@@ -751,7 +830,7 @@ public abstract class Element {
             text.textProperty().addListener(changeListener);
         }
 
-        void update(){
+        public void update(){
 //            DoubleStringConverter conv=new DoubleStringConverter();
             value=parse(text.getText());
         }
@@ -977,7 +1056,7 @@ public abstract class Element {
         }
 
         @Override
-        void update(){
+        public void update(){
             value=parse(this.text.getText());
             this.priority = box.getValue().equals("High");
         }

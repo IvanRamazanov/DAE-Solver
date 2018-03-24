@@ -1008,18 +1008,30 @@ public class MatrixEqu {
         return transpose_s(out);
     }
 
-    public static int[][] getPotentialsMap(List<ElectricWire> Wires, List<SchemeElement> Elems) throws Exception{
+    public static int[][] getPotentialsMap(List<Wire> Wires, List<SchemeElement> Elems) throws Exception{
         if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
-        List<ElectricPin> conts=new ArrayList();
+        List<Pin> conts=new ArrayList();
         int rowLength=0;
         for(SchemeElement elem:Elems){
             conts.addAll(elem.getElemContactList());
             rowLength+=elem.getElemContactList().size();
+            for(ThreePhasePin p:elem.getThreePhaseContacts()){
+                conts.add(p);
+                conts.add(null);
+                conts.add(null);
+                rowLength+=3;
+            }
         }
         int columnLength=0;
-        for(ElectricWire wire:Wires){
-            int rank=wire.getRank();
-            columnLength+=rank-1;
+        for(Wire wire:Wires){
+            if(wire instanceof ElectricWire) {
+                int rank = wire.getRank();
+                columnLength += rank - 1;
+            }else
+                if(wire instanceof ThreePhaseWire){
+                    int rank = (wire.getRank()-1)*3;
+                    columnLength += rank;
+                }else throw new Error("Bad instance! "+wire.getClass().getSimpleName());
         }
         boolean flag=true;
         for(SchemeElement elem:Elems){
@@ -1033,14 +1045,36 @@ public class MatrixEqu {
             columnLength++;         //for zero poten?
         int[][] out=new int[columnLength][rowLength];
         int row=0;
-        for(ElectricWire wire:Wires){
-            Pin mainPapa=wire.getWireContacts().get(0).getItsConnectedPin();
-            for(int j=1;j<wire.getWireContacts().size();j++){
-                Pin papa=wire.getWireContacts().get(j).getItsConnectedPin();
-                out[row][conts.indexOf(mainPapa)]=1;
-                out[row][conts.indexOf(papa)]=-1;
-                row++;
-            }
+        for(Wire wire:Wires){
+            if(wire instanceof ElectricWire) {
+                Pin mainPapa = wire.getWireContacts().get(0).getItsConnectedPin();
+                for (int j = 1; j < wire.getWireContacts().size(); j++) {
+                    Pin papa = wire.getWireContacts().get(j).getItsConnectedPin();
+                    out[row][conts.indexOf(mainPapa)] = 1;
+                    out[row][conts.indexOf(papa)] = -1;
+                    row++;
+                }
+            }else
+                if(wire instanceof ThreePhaseWire){
+                    Pin mainPapa = wire.getWireContacts().get(0).getItsConnectedPin();
+                    for (int j = 1; j < wire.getWireContacts().size(); j++) {
+                        Pin papa = wire.getWireContacts().get(j).getItsConnectedPin();
+                        int iMainPapa=conts.indexOf(mainPapa),
+                                iPapa=conts.indexOf(papa);
+
+                        out[row][iMainPapa] = 1;
+                        out[row][iPapa] = -1;
+                        row++;
+
+                        out[row][iMainPapa+1] = 1;
+                        out[row][iPapa+1] = -1;
+                        row++;
+
+                        out[row][iMainPapa+2] = 1;
+                        out[row][iPapa+2] = -1;
+                        row++;
+                    }
+                }else throw new Error("Bad instance! "+wire.getClass().getSimpleName());
         }
         if(flag)
             out[row][0]=1;
@@ -1102,18 +1136,33 @@ public class MatrixEqu {
         return(out);
     }
 
-    public static int[][] getCurrentsMap(List<ElectricWire> Wires, List<SchemeElement> Elems){
+    public static int[][] getCurrentsMap(List<Wire> Wires, List<SchemeElement> Elems){
         if(Wires.isEmpty()||Elems.isEmpty()) return new int[][]{};
-        List<ElectricPin> conts=new ArrayList();
+        List<Pin> conts=new ArrayList();
         int rowLength=0,columnLength=0;
 
         //Рассчет размерности
         for(SchemeElement elem:Elems){
-//            columnLength+=1;
             conts.addAll(elem.getElemContactList());
             rowLength+=elem.getElemContactList().size();
+            for(ThreePhasePin p:elem.getThreePhaseContacts()){
+                conts.add(p);
+                conts.add(null);
+                conts.add(null);
+            }
+            rowLength+=elem.getThreePhaseContacts().size()*3;
         }
-        columnLength+=Wires.size()-1;
+
+        //        columnLength+=Wires.size()-1;   (before ThreePhase correct version)
+        for(Wire wire:Wires){
+            if(wire instanceof ElectricWire) {
+                columnLength += 1;
+            }else
+            if(wire instanceof ThreePhaseWire){
+                columnLength += 3;
+            }else throw new Error("Bad instance! "+wire.getClass().getSimpleName());
+        }
+        columnLength--;
 
         //Есть ли "земли"
         boolean flag=false;
@@ -1130,26 +1179,49 @@ public class MatrixEqu {
         int[][] out=new int[columnLength][rowLength];
         int row=0;
 
+//        //Сумма узловых токов (before Three phase implementation correct version)
+//        for(ElectricWire wire:Wires.subList(0, Wires.size()-1)){
+//            for(LineMarker wc:wire.getWireContacts()){
+//                Pin papa=wc.getItsConnectedPin();
+//                out[row][conts.indexOf(papa)]=1;
+//            }
+//            row++;
+//        }
+
         //Сумма узловых токов
-        for(ElectricWire wire:Wires.subList(0, Wires.size()-1)){
-            for(LineMarker wc:wire.getWireContacts()){
-                Pin papa=wc.getItsConnectedPin();
-                out[row][conts.indexOf(papa)]=1;
-            }
-            row++;
+        for(Wire wire:Wires){
+            if(wire instanceof ElectricWire) {
+                for (LineMarker wc : wire.getWireContacts()) {
+                    Pin papa = wc.getItsConnectedPin();
+                    int ind=conts.indexOf(papa);
+                    out[row][ind] = 1;
+                }
+                row++;
+                if(row==columnLength)
+                    break;
+            }else
+                if(wire instanceof ThreePhaseWire){
+                    for (LineMarker wc : wire.getWireContacts()) {
+                        Pin papa = wc.getItsConnectedPin();
+
+                        out[row][conts.indexOf(papa)] = 1;
+
+                        out[row+1][conts.indexOf(papa)+1] = 1;
+                        if(row+2!=columnLength)
+                            out[row+2][conts.indexOf(papa)+2] = 1;
+                    }
+                    row+=3;
+                    if(row>=columnLength)
+                        break;
+                }else throw new Error("Bad instance! "+wire.getClass().getSimpleName());
         }
-        //Сумма токов в элементах (???????? не факт, например ДПТНВ)
+
+        //Сумма токов в electric reference
         for(SchemeElement shE:Elems){
-//            int len=shE.getElemContactList().size();
             if(!shE.getElemContactList().isEmpty()) {
                 int ind = conts.indexOf(shE.getElemContactList().get(0));
                 if (shE instanceof ElectricalReference) {
                     out[columnLength - 1][ind] = 1;
-                } else {
-//                for(int i=0;i<len;i++){
-//                    out[row][ind+i]=1;
-//                }
-//                row++;
                 }
             }
         }
@@ -1292,13 +1364,13 @@ public class MatrixEqu {
         return answer;
     }
 
-    public static List<List<Double>> evalSymbMatr(List<List<StringGraph>> inp, WorkSpace vars,List<MathInPin> extInput){
+    public static List<List<Double>> evalSymbMatr(List<List<StringGraph>> inp, WorkSpace vars){
         List<List<Double>> out=new ArrayList(inp.size());
         for(int i=0;i<inp.size();i++){
             List<StringGraph> row=inp.get(i);
             out.add(new ArrayList(row.size()));
             for(StringGraph sg:row){
-                out.get(i).add(sg.evaluate(vars, extInput));
+                out.get(i).add(sg.evaluate(vars));
             }
         }
         return out;
@@ -1311,36 +1383,36 @@ public class MatrixEqu {
      * @param vars
      * @param extInput
      */
-    public static void putValuesFromSymbMatr(double[][] out,List<List<StringGraph>> inp, WorkSpace vars,List<MathInPin> extInput){
+    public static void putValuesFromSymbMatr(double[][] out,List<List<StringGraph>> inp, WorkSpace vars){
         for(int i=0;i<inp.size();i++){
             List<StringGraph> row=inp.get(i);
             int j=0;
             for(StringGraph sg:row){
-                out[i][j]=sg.evaluate(vars, extInput);
+                out[i][j]=sg.evaluate(vars);
                 j++;
             }
         }
     }
 
-    public static List<Double> evalSymbRow(List<StringGraph> inp, WorkSpace vars,List<MathInPin> extInput){
+    public static List<Double> evalSymbRow(List<StringGraph> inp, WorkSpace vars){
         List<Double> out=new ArrayList(inp.size());
         for(int i=0;i<inp.size();i++){
             StringGraph row=inp.get(i);
-            out.add(row.evaluate(vars, extInput));
+            out.add(row.evaluate(vars));
         }
         return out;
     }
 
-    public static void putValuesFromSymbRow(double[] out, List<StringGraph> inp, WorkSpace vars,List<MathInPin> extInput){
+    public static void putValuesFromSymbRow(double[] out, List<StringGraph> inp, WorkSpace vars){
         for(int i=0;i<inp.size();i++){
             StringGraph row=inp.get(i);
-            out[i]=row.evaluate(vars, extInput);
+            out[i]=row.evaluate(vars);
         }
     }
 
     public static int rank(List<List<Integer>> inp){
         int nRow=inp.size(),nCol=inp.get(0).size(),rnk=0,offset=0;
-        int[][] A=listToArray(inp);
+        double[][] A=listToArrayD(inp);
         int i=0;
         while(i<nRow&&i+offset<nCol){ //main cycle
             if(A[i][i+offset]==0){
@@ -1351,7 +1423,7 @@ public class MatrixEqu {
                         if (A[j][i + offset] != 0) {
                             if(i!=j)
                                 for (int q = 0; q < nCol; q++) {
-                                    int tmp = A[j][q];
+                                    double tmp = A[j][q];
                                     A[j][q] = A[i][q];
                                     A[i][q] = tmp;
                                 }
@@ -1373,7 +1445,7 @@ public class MatrixEqu {
             }
             for(int j=i+1;j<nRow;j++){ //cycle by rows under current
                 if(A[j][i+offset]!=0){
-                    int k=A[j][i+offset]/A[i][i+offset];
+                    double k=A[j][i+offset]/A[i][i+offset];
                     if(A[i][i+offset]*A[i][i+offset]>A[j][i+offset]*A[j][i+offset]) System.err.println("AAAAAAaa k="+(double)A[j][i+offset]/(double)A[i][i+offset]+"!!");
                     for(int q=i;q<nCol;q++){ //cycle by length of row
                         A[j][q]=A[j][q]-A[i][q]*k;
@@ -1404,6 +1476,17 @@ public class MatrixEqu {
     public static int[][] listToArray(List<List<Integer>> inp){
         int nRow=inp.size(),nCol=inp.get(0).size();
         int[][] A=new int[nRow][nCol];
+        for(int i=0;i<nRow;i++){
+            for(int j=0;j<nCol;j++){
+                A[i][j]=inp.get(i).get(j);
+            }
+        }
+        return A;
+    }
+
+    public static double[][] listToArrayD(List<List<Integer>> inp){
+        int nRow=inp.size(),nCol=inp.get(0).size();
+        double[][] A=new double[nRow][nCol];
         for(int i=0;i<nRow;i++){
             for(int j=0;j<nCol;j++){
                 A[i][j]=inp.get(i).get(j);

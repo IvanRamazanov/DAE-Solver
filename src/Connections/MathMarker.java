@@ -15,6 +15,7 @@ public class MathMarker extends LineMarker{
 
     MathMarker(Wire owner){
         super(owner);
+
         Polygon view=new Polygon(0,0,0,8.0,6.0,6.0/2.0);
         view.setTranslateX(-2.0);
         view.setTranslateY(-3.0);
@@ -31,9 +32,7 @@ public class MathMarker extends LineMarker{
             view.addEventFilter(MouseDragEvent.MOUSE_RELEASED, MC_MOUSE_RELEAS);
         });
 
-        itsLines.setColor(owner.getWireColor());
         getWire().getWireContacts().add(this);
-        pushToBack();
     }
 
     MathMarker(Wire owner,double x,double y){

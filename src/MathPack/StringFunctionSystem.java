@@ -19,11 +19,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.HashMap;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  *
@@ -115,8 +111,10 @@ public class StringFunctionSystem {
                 rightSides.add(new StringGraph(str.substring(k+1, str.length())));
             }
         }
-        electricPotentialCount +=element.getElemContactList().size();
-        electricCurrentCount+=element.getElemContactList().size();
+        int epc=element.getElemContactList().size(),
+            eptc=element.getThreePhaseContacts().size()*3;
+        electricPotentialCount +=epc+eptc;
+        electricCurrentCount+=epc+eptc;
         mechSpeedCount += element.getMechContactList().size();
         mechTorqueCount += element.getMechContactList().size();
         inputCnt+=inpCntTmp;
@@ -606,51 +604,93 @@ public class StringFunctionSystem {
         }
 
         // Try to reduce alg system
-        if(ModelState.getSimplyfingFlag().get())
-            for(i=system.rightSides.size()-1;i>=0;i--){
-                StringGraph rp=system.rightSides.get(i);
-                Set vars=rp.getVariableSet();
-                for(Iterator<String> iter=vars.iterator();iter.hasNext();){
-                    String var=iter.next();
-                    if(WorkSpace.isRealVariable(var)&&!var.startsWith("d.X.")){
-                        if(rp.canGet(var)){
-                            //log this
-                            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                                bw.newLine();
-                                bw.write("Get var: "+var+"  from "+rp.toString());
-                            }catch (IOException e) {
-                                System.err.println(e.getMessage());
-                            }
+//        if(ModelState.getSimplyfingFlag().get())
+        HashMap<String,StringGraph> map=new HashMap<>();
 
-                            //evaluate var=rp(...)
-                            rp.getVariable(var);
+        for(i=system.rightSides.size()-1;i>=0;i--){
+            StringGraph rp=system.rightSides.get(i);
+            Set vars=rp.getVariableSet();
+            for(Iterator<String> iter=vars.iterator();iter.hasNext();){
+                String var=iter.next();
+                if(WorkSpace.isRealVariable(var)&&!var.startsWith("d.X.")&&!var.startsWith("X.")){
+                    if(rp.canGet(var)){
+                        //log this
+                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                            bw.newLine();
+                            bw.write("Get var: "+var+"  from "+rp.toString());
+                        }catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
 
-                            if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
-                                bw.newLine();
-                                bw.write("result: "+var+" = "+rp.toString());
-                                bw.newLine();
-                            }catch (IOException e) {
-                                System.err.println(e.getMessage());
-                            }
+                        //evaluate var=rp(...)
+                        rp.getVariable(var);
 
-                            //remove
-                            system.rightSides.remove(i);
+                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                            bw.newLine();
+                            bw.write("result: "+var+" = "+rp.toString());
+                            bw.newLine();
+                        }catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
 
-                            //replace var in system
-                            for(int j=0;j<system.rightSides.size();j++){
-                                system.rightSides.get(j).replaceVariable(var,rp);
-                            }
-                            for(int j=0;j<system.outputFuncs.size();j++){
-                                for(int m=0;m<system.outputFuncs.get(j).size();m++)
-                                    system.outputFuncs.get(j).get(m).replaceVariable(var,rp);
-                            }
+                        //remove
+                        system.rightSides.remove(i);
 
-                            break;
+                        //replace var in system
+                        for(int j=0;j<system.rightSides.size();j++){
+                            system.rightSides.get(j).replaceVariable(var,rp);
+                        }
+                        for(int j=0;j<system.outputFuncs.size();j++){
+                            for(int m=0;m<system.outputFuncs.get(j).size();m++)
+                                system.outputFuncs.get(j).get(m).replaceVariable(var,rp);
+                        }
+                        for(Map.Entry<String,StringGraph> en:map.entrySet()){
+                            en.getValue().replaceVariable(var,rp);
+                        }
+
+                        break;
+                    }
+                }else if(var.startsWith("d.X.")){
+                    if(rp.canGet(var)) {
+                        //log this
+                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                            bw.newLine();
+                            bw.write("Get var: "+var+"  from "+rp.toString());
+                        }catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
+
+                        //evaluate var=rp(...)
+                        rp.getVariable(var);
+
+                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                            bw.newLine();
+                            bw.write("result: "+var+" = "+rp.toString());
+                            bw.newLine();
+                        }catch (IOException e) {
+                            System.err.println(e.getMessage());
+                        }
+
+                        map.put(var, rp);
+
+                        //remove
+                        system.rightSides.remove(i);
+
+                        //replace var in system
+                        for (int j = 0; j < system.rightSides.size(); j++) {
+                            system.rightSides.get(j).replaceVariable(var, rp);
+                        }
+                        for (int j = 0; j < system.outputFuncs.size(); j++) {
+                            for (int m = 0; m < system.outputFuncs.get(j).size(); m++)
+                                system.outputFuncs.get(j).get(m).replaceVariable(var, rp);
+                        }
+                        for (Map.Entry<String, StringGraph> en : map.entrySet()) {
+                            en.getValue().replaceVariable(var, rp);
                         }
                     }
                 }
             }
-
+        }
 
         if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
@@ -669,7 +709,7 @@ public class StringFunctionSystem {
         List<StringGraph> potAlgSys=system.rightSides;
         output.setOutSystem(system.outputFuncs);
         output.setAlgSystem(potAlgSys);
-        output.initXes(system.getInitsX());
+        output.initXes(system.getInitsX(),map);
 
         // initial guesses
         for(i=0;i<potAlgSys.size();i++){    //loop for ODEs
@@ -685,6 +725,9 @@ public class StringFunctionSystem {
                         for(List<StringGraph> sgl:system.outputFuncs)
                             for(StringGraph sg:sgl)
                                 sg.linkVariableToWorkSpace(name, wsLink);
+                        for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+                            entry.getValue().linkVariableToWorkSpace(name, wsLink);
+                        }
                     }
                 }
             }
@@ -703,10 +746,25 @@ public class StringFunctionSystem {
                             for(List<StringGraph> sgl:system.outputFuncs)
                                 for(StringGraph sg:sgl)
                                     sg.linkVariableToWorkSpace(name, wsLink);
+                            for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+                                entry.getValue().linkVariableToWorkSpace(name, wsLink);
+                            }
                         }
                     }
                 }
             }
+        }
+        for (Map.Entry<String, StringGraph> en : map.entrySet()) {
+            String name=en.getKey();
+            WorkSpace.Variable wsLink=output.setVariable(name, en.getValue());
+            for (StringGraph sg : potAlgSys)
+                sg.linkVariableToWorkSpace(name, wsLink);
+            for(List<StringGraph> sgl:system.outputFuncs)
+                for(StringGraph sg:sgl)
+                    sg.linkVariableToWorkSpace(name, wsLink);
+//            for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+//                entry.getValue().linkVariableToWorkSpace(name, wsLink);
+//            }
         }
 
         output.setSymbDiffRank(system.initials.size());

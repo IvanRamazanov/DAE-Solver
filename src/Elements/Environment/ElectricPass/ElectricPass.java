@@ -1,22 +1,27 @@
 package Elements.Environment.ElectricPass;
 
+import Connections.LineMarker;
 import ElementBase.ElectricPin;
+import ElementBase.Pass;
+import ElementBase.Pin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
+import raschetkz.RaschetKz;
 
-public class ElectricPass extends SchemeElement {
-    private ElectricPin outside;
-    private ElectricPin inner;
+public class ElectricPass extends SchemeElement implements Pass {
+    private Pin outside;
+    private Pin inner;
 
     public ElectricPass(Subsystem sys){
         super(sys);
 
         setOutside(new ElectricPin( this,0, sys.getPinOffset()+sys.getLeftPinCnt()* sys.getPinStep()));
-        getElemContactList().add(getOutside());
+        getElemContactList().add((ElectricPin) getOutside());
         getOutside().setSystem(sys.getItsSystem());
         sys.getViewPane().getChildren().add(getOutside().getView());
         //add view to subsystem Pane
-        addElemCont(inner=new ElectricPin(this,30,15)); // local pin
+        setInner(new ElectricPin(this,30,15));
+        addElectricCont((ElectricPin) getInner()); // local pin
         getView().setLayoutY(sys.getLeftPinCnt() *30);
 
         sys.setLeftPinCnt(sys.getLeftPinCnt()+1);
@@ -34,14 +39,28 @@ public class ElectricPass extends SchemeElement {
         };
     }
 
-    @Override
-    public void init() {
+    public Pin getOutside() {
+        return outside;
+    }
 
+    public void setOutside(Pin outside) {
+        this.outside = outside;
+    }
+
+    public Pin getInner() {
+        return inner;
+    }
+
+    public void setInner(Pin inner) {
+        this.inner = inner;
     }
 
     @Override
-    public void delete() {
-
+    public void delete(){
+//        getItsSystem().getPasses().remove(this);
+//        getItsSystem().getElemContactList().remove(getOutside());
+//        outside.delete();
+        super.delete();
     }
 
     @Override
@@ -61,19 +80,12 @@ public class ElectricPass extends SchemeElement {
         setName("ElectroPin");
     }
 
-    public ElectricPin getOutside() {
-        return outside;
-    }
+    public void setPass(Subsystem oldSys, LineMarker lm) {
+//        RaschetKz.elementList.add(this);
 
-    public void setOutside(ElectricPin outside) {
-        this.outside = outside;
-    }
-
-    public ElectricPin getInner() {
-        return inner;
-    }
-
-    public void setInner(ElectricPin inner) {
-        this.inner = inner;
+        //reconnect
+        Pin oldPin=lm.getItsConnectedPin();
+        lm.bindElemContact(getInner());
+        oldPin.createWire(oldSys,oldPin,getOutside());
     }
 }

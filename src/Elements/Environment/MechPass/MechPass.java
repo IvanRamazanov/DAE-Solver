@@ -1,22 +1,27 @@
 package Elements.Environment.MechPass;
 
+import Connections.LineMarker;
 import ElementBase.MechPin;
+import ElementBase.Pass;
+import ElementBase.Pin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
+import raschetkz.RaschetKz;
 
-public class MechPass extends SchemeElement {
+public class MechPass extends SchemeElement implements Pass {
     private MechPin outside;
     private MechPin inner;
 
     public MechPass(Subsystem sys){
         super(sys);
 
-        outside=new MechPin( sys,0, Subsystem.getPinOffset() + sys.getLeftPinCnt() * Subsystem.getPinStep());
-        getMechContactList().add(outside);
+        setOutside(new MechPin( this,0, Subsystem.getPinOffset() + sys.getLeftPinCnt() * Subsystem.getPinStep()));
+        getMechContactList().add((MechPin) getOutside());
         getOutside().setSystem(sys.getItsSystem());
-        sys.getViewPane().getChildren().add(outside.getView());
+        sys.getViewPane().getChildren().add(getOutside().getView());
         //add view to subsystem Pane
-        addMechCont(inner=new MechPin(this,30,15)); // local pin
+        setInner(new MechPin(this,30,15));
+        addMechCont((MechPin) getInner()); // local pin
         getView().setLayoutY(sys.getLeftPinCnt() *30);
 
         sys.setLeftPinCnt(sys.getLeftPinCnt() + 1);
@@ -34,14 +39,28 @@ public class MechPass extends SchemeElement {
         };
     }
 
-    @Override
-    public void init() {
+    public Pin getOutside() {
+        return outside;
+    }
 
+    public void setOutside(MechPin outside) {
+        this.outside = outside;
+    }
+
+    public Pin getInner() {
+        return inner;
+    }
+
+    public void setInner(MechPin inner) {
+        this.inner = inner;
     }
 
     @Override
-    public void delete() {
-
+    public void delete(){
+//        getItsSystem().getPasses().remove(this);
+//        getItsSystem().getMechContactList().remove(getOutside());
+//        outside.delete();
+        super.delete();
     }
 
     @Override
@@ -54,19 +73,12 @@ public class MechPass extends SchemeElement {
         setName("MechOut");
     }
 
-    public MechPin getOutside() {
-        return outside;
-    }
+    public void setPass(Subsystem oldSys, LineMarker lm) {
+//        RaschetKz.elementList.add(this);
 
-    public void setOutside(MechPin outside) {
-        this.outside = outside;
-    }
-
-    public MechPin getInner() {
-        return inner;
-    }
-
-    public void setInner(MechPin inner) {
-        this.inner = inner;
+        //reconnect
+        Pin oldPin=lm.getItsConnectedPin();
+        lm.bindElemContact(getInner());
+        oldPin.createWire(oldSys,oldPin,getOutside());
     }
 }

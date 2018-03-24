@@ -263,7 +263,8 @@ public class StringGraph {
     private boolean onlySimpleFuncs(List<FuncUzel> inp){
         boolean flag=true;
         for(FuncUzel uz:inp){
-            if(!(uz.getFuncName().equals("+")||uz.getFuncName().equals("*"))){
+//            if(!(uz.getFuncName().equals("+")||uz.getFuncName().equals("*"))){
+                if(!(uz.getFuncName().equals("+"))){
                 flag=false;
             }
         }
@@ -652,8 +653,8 @@ public class StringGraph {
         simplify();
     }
 
-    public double evaluate(WorkSpace vars,List<MathInPin> extInput){
-        return(root.getValue(vars,extInput));
+    public double evaluate(WorkSpace vars){
+        return(root.getValue(vars));
     }
 
     Set getVariableSet(){
@@ -685,10 +686,9 @@ interface Uzel{
     /**
      * Take value
      * @param vars
-     * @param extInput
      * @return
      */
-    double getValue(WorkSpace vars,List<MathInPin> extInput);
+    double getValue(WorkSpace vars);
 
     void replaceVar(String name,Uzel replace);
 
@@ -729,7 +729,7 @@ class Const implements Uzel{
     }
 
     @Override
-    public double getValue(WorkSpace vars,List<MathInPin> extInput){
+    public double getValue(WorkSpace vars){
         return this.value;
     }
 
@@ -840,11 +840,12 @@ class Variable implements Uzel{
     }
 
     @Override
-    public double getValue(WorkSpace vars,List<MathInPin> extInput){
+    public double getValue(WorkSpace vars){
         if(shortName.equals("time")){
             return Solver.time;
         }else
         if(shortName.equals("I.")){
+            List<MathInPin> extInput=vars.getInputs();
             return extInput.get(index-1).getValue().get(secondIndex);
         }else{
 //            return vars.get(name);
@@ -1247,11 +1248,11 @@ class FuncUzel implements Uzel{
     }
 
     @Override
-    public double getValue(WorkSpace vars,List<MathInPin> extInput){
+    public double getValue(WorkSpace vars){
         double result;
         double[] input=new double[getInputs().size()];
         for(int i=0;i<getInputs().size();i++){
-            input[i]=getInputs().get(i).getValue(vars,extInput);
+            input[i]=getInputs().get(i).getValue(vars);
         }
         result=this.func.Elavuate(this.getGain(),input);
         return result;

@@ -46,8 +46,8 @@ class CrossToCrossLine extends ConnectLine{
 
                 List<Cross> line=new ArrayList();
 
-                //create new WireMarker
-                Wire.activeWireConnect = new WireMarker(getWire(),x,y);
+                //create new ElectricMarker
+                Wire.activeWireConnect = new ElectricMarker(getWire(),x,y);
                 line.add(Wire.activeWireConnect.getItsLine().getStartMarker());
                 getWire().setStaticEventFilters(((Node) me.getGestureSource()));
                 Wire.activeWireConnect.startFullDrag();

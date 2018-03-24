@@ -196,6 +196,21 @@ public class Parser {
         return out;
     }
 
+    public static String getKeyValue(String lines,String key){
+        String out=null;
+        Scanner sc=new Scanner(lines);
+        sc.useDelimiter("\r\n");
+        while(sc.hasNext()){
+            String line=sc.next();
+            if(line.startsWith(key)){
+                out=line.substring(key.length(),line.lastIndexOf("</"));
+                break;
+            }
+        }
+        return out;
+    }
+
+    @Deprecated
     public static String getFirstKeyValue(String data,String key){
         String out=null,
                 endKey="</"+key.substring(1);
@@ -211,18 +226,28 @@ public class Parser {
 
     public static String getBlock(String data,String key){
         Scanner sc=new Scanner(data);
-        sc.useDelimiter(System.lineSeparator());
+        sc.useDelimiter("\r\n");
         StringBuilder out=new StringBuilder();
         String endKey="</"+key.substring(1);
         while(sc.hasNext()){
             String line=sc.next();
             if(line.equals(key)){
+                int cnt=0;
                 while(sc.hasNext()){
                     line=sc.next();
+                    if(line.equals(key)) {
+                        cnt++;
+                        out.append(line.substring(1)+"\r\n"); //remove one \t char
+                    }else
                     if(line.equals(endKey)){
-                        return out.toString();
+                        if(cnt==0)
+                            return out.toString();
+                        else{
+                            out.append(line.substring(1)+"\r\n");
+                            cnt--;
+                        }
                     }else{
-                        out.append(line+System.lineSeparator());
+                        out.append(line.substring(1)+"\r\n");
                     }
                 }
             }
@@ -234,21 +259,54 @@ public class Parser {
         Scanner sc=new Scanner(path);
         StringBuilder out=new StringBuilder();
         String endKey="</"+key.substring(1);
-        sc.useDelimiter(System.lineSeparator());
+        sc.useDelimiter("\r\n");
         while(sc.hasNext()){
             String line=sc.next();
             if(line.equals(key)){
+                int cnt=0;
                 while(sc.hasNext()){
                     line=sc.next();
+                    if(line.equals(key)) {
+                        cnt++;
+                        out.append(line.substring(1)+"\r\n"); //remove one \t char
+                    }else
                     if(line.equals(endKey)){
-                        return out.toString();
+                        if(cnt==0)
+                            return out.toString();
+                        else {
+                            out.append(line.substring(1)+"\r\n");
+                            cnt--;
+                        }
                     }else{
-                        out.append(line+System.lineSeparator());
+                        out.append(line.substring(1)+"\r\n");
                     }
                 }
             }
         }
         return null;
+    }
+
+    static public String formatBlock(String block){
+        Scanner sc=new Scanner(block);
+        StringBuilder sb=new StringBuilder();
+        sc.useDelimiter("\r\n");
+        int cnt=0;
+        while(sc.hasNext()){
+            String line=sc.next()+"\r\n";
+
+            if(line.startsWith("</")){
+                cnt--;
+            }
+            for(int i=0;i<cnt;i++){ //append
+                line="\t"+line;
+            }
+            if(!line.contains("</")){
+                cnt++;
+            }
+
+            sb.append(line);
+        }
+        return sb.toString();
     }
 }
 

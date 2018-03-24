@@ -34,7 +34,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -47,7 +49,7 @@ public class DAE {
     private List<List<StringGraph>> Jacob,invJacob,outSystem;
     private WorkSpace vars;
     private List<MathOutPin> outs;
-    private List<MathInPin> inps;
+    //private List<MathInPin> inps;
     private List<Double> logtime;
     private List<List<Double>> logdata;
     private List<OutputElement> mathOuts;
@@ -61,7 +63,7 @@ public class DAE {
         outSystem=new ArrayList();
         vars=new WorkSpace();
         outs=new ArrayList();
-        inps=new ArrayList();
+        //inps=new ArrayList();
         logtime=new ArrayList();
         logdata=new ArrayList();
 
@@ -72,7 +74,11 @@ public class DAE {
         return getVars().add(name, value);
     }
 
-    public void initXes(List<Double> x0){
+    public WorkSpace.Variable setVariable(String name,StringGraph value){
+        return getVars().set(name, value);
+    }
+
+    public void initXes(List<Double> x0, HashMap<String,StringGraph> map){
         for(int i=0;i<x0.size();i++){
             double x=x0.get(i);
             String name="X."+(i+1);
@@ -86,6 +92,11 @@ public class DAE {
                 for(StringGraph sg:sgl)
                     sg.linkVariableToWorkSpace(name,link);
             }
+
+            for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+                entry.getValue().linkVariableToWorkSpace(name, link);
+            }
+
 
             name="d.X."+(i+1);
             link=getVars().add(name,x);
@@ -180,14 +191,17 @@ public class DAE {
      * @return the inps
      */
     public List<MathInPin> getInps() {
-        return inps;
+        return vars.getInputs();
     }
 
     public void initJacobian(int jacobType){
         String varsLayout="[ ";
-        for(String var:getVars().getVarNameList()) {
-            if (!var.startsWith("X.")) {
-                varsLayout+=var+" ";
+        for(WorkSpace.Variable var:getVars().getVarList()) {
+            if(var.getClass().getSimpleName().equals("Variable")) {
+                String str=var.getName();
+                if (!str.startsWith("X.")) {
+                    varsLayout += str + " ";
+                }
             }
         }
         varsLayout+="]";
@@ -196,11 +210,12 @@ public class DAE {
         int i=0;
         for(StringGraph func:algSystem){
             getJacob().add(new ArrayList());
-            for(String var:getVars().getVarNameList()){
+            for(WorkSpace.Variable var:getVars().getVarList()){
                 //if(var.startsWith("Cur.")||var.startsWith("Pot.")||var.startsWith("d.X.")){
-                if(!var.startsWith("X.")){
-                    getJacob().get(i).add(func.getDiffer(var));
-                }
+                if(var.getClass().getSimpleName().equals("Variable"))
+                    if(!var.getName().startsWith("X.")){
+                        getJacob().get(i).add(func.getDiffer(var.getName()));
+                    }
             }
             i++;
         }
@@ -250,8 +265,9 @@ public class DAE {
      * @param inps the inps to set
      */
     public void setInps(List<MathInPin> inps) {
-        this.inps = new ArrayList<>();
-        for(MathInPin ic:inps) this.inps.add(ic);
+        ArrayList<MathInPin> inputs = new ArrayList<>();
+        for(MathInPin ic:inps) inputs.add(ic);
+        vars.setInputs(inputs);
     }
 
     public void layout(){
@@ -367,7 +383,7 @@ public class DAE {
         public List<Double> getValue(){
             List<Double> out=new ArrayList();
             for(StringGraph sg:function)
-                out.add(sg.evaluate(getVars(), inps));
+                out.add(sg.evaluate(getVars()));
             return out; //??
         }
     }

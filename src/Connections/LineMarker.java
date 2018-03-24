@@ -108,6 +108,8 @@ public abstract class LineMarker{
                     }
             }
         });
+
+        itsLines.setColor(getWire().getWireColor());
     }
 
     void delete(){
@@ -146,8 +148,8 @@ public abstract class LineMarker{
         setItsConnectedPin(null);
         switch(getWire().getRank()){
             case 1:
-                //System.out.println("Unplug in WireMarker case 1");
-                //WireMarker wc=new WireMarker(getWire(),this.getStartX().get(),this.getStartY().get());
+                //System.out.println("Unplug in ElectricMarker case 1");
+                //ElectricMarker wc=new ElectricMarker(getWire(),this.getStartX().get(),this.getStartY().get());
                 LineMarker wc=getWire().addLineMarker(getWire(),this.getStartX().get(),this.getStartY().get());
                 activeWireConnect=wc;
                 //wc.setElemContact(this.getElemContact());
@@ -156,7 +158,7 @@ public abstract class LineMarker{
 //                this.hide();
                 break;
             case 2:
-                //System.out.println("Unplug in WireMarker case 2");
+                //System.out.println("Unplug in ElectricMarker case 2");
                 LineMarker loser;
                 if(getWire().getWireContacts().get(0)==this){
                     loser=getWire().getWireContacts().get(1);
@@ -168,19 +170,27 @@ public abstract class LineMarker{
                 loser.delete();
                 temp.setWirePointer(this);
                 setItsConnectedPin(temp);
-                this.show();
+                bindStartTo(temp.getBindX(),temp.getBindY());
+                pushToBack();
+//                this.show();
                 //temp.toFront();
                 break;
             default:
-                //System.out.println("Unplug in WireMarker case default");
+                //System.out.println("Unplug in ElectricMarker case default");
                 activeWireConnect=this;
         }
     }
 
     public void pushToBack() {
         marker.toBack();
+        boolean flag=false;
         for(Line l:this.itsLines.getLines()){
-            l.toBack();
+            if(flag) { // leave start line on front
+                l.toBack();
+            }else{
+                l.toFront();
+                flag=!flag;
+            }
         }
     }
 
@@ -492,6 +502,14 @@ public abstract class LineMarker{
         marker.addEventHandler(MouseEvent.MOUSE_EXITED, exitMouse);
 
         getWire().getItsSystem().getDrawBoard().getChildren().add(marker);
+
+        vview.addEventHandler(MouseEvent.MOUSE_PRESSED, e->{
+            activeWireConnect=this;
+            getWire().setStaticEventFilters(vview);
+            e.consume();
+        });
+
+        pushToBack();
     }
 
     /**

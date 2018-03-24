@@ -32,10 +32,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.time.LocalDateTime;
 
 /**
@@ -50,9 +47,11 @@ public class Logger extends OutputStream {
     private int iterator;
     private Button errBtn;
     private SimpleBooleanProperty showBth=new SimpleBooleanProperty(false);
+    private PrintStream sysErr;
 
 
     Logger(){
+        sysErr=System.err;
         messageWindow=new Stage();
         messageWindow.setTitle("Error!");
         StackPane root=new StackPane();
@@ -71,6 +70,7 @@ public class Logger extends OutputStream {
         iterator++;
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath,true))) {
             bw.write((char)b);
+            sysErr.print((char)b);
         } catch (IOException e) {
             showWindow(e.getMessage());
         }

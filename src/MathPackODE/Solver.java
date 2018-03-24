@@ -5,6 +5,7 @@
  */
 package MathPackODE;
 
+import Connections.MathWire;
 import ElementBase.*;
 import MathPack.*;
 
@@ -29,13 +30,13 @@ abstract public class Solver {
     protected List<DynamMathElem> mathDynamics;
     protected List<List<StringGraph>> symbJacobian,invJacob;
     protected List<StringGraph> algSystem;
+    private List<MathWire> wires;
     protected WorkSpace vars;
     protected DAE dae;
-    protected List<MathInPin> inps;
+    //protected List<MathInPin> inps;
     protected ArrayList<WorkSpace.Variable> commonVarsVector,Xvector,dXvector;
     protected int jacobEstType,diffRank;
     protected double[]
-            //s,
             vals;
     private double[][] J;
     protected int[] ind;
@@ -51,7 +52,7 @@ abstract public class Solver {
         progress.setValue(0.0);
         dae=daeSys;
         vars=daeSys.getVars();
-        inps=daeSys.getInps();
+        //inps=daeSys.getInps();
         symbJacobian=daeSys.getJacob();
         invJacob=daeSys.getInvJacob();
         newtonFunc=daeSys.getNewtonFunc();
@@ -59,6 +60,8 @@ abstract public class Solver {
         mathOuts=daeSys.getMathOuts();
         mathDynamics=daeSys.getDynMaths();
         cancelFlag=tsk;
+
+        wires=state.getMathConnList();
 
         dt=state.getDt().doubleValue();
         absTol=state.getAbsTol().doubleValue();
@@ -71,17 +74,25 @@ abstract public class Solver {
         commonVarsVector=new ArrayList<>();
         dXvector=new ArrayList<>();
         Xvector=new ArrayList<>();
+        diffRank=dae.getSymbDiffRank();
+        for(int i=0;i<diffRank;i++){
+            Xvector.add(null);
+            dXvector.add(null);
+        }
 
         for(WorkSpace.Variable var:vars.getVarList()){
             if(!var.getName().startsWith("X.")){
                 commonVarsVector.add(var);
-                if(var.getName().startsWith("d.X."))
-                    dXvector.add(var);
+                if(var.getName().startsWith("d.X.")) {
+                    int i=var.getIndex();
+                    dXvector.set(i,var);
+                }
             }else{
-                Xvector.add(var);
+                int i=var.getIndex();
+                Xvector.set(i,var);
             }
         }
-        diffRank=dae.getSymbDiffRank();
+
 
         for(SchemeElement elem:state.getSchemeElements()){
             elem.init();
@@ -93,17 +104,17 @@ abstract public class Solver {
             del.init();
 //            mathDiffRank+=del.getRank();
 //            for(int i=0;i<del.getX0().size();i++){
-                Element.VectorParameter vp=del.getX0();
-                int i=0;
-                for(double v:vp.getValue()) {
-                    WorkSpace.Variable xvar = vars.add("mX." + diffRank, v),
-                            dxvar = vars.add("md.X." + diffRank, v);
-                    del.setWorkSpaceLink(i, xvar, dxvar);
-                    Xvector.add(xvar);
-                    dXvector.add(dxvar);
-                    diffRank++;
-                    i++;
-                }
+            Element.VectorParameter vp=del.getX0();
+            int i=0;
+            for(double v:vp.getValue()) {
+                WorkSpace.Variable xvar = vars.add("mX." + diffRank, v),
+                        dxvar = vars.add("md.X." + diffRank, v);
+                del.setWorkSpaceLink(i, xvar, dxvar);
+                Xvector.add(xvar);
+                dXvector.add(dxvar);
+                diffRank++;
+                i++;
+            }
 //            }
         }
 
@@ -135,6 +146,9 @@ abstract public class Solver {
 
     public void evalSysState(){
         int cnt=0;
+        double tol=1e-6;
+        for(MathWire w:wires)
+            w.resetValue();
 
         if(symbJacobian!=null)
             if(!symbJacobian.isEmpty()){
@@ -143,22 +157,25 @@ abstract public class Solver {
                 while(true){
                     if(cancelFlag.isCancelled())
                         break;
+
                     //eval F(x)=0
-                    MathPack.MatrixEqu.putValuesFromSymbRow(vals,algSystem,vars,inps);
+
+
+                    MathPack.MatrixEqu.putValuesFromSymbRow(vals,algSystem,vars);
                     double norm=MathPack.MatrixEqu.norm(vals);
-                    if(norm<0.000001)
+                    if(norm<tol)
                         break;
 
                     switch(jacobEstType){
                         case 0: //full symbolic
-                            MathPack.MatrixEqu.putValuesFromSymbRow(vals,newtonFunc,vars,inps);
+                            MathPack.MatrixEqu.putValuesFromSymbRow(vals,newtonFunc,vars);
                             break;
                         case 1: //inverse symbolic
-                            List<List<Double>> invJ=MathPack.MatrixEqu.evalSymbMatr(invJacob, vars, inps);
+                            List<List<Double>> invJ=MathPack.MatrixEqu.evalSymbMatr(invJacob, vars);
                             vals=MathPack.MatrixEqu.mulMatxToRow(invJ,vals);
                             break;
                         case 2: //only jacob symb
-                            MathPack.MatrixEqu.putValuesFromSymbMatr(J,symbJacobian,vars, inps);
+                            MathPack.MatrixEqu.putValuesFromSymbMatr(J,symbJacobian,vars);
                             MatrixEqu.solveLU(J,vals); // first 'vals' contains F(x)
                             break;
                         default:
@@ -175,8 +192,11 @@ abstract public class Solver {
                         double newval=commonVarsVector.get(i).getValue()-vals[i];
                         commonVarsVector.get(i).set(newval);
                     }
+
+
+
                     cnt++;
-                    if(cnt>500){
+                    if(cnt>250){
                         if(false) { // for debug
                             for (double[] row : J) {
                                 System.out.println(Arrays.toString(row));
@@ -184,10 +204,10 @@ abstract public class Solver {
                             System.out.println("x:");
                             System.out.println(Arrays.toString(vals));
                             System.out.println("F(x):");
-                            MathPack.MatrixEqu.putValuesFromSymbRow(vals, algSystem, vars, inps);
+                            MathPack.MatrixEqu.putValuesFromSymbRow(vals, algSystem, vars);
                             System.out.println(Arrays.toString(vals));
                         }
-
+                        //tol*=10;
                         cnt=0;
                         if(faultflag){
                             throw new Error("Dead loop!");
