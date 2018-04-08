@@ -49,7 +49,6 @@ public class DAE {
     private List<List<StringGraph>> Jacob,invJacob,outSystem;
     private WorkSpace vars;
     private List<MathOutPin> outs;
-    //private List<MathInPin> inps;
     private List<Double> logtime;
     private List<List<Double>> logdata;
     private List<OutputElement> mathOuts;
@@ -63,7 +62,6 @@ public class DAE {
         outSystem=new ArrayList();
         vars=new WorkSpace();
         outs=new ArrayList();
-        //inps=new ArrayList();
         logtime=new ArrayList();
         logdata=new ArrayList();
 
@@ -99,7 +97,7 @@ public class DAE {
 
 
             name="d.X."+(i+1);
-            link=getVars().add(name,x);
+            link=getVars().add(name,x==0?1e-3:x);
 
             for(StringGraph sg:getAlgSystem()){
                 sg.linkVariableToWorkSpace(name,link);
@@ -109,6 +107,14 @@ public class DAE {
                 for(StringGraph sg:sgl)
                     sg.linkVariableToWorkSpace(name,link);
             }
+        }
+
+
+        // also init outs
+        for(MathOutPin mop:outs){
+            DaeToMatOut p=(DaeToMatOut) mop;
+            for(StringGraph sg:p.function)
+                sg.init();
         }
     }
 
@@ -154,7 +160,6 @@ public class DAE {
             DaeToMatOut out=new DaeToMatOut(sfs.getOutFuncs().get(i));
             outs.add(out);
             if(oldOuts.get(i).getItsConnection()!=null){  // check if this out pin connect to smthg (ex. to Scope)
-                //oldOuts.get(i).getSource().setSource(out);
                 ((MathWire)oldOuts.get(i).getItsConnection().getWire()).setSourcePointer(out);
             }
         }
@@ -376,7 +381,6 @@ public class DAE {
         DaeToMatOut(List<StringGraph> f){
             function=f;
             //replace reference in matConnect
-
         }
 
         @Override

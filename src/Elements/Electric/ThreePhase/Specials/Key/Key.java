@@ -10,8 +10,8 @@ public class Key extends SchemeElement{
     public Key(Subsystem sub){
         super(sub);
 
-        addThreePhaseCont(new ThreePhasePin(this,5,30));
-        addThreePhaseCont(new ThreePhasePin(this,45,30));
+        addThreePhaseCont(new ThreePhasePin(this,25,5));
+        addThreePhaseCont(new ThreePhasePin(this,25,66));
 
         addMathContact('i');
     }

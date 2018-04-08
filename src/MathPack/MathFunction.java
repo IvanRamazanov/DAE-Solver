@@ -888,44 +888,46 @@ class Multiplex implements SimpleFunc{
             }
             output=input;
         }
-        //expand k*(... + ... +)
-        expand:
-        if(output instanceof FuncUzel){
-            FuncUzel test=(FuncUzel)output;
-            if(test.getFuncName().equals("*")){
-                List<Uzel> testInps=test.getInputs();
-                for(int i=0;i<testInps.size();i++){
-                    Uzel uz=testInps.get(i);
-                    if(uz instanceof FuncUzel){
-                        if(((FuncUzel)uz).getFuncName().equals("+")&&test.getGain().get(i)==1){
-                            // create
-                            List<Uzel> newInps=((FuncUzel)uz).getInputs();
-                            List<Uzel> outInps=new ArrayList();
-                            List<Integer> outGai=new ArrayList();
-                            for(int j=0;j<newInps.size();j++){
-                                List<Uzel> inp=new ArrayList();
-                                List<Integer> gai=new ArrayList();
-                                for(int k=0;k<testInps.size();k++){
-                                    if(k!=i){
-                                        inp.add(testInps.get(k).copy());
-                                        gai.add(test.getGain().get(k));
-                                    }else{
-                                        inp.add(newInps.get(j).copy());
-                                        gai.add(1);
-                                    }
-                                }
-                                outInps.add(new FuncUzel("*", inp, gai));
-                                outGai.add(((FuncUzel) uz).getGain().get(j));
-//                                newInps.set(j, new FuncUzel("*", inp, gai));
-                            }
-//                            output=((FuncUzel) uz).simplify();
-                            output=new FuncUzel("+",outInps,outGai);
-                            break expand;
-                        }
-                    }
-                }
-            }
-        }
+
+//        //expand k*(... + ... +)
+//        expand:
+//        if(output instanceof FuncUzel){
+//            FuncUzel test=(FuncUzel)output;
+//            if(test.getFuncName().equals("*")){
+//                List<Uzel> testInps=test.getInputs();
+//                for(int i=0;i<testInps.size();i++){
+//                    Uzel uz=testInps.get(i);
+//                    if(uz instanceof FuncUzel){
+//                        if(((FuncUzel)uz).getFuncName().equals("+")&&test.getGain().get(i)==1){
+//                            // create
+//                            List<Uzel> newInps=((FuncUzel)uz).getInputs();
+//                            List<Uzel> outInps=new ArrayList();
+//                            List<Integer> outGai=new ArrayList();
+//                            for(int j=0;j<newInps.size();j++){
+//                                List<Uzel> inp=new ArrayList();
+//                                List<Integer> gai=new ArrayList();
+//                                for(int k=0;k<testInps.size();k++){
+//                                    if(k!=i){
+//                                        inp.add(testInps.get(k).copy());
+//                                        gai.add(test.getGain().get(k));
+//                                    }else{
+//                                        inp.add(newInps.get(j).copy());
+//                                        gai.add(1);
+//                                    }
+//                                }
+//                                outInps.add(new FuncUzel("*", inp, gai));
+//                                outGai.add(((FuncUzel) uz).getGain().get(j));
+////                                newInps.set(j, new FuncUzel("*", inp, gai));
+//                            }
+////                            output=((FuncUzel) uz).simplify();
+//                            output=new FuncUzel("+",outInps,outGai);
+//                            break expand;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+
         return output;
     }
 

@@ -19,7 +19,7 @@ public class SynchronousMachine extends SchemeElement{
         addMechCont(new MechPin(this,45,35));   // positive
         addMechCont(new MechPin(this,4,35));    // ref
 
-        addMathContact('o');
+//        addMathContact('o');
     }
     
     public SynchronousMachine(boolean val){
@@ -41,8 +41,8 @@ public class SynchronousMachine extends SchemeElement{
                 "X.1=i.3",
                 "X.2=i.4",
                 "X.3=i.1",
-                "X.4=w.1-w.2",
-                "O.1="+M
+                "X.4=w.1-w.2"
+//                "O.1="+M
         };
         for(int i=0;i<out.length;i++){
             out[i]=out[i].replaceAll("Pp",Pp.toString());

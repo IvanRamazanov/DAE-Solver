@@ -114,6 +114,10 @@ public class StringGraph {
         root.setVariableLink(name,link);
     }
 
+    public void init(){
+        root.init();
+    }
+
     @Override
     public String toString(){
         return root.toString();
@@ -702,13 +706,15 @@ interface Uzel{
 
     void setVariableLink(String name, WorkSpace.Variable link);
 
-    int getOrder();
+//    int getOrder();
+
+    void init();
 
     Uzel differ(String varName);
 
     void getVariables(Set list);
 
-    void setOrder(int value);
+//    void setOrder(int value);
 
     Uzel copy();
 
@@ -764,9 +770,14 @@ class Const implements Uzel{
         return false;
     }
 
+//    @Override
+//    public int getOrder(){
+//        return order;
+//    }
+
     @Override
-    public int getOrder(){
-        return order;
+    public void init(){
+
     }
 
     @Override
@@ -784,10 +795,10 @@ class Const implements Uzel{
         return 0;
     }
 
-    @Override
-    public void setOrder(int val){
-        order=val;
-    }
+//    @Override
+//    public void setOrder(int val){
+//        order=val;
+//    }
 
     @Override
     public Uzel copy(){
@@ -892,14 +903,19 @@ class Variable implements Uzel{
         inp.add(name);
     }
 
-    @Override
-    public int getOrder(){
-        return order;
-    }
+//    @Override
+//    public int getOrder(){
+//        return order;
+//    }
+//
+//    @Override
+//    public void setOrder(int val){
+//        order=val;
+//    }
 
     @Override
-    public void setOrder(int val){
-        order=val;
+    public void init(){
+
     }
 
     @Override
@@ -920,6 +936,8 @@ class FuncUzel implements Uzel{
     private MathFunction func;
     private List<Uzel> inputs;
     private List<Integer> gain;
+
+    double[] input;
 
     FuncUzel(String function,Uzel... input){
         gain=new ArrayList();
@@ -1250,7 +1268,6 @@ class FuncUzel implements Uzel{
     @Override
     public double getValue(WorkSpace vars){
         double result;
-        double[] input=new double[getInputs().size()];
         for(int i=0;i<getInputs().size();i++){
             input[i]=getInputs().get(i).getValue(vars);
         }
@@ -1273,14 +1290,22 @@ class FuncUzel implements Uzel{
         this.simplify();
     }
 
-    @Override
-    public int getOrder(){
-        return order;
-    }
+//    @Override
+//    public int getOrder(){
+//        return order;
+//    }
+//
+//    @Override
+//    public void setOrder(int val){
+//        order=val;
+//    }
 
     @Override
-    public void setOrder(int val){
-        order=val;
+    public void init(){
+        input=new double[getInputs().size()];
+        for(Uzel uz:getInputs()){
+            uz.init();
+        }
     }
 
     @Override

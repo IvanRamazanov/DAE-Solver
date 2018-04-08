@@ -10,8 +10,8 @@ public class Line extends SchemeElement{
     public Line(Subsystem sys){
         super(sys);
 
-        addThreePhaseCont(new ThreePhasePin(this,5,30));
-        addThreePhaseCont(new ThreePhasePin(this,45,30));
+        addThreePhaseCont(new ThreePhasePin(this,25,5));
+        addThreePhaseCont(new ThreePhasePin(this,25,66));
     }
 
     public Line(boolean val){

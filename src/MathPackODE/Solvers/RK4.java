@@ -1,10 +1,11 @@
-package MathPackODE;
+package MathPackODE.Solvers;
 
 import MathPack.WorkSpace;
+import MathPackODE.Solver;
 
 import java.util.List;
 
-public class SolverRK4 extends Solver{
+public class RK4 extends Solver {
     private double bTime;
     private double[] bXVector,
             C={0, 1.0/2.0, 1.0/2.0, 1.0},
@@ -17,7 +18,7 @@ public class SolverRK4 extends Solver{
     };
     private double[][] K;
 
-    public SolverRK4(){}
+    public RK4(){}
 
     @Override
     public void evalNextStep() {
@@ -44,12 +45,6 @@ public class SolverRK4 extends Solver{
         time=bTime+dt;
 
         evalSysState(); // for correct outputs
-    }
-
-    private void copyArray(List<WorkSpace.Variable> source, double[] destination){
-        for (int i=0;i<source.size();i++) {
-            destination[i]=source.get(i).getValue();
-        }
     }
 
     private void add(int step){

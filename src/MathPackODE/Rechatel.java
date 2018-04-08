@@ -5,12 +5,6 @@
  */
 package MathPackODE;
 
-import ElementBase.DynamMathElem;
-import ElementBase.OutputElement;
-import java.util.List;
-import ElementBase.PhysSubsystem;
-import MathPackODE.DAE;
-import MathPackODE.Solver;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import javafx.concurrent.Task;
@@ -25,8 +19,6 @@ public class Rechatel extends Task<Integer>{
     static MathPackODE.Compiler compiler;
     ModelState state;
     private final boolean byGOST;
-    public String ssstring;
-    //public static double time;
     private Solver solver;
 
     public static final boolean IS_LOGGING=false;
@@ -34,7 +26,7 @@ public class Rechatel extends Task<Integer>{
     public Rechatel(ModelState state,boolean byGost){
         this.state=state;
         try{
-            String className="MathPackODE.Solver"+state.getSolver().get();
+            String className="MathPackODE.Solvers."+state.getSolver().get();
             Class<?> clas=Class.forName(className);
             Constructor<?> ctor=clas.getConstructor();
             solver=(Solver)ctor.newInstance(new Object[] {});
@@ -48,11 +40,7 @@ public class Rechatel extends Task<Integer>{
     @Override
     protected Integer call(){
         try{
-            List<OutputElement> outs;
-            List<DynamMathElem> dynamics;
-            PhysSubsystem physics;
             double tEnd=state.getTend().doubleValue();
-            //double dt=state.getDt().doubleValue();
             updateMessage("Compiling...");
             DAE sys=compiler.evalNumState(state);
             this.updateProgress(0, tEnd);
@@ -61,9 +49,7 @@ public class Rechatel extends Task<Integer>{
             Solver.progress.addListener((t, o, n)->{
                 this.updateProgress(n.doubleValue(), tEnd);
             });
-            //for(time=dt;time<=tEnd;time=time+dt){
-            //solver.evalNextStep(time);
-            //}
+
             solver.solve();
 
             if(IS_LOGGING)
@@ -71,7 +57,6 @@ public class Rechatel extends Task<Integer>{
             long end=System.currentTimeMillis();
             System.out.println("eval time: "+(end-start));
             this.updateProgress(tEnd, tEnd);
-            //this.cancel();
         }catch(Exception|Error e){
             e.printStackTrace(System.err);
             throw new Error();
