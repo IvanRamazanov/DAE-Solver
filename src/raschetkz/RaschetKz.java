@@ -10,14 +10,22 @@ import ElementBase.ListOfElements;
 import javafx.application.Application;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.awt.*;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -90,7 +98,31 @@ public class RaschetKz extends Application{
         primaryStage.setTitle("OmniSystem Simulator");
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest((WindowEvent we) -> {
-            Platform.exit();
+            Stage st=new Stage();
+            BorderPane bp=new BorderPane();
+            Scene sc=new Scene(bp);
+            st.setScene(sc);
+            ButtonBar bb=new ButtonBar(ButtonBar.BUTTON_ORDER_WINDOWS);
+            Button yes=new Button("Yes");
+            yes.setOnAction(ae->{
+                Platform.exit();
+            });
+            ButtonBar.setButtonData(yes, ButtonBar.ButtonData.YES);
+            Button no=new Button("No");
+            no.setOnAction(ae->{
+                st.close();
+            });
+            ButtonBar.setButtonData(no, ButtonBar.ButtonData.NO);
+            bb.getButtons().addAll(no,yes);
+            bb.setButtonOrder("+YN");
+            bp.setBottom(bb);
+
+            bp.setTop(new Label("Are you really want to exit?"));
+
+            st.sizeToScene();
+            st.show();
+
+            we.consume();
         });
         primaryStage.show();
     }
@@ -123,6 +155,7 @@ public class RaschetKz extends Application{
                 Status.textProperty().unbind();
             if(New.doubleValue()==1.0){
                 Status.setText("Done!");
+                Toolkit.getDefaultToolkit().beep();
             }else{
                 Status.setText("T="+String.format("%.3f",New.doubleValue()*state.getTend().doubleValue()));
             }
@@ -166,6 +199,8 @@ public class RaschetKz extends Application{
                 stopBtn.setDisable(true);
                 startBtn.setDisable(false);
                 myLog.errorLayout();
+
+                Toolkit.getDefaultToolkit().beep();
             });
         });
         bottomBox.add(startBtn,4,0);
@@ -328,6 +363,9 @@ public class RaschetKz extends Application{
         solver.getItems().add("Adams4");
         solver.getItems().add("RungeKuttaFehlberg");
         solver.getItems().add("RK4");
+        solver.getItems().add("Roshenbrok");
+        solver.getItems().add("BDF1");
+        solver.getItems().add("BDF2");
         solver.setValue(solverType.get());
         ComboBox jacobEstType=new ComboBox();
         jacobEstType.getItems().add("Full symbolic");

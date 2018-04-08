@@ -37,7 +37,8 @@ public class ABCtoDQ extends MathElement{
 
     @Override
     protected String getDescription() {
-        return "Park transformation from ABC into dq0";
+        return "Park transformation from ABC into dq0\n"+
+                "First input - ABC vector, Second - axes rotation angle.";
     }
 
     @Override

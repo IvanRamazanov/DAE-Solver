@@ -33,8 +33,8 @@ public class MathInPin extends MathPin{
 
     public List<Double> getValue(){
         if(getSource()!=null){
-//            return ((MathWire)getItsConnection().getWire()).getValue();
-            return getSource().getValue();
+            return ((MathWire)getItsConnection().getWire()).getValue();
+//            return getSource().getValue();
         }else{
             List<Double> out=new ArrayList();
             out.add(0.0);

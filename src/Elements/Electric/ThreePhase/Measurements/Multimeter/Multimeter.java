@@ -9,8 +9,8 @@ public class Multimeter extends SchemeElement{
     public Multimeter(Subsystem sys){
         super(sys);
 
-        addThreePhaseCont(new ThreePhasePin(this,10,10));
-        addThreePhaseCont(new ThreePhasePin(this,10,40));
+        addThreePhaseCont(new ThreePhasePin(this,25,5));
+        addThreePhaseCont(new ThreePhasePin(this,25,66));
 
         addMathContact('o');
         addMathContact('o');

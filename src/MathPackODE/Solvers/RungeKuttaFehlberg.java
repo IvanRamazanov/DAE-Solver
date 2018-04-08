@@ -1,11 +1,12 @@
-package MathPackODE;
+package MathPackODE.Solvers;
 
 import MathPack.MatrixEqu;
-import MathPack.WorkSpace;
+import MathPackODE.Solver;
 
-import java.util.List;
+import static java.lang.Math.abs;
+import static java.lang.Math.max;
 
-public class SolverRungeKuttaFehlberg extends Solver{
+public class RungeKuttaFehlberg extends Solver {
     private double bTime;
     private double[] bXVector,error,relErr,bCommVect,
     C={0, 1.0/4.0, 3.0/8.0, 12.0/13.0, 1.0, 1.0/2.0},
@@ -21,7 +22,7 @@ public class SolverRungeKuttaFehlberg extends Solver{
     };
     private double[][] K;
 
-    public SolverRungeKuttaFehlberg(){
+    public RungeKuttaFehlberg(){
 
     }
 
@@ -40,22 +41,32 @@ public class SolverRungeKuttaFehlberg extends Solver{
             copyArray(dXvector, K[i]);
         }
 
+        double denum=1e-3;
         for(int i=0;i<diffRank;i++){
             double sum=0,errSum=0;
             for(int j=0;j<K.length;j++) {
                 sum += B[j] * K[j][i];
-                errSum += (B[j]-Br[j])*K[j][i];
+                errSum += abs((B[j]-Br[j])*K[j][i]);
             }
-            Xvector.get(i).set(bXVector[i]+dt*sum);
+            double val=bXVector[i]+dt*sum;
+            denum=max(max(abs(val),abs(Xvector.get(i).getValue())),denum);
+            Xvector.get(i).set(val);
+
 
             error[i]=errSum*dt;
 
-            relErr[i]=error[i]/Xvector.get(i).getValue();
+            relErr[i]=error[i];
         }
 
-        double err= MatrixEqu.norm(error);
-        double alpha = Math.pow(absTol/err,1.0/(ORDER+1.0));
-        if(alpha<0.97){
+        double err=-1;
+        for(int i=0;i<relErr.length;i++){
+            err=max(relErr[i]/denum,err);
+        }
+//        double err= MatrixEqu.norm(error);
+
+//        double alpha = Math.pow(absTol/err,1.0/(ORDER+1.0));
+        double alpha =1.0 / ( 1.25 * Math.pow(err/relTol,1.0/(5.0)) );
+        if(err>relTol){
             //Bad try. Recalculate
             time=bTime;
             for(int i=0;i<diffRank;i++){
@@ -63,18 +74,16 @@ public class SolverRungeKuttaFehlberg extends Solver{
             }
             for(int i=0;i<bCommVect.length;i++)
                 commonVarsVector.get(i).set(bCommVect[i]);
+
+            alpha*=0.8;
+            dt=alpha*dt;
         }else{
             time=bTime+dt;
+            dt=alpha*dt;
 
             evalSysState(); // for correct outputs
         }
-        dt=alpha*dt;
-    }
 
-    private void copyArray(List<WorkSpace.Variable> source, double[] destination){
-        for (int i=0;i<source.size();i++) {
-            destination[i]=source.get(i).getValue();
-        }
     }
 
     private void add(int step){

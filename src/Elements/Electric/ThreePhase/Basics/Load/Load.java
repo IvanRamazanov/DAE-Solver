@@ -11,8 +11,8 @@ public class Load extends SchemeElement{
     public Load(Subsystem sys){
         super(sys);
 
-        addElectricCont(new ElectricPin(this,30,30));  //reference p.1
-        addThreePhaseCont(new ThreePhasePin(this,10,10)); // p.2-p.4
+        addElectricCont(new ElectricPin(this,25,66));  //reference p.1
+        addThreePhaseCont(new ThreePhasePin(this,25,5)); // p.2-p.4
     }
 
     public Load(boolean val){

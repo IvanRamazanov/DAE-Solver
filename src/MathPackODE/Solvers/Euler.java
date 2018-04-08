@@ -21,51 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package MathPackODE;
+package MathPackODE.Solvers;
+
+import MathPackODE.Solver;
 
 /**
  *
  * @author Иван
  */
-public class SolverAdams4 extends Solver{
-    private double[][] ds;
-    private int rank=4,matrStep;
-    boolean fullfill;
+public class Euler extends Solver {
 
-    public SolverAdams4(){
+    public Euler(){
 
     }
 
     @Override
     public void evalNextStep(){
-        if(fullfill){
-            for(int i=0;i<diffRank;i++){
-                ds[i][matrStep]=dXvector.get(i).getValue();
-            }
-            for(int i=0;i<diffRank;i++){
-                double val=Xvector.get(i).getValue()+dt*(55.0/24.0*ds[i][matrStep]-59.0/24.0*this.ds[i][(matrStep+3)%rank]
-                        +37.0/24.0*this.ds[i][(matrStep+2)%rank]-3.0/8.0*this.ds[i][(matrStep+1)%rank]);
-                Xvector.get(i).set(val);
-            }
-            matrStep=(matrStep+1)%rank;
-        }else{
-            for(int i=0;i<diffRank;i++){
-                ds[i][matrStep]=dXvector.get(i).getValue();
-            }
-            for(int i=0;i<diffRank;i++){
-                Xvector.get(i).set(ds[i][matrStep]*dt+Xvector.get(i).getValue());
-            }
-
-            if(++matrStep==rank-1) fullfill=true;
+        for(int i=0;i<dXvector.size();i++){
+            Xvector.get(i).set(Xvector.get(i).getValue()+dt*dXvector.get(i).getValue());
         }
-        time+=dt;
-        evalSysState(); //Newton update
-    }
 
-    @Override
-    protected void selfInit(){
-        matrStep=0;
-        ds=new double[diffRank][rank];
+        time+=dt;
+
+        evalSysState(); // Eval further dX
     }
 }
 

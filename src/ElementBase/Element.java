@@ -106,13 +106,16 @@ public abstract class Element {
 
     public Element(Subsystem sys){
         cm=new ContextMenu();
-        MenuItem deleteMenu =new MenuItem("Удалить");
+        MenuItem deleteMenu =new MenuItem("Delete");
         deleteMenu.setOnAction((ActionEvent ae)-> this.delete());
-        MenuItem paramMenu=new MenuItem("Параметры");
+        MenuItem paramMenu=new MenuItem("Parameters");
         paramMenu.setOnAction((ActionEvent ae)-> this.openDialogStage());
-        MenuItem rotate=new MenuItem("Поворот");
+        MenuItem rotate=new MenuItem("Rotate");
         rotate.setOnAction(ae-> rotate());
-        cm.getItems().addAll(deleteMenu,paramMenu,rotate);
+        MenuItem rename=new MenuItem("Rename");
+        rename.setOnAction(ae-> showRenameWindow());
+
+        cm.getItems().addAll(deleteMenu,paramMenu,rotate,rename);
         imagePath=getClass().getResource(this.getClass().getSimpleName()+".png").toString();
 
         this.setItsSystem(sys);
@@ -622,7 +625,7 @@ public abstract class Element {
 
     protected void openDialogStage() {
         final Stage subWind=new Stage();
-        subWind.setTitle("Параметры: "+this.getName());
+        subWind.setTitle("Parameters: "+this.getName());
         VBox root=new VBox();
         final Scene scene=new Scene(root,300,200,Color.DARKCYAN);
         subWind.setScene(scene);
@@ -635,7 +638,7 @@ public abstract class Element {
         for(Parameter p:this.getParameters()){
             top.getChildren().add(p.getLayout());
         }
-        Tab params=new Tab("Параметры элемента");
+        Tab params=new Tab("Element parameters");
         ScrollPane asd=new ScrollPane(top);
         asd.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         params.setContent(asd);
@@ -648,7 +651,7 @@ public abstract class Element {
             root.getChildren().add(pane);
         }else{
             GridPane ttop=new GridPane();
-            ttop.addRow(0, new Label("Переменная"),new Label("Приоритет"),new Label("Значение"));
+            ttop.addRow(0, new Label("Name"),new Label("Priority"),new Label("Value"));
             for(int k=0;k<this.getInitials().size();k++){
                 InitParam p=this.getInitials().get(k);
                 List<Node> pn=new ArrayList(p.getLayouts());
@@ -657,7 +660,7 @@ public abstract class Element {
                     ttop.add(pn.get(i),i,k+1);
                 }
             }
-            Tab inits=new Tab("Начальные условия");
+            Tab inits=new Tab("Initial conditions");
             ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
             ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
             ttop.getColumnConstraints().add(new ColumnConstraints(Control.USE_COMPUTED_SIZE));
@@ -669,12 +672,12 @@ public abstract class Element {
         }
         //---buttns
         HBox bot=new HBox();
-        Button btn=new Button("Отмена");
+        Button btn=new Button("Cancel");
         btn.setOnAction((ActionEvent ae)->{
             subWind.close();
         });
         bot.getChildren().add(btn);
-        btn=new Button("Ок");
+        btn=new Button("Ok");
         btn.setOnAction((ActionEvent ae)->{
             this.getParameters().forEach(data->{
                 data.update();
@@ -790,6 +793,31 @@ public abstract class Element {
             }
 
         this.name.setText(nameTmp);
+    }
+
+    private void showRenameWindow(){
+        Stage st=new Stage();
+        VBox root=new VBox(10);
+        TextField newName=new TextField(name.getText());
+        ButtonBar br=new ButtonBar();
+        Button ok=new Button("Ok");
+        ok.setOnAction(e->{
+            setName(newName.getText());
+            st.close();
+        });
+        ButtonBar.setButtonData(ok, ButtonBar.ButtonData.OK_DONE);
+        Button cancel=new Button("Cancel");
+        cancel.setOnAction(e->{
+            st.close();
+        });
+        ButtonBar.setButtonData(cancel, ButtonBar.ButtonData.CANCEL_CLOSE);
+        br.getButtons().addAll(ok,cancel);
+        root.getChildren().addAll(new Label("Insert new name"),newName,br);
+        Scene scene=new Scene(root);
+        st.setScene(scene);
+        st.sizeToScene();
+        st.show();
+        st.toFront();
     }
 
     public List<ThreePhasePin> getThreePhaseContacts() {

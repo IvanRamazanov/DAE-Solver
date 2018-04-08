@@ -22,7 +22,6 @@ public class PhysSubsystem{
     //List<PhysToMatOut> outPuts;
     List<Double> xes,dX;
     StringFunctionSystem ode;
-    List<MathInPin> inputs;
     List<MathOutPin> outputs;
     List<Double> time=new ArrayList();
     List<List<Double>> data=new ArrayList();
@@ -30,7 +29,6 @@ public class PhysSubsystem{
     public PhysSubsystem(StringFunctionSystem input){
         ode=input;
         xes=ode.getInitsX();
-        inputs=ode.getInputs();
         outputs=new ArrayList();
         List<MathOutPin> oldOuts=ode.getOutputs();
         for(int i=0;i<oldOuts.size();i++){

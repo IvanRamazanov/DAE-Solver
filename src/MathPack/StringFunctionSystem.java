@@ -672,6 +672,7 @@ public class StringFunctionSystem {
                         }
 
                         map.put(var, rp);
+                        rp.init();
 
                         //remove
                         system.rightSides.remove(i);
@@ -718,7 +719,7 @@ public class StringFunctionSystem {
             for(Object obj:rightSideVars){
                 String name=(String)obj;
                 if(WorkSpace.isRealVariable(name)){
-                    WorkSpace.Variable wsLink=output.addVariable(name, 0.0);  //TODO maybe not 0.0
+                    WorkSpace.Variable wsLink=output.addVariable(name, 1e-15);  //TODO maybe not 0.0
                     if(wsLink!=null) {
                         for (StringGraph sg : potAlgSys)
                             sg.linkVariableToWorkSpace(name, wsLink);
@@ -1145,132 +1146,6 @@ public class StringFunctionSystem {
                 }
             }
         }
-//        List<List<Integer>> C=new ArrayList();
-//        boolean badCurs=true,badPots=true,
-//                badTorqs=true,badSpeeds=true;
-//        int numOfCurs=currs.size(),numOfVars;
-//        if(numOfCurs==0)
-//            numOfVars=0;
-//        else
-//            numOfVars=currs.get(0).size();
-//        //curs
-//        if(numOfVars!=numOfCurs){
-//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfCurs);
-//            for(List<Integer> exesRows:C){      //try all combinations
-//                for(Integer i:exesRows){
-//                    List<Integer> row=new ArrayList();
-//                    for(int j=0;j<numOfVars;j++){
-//                        row.add(0);
-//                    }
-//                    row.set(i,1);
-//                    currs.add(row);
-//                }
-////                if(MatrixEqu.det_i(currs)==0){
-//                if(rank(currs)!=currs.size()){
-//                    for(int i=0;i<exesRows.size();i++){
-//                        currs.remove(currs.size()-1);
-//                    }
-//                }else{
-//                    for(int i=0;i<exesRows.size();i++){
-//                        curRight.add(new StringGraph("Cur."+(i+1)));
-//                    }
-//                    badCurs=false;
-//                    break;
-//                }
-//            }
-//            if(badCurs)   throw new Error("AAAAAA, bad curr in Kirghoff");
-//        }
-//        //pots
-//        C=new ArrayList();
-//        int numOfPots=pots.size();
-//        if(numOfVars!=numOfPots){
-//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfPots);
-//            for(List<Integer> exesRows:C){      //try all combinations
-//                for(Integer i:exesRows){
-//                    List<Integer> row=new ArrayList();
-//                    for(int j=0;j<numOfVars;j++){
-//                        row.add(0);
-//                    }
-//                    row.set(i,1);
-//                    pots.add(row);
-//                }
-////                if(MatrixEqu.det_i(pots)==0){
-//                if(rank(pots)!=pots.size()){
-//                    for(int i=0;i<exesRows.size();i++){
-//                        pots.remove(pots.size()-1);
-//                    }
-//                }else{
-//                    for(int i=0;i<exesRows.size();i++){
-//                        potRight.add(new StringGraph("Pot."+(i+1)));
-//                    }
-//                    badPots=false;
-//                    break;
-//                }
-//            }
-//            if(badPots)   throw new Error("AAAAAA, bad pots in Kirghoff");
-//        }
-//        //speeds
-//        C=new ArrayList();
-//        int numOfSpeeds=speeds.size();
-//        if(numOfSpeeds==0)
-//            numOfVars=0;
-//        else
-//            numOfVars=speeds.get(0).size();
-//        if(numOfVars!=numOfSpeeds){
-//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfSpeeds);
-//            for(List<Integer> exesRows:C){      //try all combinations
-//                for(Integer i:exesRows){
-//                    List<Integer> row=new ArrayList();
-//                    for(int j=0;j<numOfVars;j++){
-//                        row.add(0);
-//                    }
-//                    row.set(i,1);
-//                    speeds.add(row);
-//                }
-////                if(MatrixEqu.det_i(speeds)==0){
-//                if(rank(speeds)!=speeds.size()){
-//                    for(int i=0;i<exesRows.size();i++){
-//                        speeds.remove(speeds.size()-1);
-//                    }
-//                }else{
-//                    for(int i=0;i<exesRows.size();i++){
-//                        speRight.add(new StringGraph("Spe."+(i+1)));
-//                    }
-//                    badSpeeds=false;
-//                    break;
-//                }
-//            }
-//            if(badSpeeds)   throw new Error("AAAAAA, bad speeds in Kirghoff");
-//        }
-//        //torqs
-//        C=new ArrayList();
-//        int numOfTorqs=torqs.size();
-//        if(numOfVars!=numOfTorqs){
-//            MathPack.Combinatorics.getCombinations(C, 0, numOfVars, numOfVars-numOfTorqs);
-//            for(List<Integer> exesRows:C){      //try all combinations
-//                for(Integer i:exesRows){
-//                    List<Integer> row=new ArrayList();
-//                    for(int j=0;j<numOfVars;j++){
-//                        row.add(0);
-//                    }
-//                    row.set(i,1);
-//                    torqs.add(row);
-//                }
-////                if(MatrixEqu.det_i(torqs)==0){
-//                if(rank(torqs)!=torqs.size()){
-//                    for(int i=0;i<exesRows.size();i++){
-//                        torqs.remove(torqs.size()-1);
-//                    }
-//                }else{
-//                    for(int i=0;i<exesRows.size();i++){
-//                        torRight.add(new StringGraph("Tor."+(i+1)));
-//                    }
-//                    badTorqs=false;
-//                    break;
-//                }
-//            }
-//            if(badTorqs)   throw new Error("AAAAAA, bad torques in Kirghoff");
-//        }
     }
 
     public List<MathInPin> getInputs(){
@@ -1291,7 +1166,6 @@ public class StringFunctionSystem {
      * @return true if inp=f(X,t)
      */
     private static boolean checkVars(StringGraph input){
-//        return !(input.containInstance("i.")||input.containInstance("p.")||input.containInstance("d.X."));
         return !(input.containInstance("i.")||input.containInstance("p."));
     }
 
@@ -1462,7 +1336,6 @@ public class StringFunctionSystem {
                                 ind=parseInt(temp);
                                 if(ind>maxInp) maxInp=ind;
                                 ind+=inputCnt;
-//                                input=input.substring(0, startIndx)+Integer.toString(ind)+input.substring(i);
                                 input=renumerate(input,startIndx,temp,ind);
                                 temp="";
                                 break;
@@ -1501,7 +1374,6 @@ public class StringFunctionSystem {
                             ind=parseInt(temp);
                             if(ind>maxZ) maxZ=ind;
                             ind+=localVarCnt;
-                            //input=input.substring(0, startIndx)+Integer.toString(ind);
                             input=renumerate(input,startIndx,temp,ind);
                         }
                     }
@@ -1891,7 +1763,6 @@ class LeftPart{
 
     boolean containInstance(String name){
         for(int i=0;i<names.size();i++){
-            //String nam=names.get(i).substring(0, names.get(i).lastIndexOf('.')+1);
             String nam=names.get(i).getShortName();
             if(nam.equals(name)){
                 return true;
