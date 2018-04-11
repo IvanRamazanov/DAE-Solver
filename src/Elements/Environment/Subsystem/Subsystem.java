@@ -13,15 +13,23 @@ import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.effect.DropShadow;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import raschetkz.RaschetKz;
 
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
@@ -40,6 +48,8 @@ public class Subsystem extends Element {
     private static final int pinStep=20;
     private double windowHeight=600;
     private double windowWidth=800;
+    GridPane bottom=new GridPane();
+    private BorderPane root;
 
     public Subsystem(){
         initGui();
@@ -49,7 +59,7 @@ public class Subsystem extends Element {
     public Subsystem(Subsystem sys){
         super(sys);
 
-        initGui();
+        initGui(sys);
     }
 
     public Subsystem(boolean val){
@@ -358,16 +368,63 @@ public class Subsystem extends Element {
 
         selectionModel=new SelectionModel(drawBoard);
 
-        final Scene scene=new Scene(getScrollPane(),500,400);
+        root=new BorderPane(getScrollPane());
+
+        final Scene scene=new Scene(root,500,400);
         scene.getStylesheets().add("raschetkz/mod.css");
         getStage().setScene(scene);
+    }
+
+    private void initGui(Subsystem parent){
+        initGui();
+
+        linkBottomBar(parent.bottom);
+    }
+
+    public void linkBottomBar(GridPane parentBar){
+        //link bottom
+        //Create bottom bar and bind to parent
+
+        bottom.gridLinesVisibleProperty().set(true);
+        bottom.getColumnConstraints().add(new ColumnConstraints(100));
+        bottom.getColumnConstraints().add(new ColumnConstraints(100));
+        bottom.getColumnConstraints().add(new ColumnConstraints());
+        bottom.getColumnConstraints().add(new ColumnConstraints(120));
+
+        ProgressBar progBar=new ProgressBar();
+        progBar.progressProperty().bind(((ProgressBar)parentBar.getChildren().get(0+1)).progressProperty());
+        Label Status=new Label(),currentFile=new Label();
+        Status.textProperty().bind(((Label)parentBar.getChildren().get(1+1)).textProperty());
+        currentFile.textProperty().bind(((Label)parentBar.getChildren().get(3+1)).textProperty());
+        Button startBtn=new Button("Start"),
+                stopBtn=new Button("Stop"),
+                errBtn=new Button();
+        errBtn.setMaxHeight(24);
+        startBtn.disableProperty().bindBidirectional(((Button)parentBar.getChildren().get(4+1)).disableProperty());
+        startBtn.setOnAction(((Button)parentBar.getChildren().get(4+1)).getOnAction());
+        stopBtn.onActionProperty().bind(((Button)parentBar.getChildren().get(5+1)).onActionProperty());
+        stopBtn.disableProperty().bindBidirectional(parentBar.getChildren().get(5+1).disableProperty());
+        errBtn.setOnAction(((Button)parentBar.getChildren().get(6+1)).getOnAction());
+        Image gr=((ImageView)((Button)parentBar.getChildren().get(6+1)).getGraphic()).getImage();
+        errBtn.setGraphic(new ImageView(gr));
+        errBtn.visibleProperty().bind(parentBar.getChildren().get(6+1).visibleProperty());
+
+        bottom.add(progBar, 1, 0);
+        bottom.add(Status, 0, 0);
+        bottom.add(new Label("File: "), 2, 0);
+        bottom.add(currentFile, 3, 0);
+        bottom.add(startBtn,4,0);
+        bottom.add(stopBtn,5,0);
+        bottom.add(errBtn,6,0);
+
+        root.setBottom(bottom);
     }
 
     public Pane getDrawBoard() {
         return drawBoard;
     }
 
-    public ScrollPane getScrollPane() {
+    private ScrollPane getScrollPane() {
         return scrollPane;
     }
 
@@ -426,6 +483,10 @@ public class Subsystem extends Element {
 
     public List<Wire> getWireList() {
         return wireList;
+    }
+
+    public BorderPane getRoot() {
+        return root;
     }
 
     class SelectionModel{

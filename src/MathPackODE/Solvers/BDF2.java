@@ -12,17 +12,19 @@ import java.util.List;
 public class BDF2 extends Solver {
     double[] xTemp,F,xOld;
     double[][] dF;
-    double tolerance=1e-6;
+    double tolerance=1e-7;
 
     @Override
     public void evalNextStep() {
+        time+=dt;
+
         newtonF(); // eval F(X)
         double[] del = Arrays.copyOf(F, diffRank);
         estimJ(dF,null,del,Xvector,null);
 
-        double err=MatrixEqu.norm(F);
-        while(err>tolerance) {
-
+//        double err=MatrixEqu.norm(F);
+        double err;
+        do {
             double[] f0 = Arrays.copyOf(F, diffRank);
 
 
@@ -40,40 +42,18 @@ public class BDF2 extends Solver {
                 for (int i = 0; i < diffRank; i++)
                     del[i] *= -1.0;
 
-//                for(double[] row:dF){
-//                    System.out.println(Arrays.toString(row));
-//                }
-//
-//                System.out.println(Arrays.toString(F));
-//
-//                System.out.println(Arrays.toString(f0));
-
                 updateJ(dF, F, f0, del);
 
-//                del = Arrays.copyOf(F, diffRank);
-//                double[][] trueJ=new double[diffRank][diffRank];
-//                estimJ(trueJ,null,del,Xvector,null);
-//
-//                for(int i=0;i<diffRank;i++){
-//                    for(int j=0;j<diffRank;j++){
-//                        if(trueJ[i][j]!=dF[i][j])
-//                            System.out.print("("+trueJ[i][j]+" / "+dF[i][j]+")  ");
-//                        else
-//                            System.out.print("ok ");
-//                    }
-//                    System.out.println();
-//                }
                 del = Arrays.copyOf(F, diffRank);
             }else{
 
                 break;
             }
-        }
+        }while(err > tolerance);
 
         xOld=Arrays.copyOf(xTemp,diffRank); //save X_(n-2)
         copyArray(Xvector,xTemp); //save X_(n-1)
-        evalSysState();
-        time+=dt;
+
     }
 
     @Override

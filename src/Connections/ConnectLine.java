@@ -35,7 +35,7 @@ public class ConnectLine {
     private final SimpleDoubleProperty endY=new SimpleDoubleProperty();
     private Cross startMarker;
     private LineMarker marker;
-    private Wire owner;
+    private Wire wire;
     private List<ExtLine> lines;
     private ChangeListener propListen;
     protected EventHandler lineDragDetect,lineDragOver;
@@ -44,7 +44,7 @@ public class ConnectLine {
     private String color="#000000";
 
     ConnectLine(Wire owner){
-        this.owner=owner;
+        this.wire =owner;
         lines=new ArrayList();
         this.lines.add(new ExtLine(0,0,0,0,true));
         this.lines.add(new ExtLine(0,0,0,0,false));
@@ -108,7 +108,11 @@ public class ConnectLine {
     }
 
     Wire getWire(){
-        return owner;
+        return wire;
+    }
+
+    protected void setWire(Wire w){
+        wire=w;
     }
 
     List<Double> parseLines(){

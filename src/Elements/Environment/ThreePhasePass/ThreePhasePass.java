@@ -53,9 +53,8 @@ public class ThreePhasePass extends SchemeElement implements Pass {
 
     @Override
     public void delete(){
-//        getItsSystem().getPasses().remove(this);
-//        getItsSystem().getThreePhaseContacts().remove(getOutside());
-//        outside.delete();
+        getItsSystem().getViewPane().getChildren().remove(outside.getView());
+        getItsSystem().setLeftPinCnt(getItsSystem().getLeftPinCnt()-1);
         super.delete();
     }
 

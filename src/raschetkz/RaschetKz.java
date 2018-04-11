@@ -212,9 +212,11 @@ public class RaschetKz extends Application{
         myLog.setButton(errBtn);
         errBtn.setMaxHeight(24);
         bottomBox.add(errBtn,6,0);
-        rootBp.setBottom(bottomBox);
+        //rootBp.setBottom(bottomBox);
 
-        rootBp.setCenter(state.getMainSystem().getScrollPane());
+        rootBp.setCenter(state.getMainSystem().getRoot());
+
+        state.getMainSystem().linkBottomBar(bottomBox);
     }
 
     Stage createElementCatalog(){
@@ -366,6 +368,7 @@ public class RaschetKz extends Application{
         solver.getItems().add("Roshenbrok");
         solver.getItems().add("BDF1");
         solver.getItems().add("BDF2");
+        solver.getItems().add("TRBDF");
         solver.setValue(solverType.get());
         ComboBox jacobEstType=new ComboBox();
         jacobEstType.getItems().add("Full symbolic");
@@ -399,7 +402,7 @@ public class RaschetKz extends Application{
         top.add(jacobEstType,1,5);
         top.add(new Label("Try to reduce system size"),0,6);
         CheckBox cb=new CheckBox();
-        ModelState.getSimplyfingFlag().bind(cb.selectedProperty());
+        cb.selectedProperty().bindBidirectional(ModelState.getSimplyfingFlag());
         top.add(cb,1,6);
         root.setTop(top);
         HBox bot=new HBox();

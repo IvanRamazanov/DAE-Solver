@@ -40,9 +40,8 @@ public class MathOutPass extends MathElement implements Pass{
 
     @Override
     public void delete() {
-//        getItsSystem().getPasses().remove(this);
-//        getItsSystem().getOutputs().remove(outside);
-//        outside.delete();
+        getItsSystem().getViewPane().getChildren().remove(outside.getView());
+        getItsSystem().setRightPinCnt(getItsSystem().getRightPinCnt()-1);
         super.delete();
     }
 
