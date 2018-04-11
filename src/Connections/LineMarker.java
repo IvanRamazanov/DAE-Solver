@@ -113,7 +113,10 @@ public abstract class LineMarker{
     }
 
     void delete(){
+        if(getIsPlugged().get())
+            unPlug();
         dotReduction(activeWireConnect);
+//        dotReduction(this);
 
         if(getItsConnectedPin()!=null){
             getItsConnectedPin().setItsConnection(null);
@@ -310,7 +313,7 @@ public abstract class LineMarker{
                     getWire().getDotList().remove(0);
                     if(!major.isPlugged()&&!minor.isPlugged()){
                         // TODO implement this! Floating wire case
-
+                        System.out.println("pam pam");
                     }else if(!major.isPlugged()){
                         // only major should left
                         Pin ep=minor.getItsConnectedPin();

@@ -19,7 +19,9 @@ public class BDF1 extends Solver {
         copyArray(Xvector,temp); //save X_(n-1)
         newtonF(); // eval F(X)
 
+        boolean isErrnous=false;
         while(MatrixEqu.norm(F)>tolerance){
+            isErrnous=true;
             double[] f0=Arrays.copyOf(F,F.length);
 
             estimJ(dF,null,f0,Xvector,null);
@@ -33,8 +35,8 @@ public class BDF1 extends Solver {
             evalSysState();
             newtonF(); // eval F(X)
         }
-
-        evalSysState();
+        if(!isErrnous)
+            evalSysState();
         time+=dt;
     }
 

@@ -18,10 +18,12 @@ public class Roshenbrok extends Solver {
                     e32=6+sqrt(2.0),
                     eps= ulp(1.0),
                     sqrtEps=sqrt(eps),
-            hmin=16.0*eps*tEnd,
-            hmax=1e-5,
+//            hmin=16.0*eps*tEnd,
+            hmin=eps,
+            hmax=1e-3,
             pow=1.0/3.0;
 
+    private int nSteps,nFailed;
     public Roshenbrok(){}
 
     @Override
@@ -84,10 +86,14 @@ public class Roshenbrok extends Solver {
 
             if (error > relTol) {
                 if (dt <= hmin)
-                    throw new Error("Step size smaller, than dt_min");
+                    throw new Error("Step size smaller, than dt_min: "+dt+" at t="+time);
 
                 dt = max(hmin, dt * max(0.1, 0.8 * pow(relTol / error, pow)));
+                time=t0;
+
                 noFailed=false;
+
+                nFailed++;
             } else {
                 for (int i = 0; i < diffRank; i++) {
                     F0[i] = F2[i];
@@ -105,6 +111,16 @@ public class Roshenbrok extends Solver {
                 dt = 5.0*dt;
         }
         dt=min(dt,hmax);
+
+        nSteps++;
+    }
+
+    @Override
+    public void solve(){
+        super.solve();
+
+        System.out.println("Nsteps: "+nSteps+", failed: "+nFailed+" ("+((double)nFailed/(double)nSteps)*100+"%)");
+        System.out.println("dt: "+dt);
     }
 
     @Override
@@ -129,6 +145,9 @@ public class Roshenbrok extends Solver {
             F0[j]=dXvector.get(j).getValue();
             x0[j]=Xvector.get(j).getValue();
         }
+
+        nSteps=0;
+        nFailed=0;
     }
 
     /**
@@ -152,9 +171,10 @@ public class Roshenbrok extends Solver {
 
     private double error(){
         double sum=0.0;
-        for(int i=0;i<diffRank;i++)
-            sum+=(k1[i] - 2.0 * k2[i] + k3[i])*(k1[i] - 2.0 * k2[i] + k3[i]);
-        sum=sqrt(sum);
+        for(int i=0;i<diffRank;i++) {
+            sum = max( abs((k1[i] - 2.0 * k2[i] + k3[i])  / max(max(x0[i], Xvector.get(i).getValue()), 1e-6)),sum);
+        }
+//        sum=sqrt(sum);
         sum=dt / 6.0 * sum;
         return sum;
     }
@@ -199,13 +219,13 @@ public class Roshenbrok extends Solver {
             double yScale=max(abs(x0[i]),0.0); //?
             yScale=yScale==0.0?160*Math.ulp(1.0):yScale;
 
-            double del=fac[i]*abs(yScale);
+//            double del=fac[i]*abs(yScale);
+            double del=x0[i]==0.0?1e-5:x0[i]*1e-4;
             x.get(i).set(x0[i]+del);  //shift X
 
             evalSysState();
 
             for(int m=0;m<ny;m++) {
-//                f1[m] = fx.get(m).evaluate(this.vars);
                 f1[m] = dXvector.get(m).getValue();
             }
             double maxDiff=-1.0;

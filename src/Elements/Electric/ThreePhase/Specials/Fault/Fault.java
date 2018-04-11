@@ -5,7 +5,7 @@ import ElementBase.ThreePhasePin;
 import Elements.Environment.Subsystem.Subsystem;
 
 public class Fault extends SchemeElement{
-    ScalarParameter fTime,ron;
+    ScalarParameter fTime,ron,roff;
 
     public Fault(Subsystem sys){
         super(sys);
@@ -20,9 +20,9 @@ public class Fault extends SchemeElement{
     @Override
     public String[] getStringFunction() {
         return new String[]{
-                "p.1=Z.1+if(gr(time,"+fTime+"),"+ron+",1e6)*i.1",
-                "p.2=Z.1+if(gr(time,"+fTime+"),"+ron+",1e6)*i.2",
-                "p.3=Z.1+if(gr(time,"+fTime+"),"+ron+",1e6)*i.3",
+                "p.1=Z.1+if(gr(time,"+fTime+"),"+ron+","+roff+")*i.1",
+                "p.2=Z.1+if(gr(time,"+fTime+"),"+ron+","+roff+")*i.2",
+                "p.3=Z.1+if(gr(time,"+fTime+"),"+ron+","+roff+")*i.3",
                 "i.1+i.2+i.3=0"
         };
     }
@@ -36,6 +36,7 @@ public class Fault extends SchemeElement{
     protected void setParams() {
         getParameters().add(fTime=new ScalarParameter("Fault time",1));
         getParameters().add(ron=new ScalarParameter("Short circuit resistance",0.001));
+        getParameters().add(roff=new ScalarParameter("Off resistance",1e6));
 
         setName("Three phase fault");
     }

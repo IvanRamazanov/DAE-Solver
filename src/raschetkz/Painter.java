@@ -6,8 +6,11 @@
 package raschetkz;
 
 import MathPack.MatrixEqu;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.Event;
@@ -34,6 +37,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 /**
@@ -272,6 +276,7 @@ public class Painter {
                 lines.get(k).getPoints().clear();
             }
             int oldX=-1,newX;
+            int oldY=-1,newY;
 
             for(int i=0;i<data.get(k).size();i++){
                 double y=data.get(k).get(i)*-1.0;
@@ -284,15 +289,22 @@ public class Painter {
                 y=y+dY;
                 x=x-dX;
                 newX=(int) x;
+                newY=(int) y;
                 if(oldX!=newX){
 //                    if(plotter.contains(x, y)){
-//                    if((newX<xMaxRestriction)&&(newX>xMinRestriction)){
-                    lines.get(k).getPoints().add(x);
-                    lines.get(k).getPoints().add(y);
-//                    }else
+                    if(newX>xMinRestriction){
+                        lines.get(k).getPoints().add(x);
+                        lines.get(k).getPoints().add(y);
+                    }
                     if(newX>xMaxRestriction) break;
                     oldX=newX;
                 }
+//                else if(oldY!=newY){
+//                    // check Y
+//                    lines.get(k).getPoints().add(x);
+//                    lines.get(k).getPoints().add(y);
+//                    oldY=newY;
+//                }
             }
         }
 
@@ -354,7 +366,64 @@ public class Painter {
         print.setOnAction(e->{
             save();
         });
-        contMenu.getItems().addAll(zoomOut,zoomReset,showValue,print);
+
+        MenuItem importData=new MenuItem("Import data");
+        importData.setOnAction(e->{
+            try{
+                FileChooser fc=new FileChooser();
+                fc.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("text","*.txt"));
+                File f=fc.showOpenDialog(null);
+                Scanner sc=new Scanner(f);
+                sc.useDelimiter("\r\n");
+
+                // init arrays
+                String line=sc.next(); // header with names
+                int idx=line.indexOf(' ');
+                time=new ArrayList<>();
+                line=line.substring(idx+1);
+                data=new ArrayList<>();
+                idx=line.indexOf(' ');
+                while(idx!=-1){
+                    data.add(new ArrayList<>());
+                    line=line.substring(idx+1);
+                    idx=line.indexOf(' ');
+                }
+
+                maxY=Double.MIN_VALUE;
+                minY=Double.MAX_VALUE;
+                //read data
+                while(sc.hasNext()){
+                    line=sc.next();
+                    idx=line.indexOf(' ');
+                    double t=Double.valueOf(line.substring(0,idx));
+                    time.add(t);
+                    line=line.substring(idx+1);
+                    int i=0;
+                    idx=line.indexOf(' ');
+                    while(idx!=-1){
+                        double val = Double.valueOf(line.substring(0, idx));
+                        maxY=StrictMath.max(maxY,val);
+                        minY=StrictMath.min(minY,val);
+                        data.get(i++).add(val);
+                        line=line.substring(idx+1);
+                        idx=line.indexOf(' ');
+                    }
+                }
+                double mY= maxY+(maxY-minY)*0.015,
+                miY = minY-(maxY-minY)*0.015;
+                natMaxY=maxY=mY;
+                natMinY=minY=miY;
+                natMinT=minT=time.get(0);
+                natMaxT=maxT=time.get(time.size()-1);
+                plotter.getChildren().clear();
+                lines.clear();
+                draw();
+                plotter.getChildren().addAll(lines);
+            }catch(Exception ex){
+                System.err.println(ex.getMessage());
+            }
+        });
+        contMenu.getItems().addAll(zoomOut,zoomReset,showValue,print,importData);
 
         plotAndAxArea.setCenter(plotter);
         Pane left=new Pane();

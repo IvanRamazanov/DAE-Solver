@@ -13,7 +13,6 @@ import java.util.List;
 
 class CrossToCrossLine extends ConnectLine{
     private Cross endCrossMarker;
-    private Wire owner;
 
     private CrossToCrossLine(Wire owner){
         super(owner);
@@ -120,16 +119,16 @@ class CrossToCrossLine extends ConnectLine{
     @Override
     public void delete(){
         deleteQuiet();
-        owner.delete();
+        getWire().delete();
     }
 
     void deleteQuiet(){
         super.delete();
-        for(List<Cross> row:owner.getDotList()){
+        for(List<Cross> row:getWire().getDotList()){
             row.remove(this.getStartMarker());
             row.remove(this.getEndCrossMarker());
         }
-        owner.getContContList().remove(this);
+        getWire().getContContList().remove(this);
         endCrossMarker.delete();
     }
 
@@ -161,7 +160,7 @@ class CrossToCrossLine extends ConnectLine{
         getEndCrossMarker().setCenterY(y);
     }
 
-    public void setWire(Wire owner) {
-        this.owner = owner;
-    }
+//    public void setWire(Wire owner) {
+//        setWire() = owner;
+//    }
 }
