@@ -113,16 +113,24 @@ public abstract class LineMarker{
     }
 
     void delete(){
-        if(getIsPlugged().get())
-            unPlug();
+        if(getIsPlugged().get()){
+            setIsPlugged(false);
+            unbindEndPoint();
+            getItsConnectedPin().setItsConnection(null);
+            getItsConnectedPin().getView().setOpacity(1.0);
+            setItsConnectedPin(null);
+        }
+
+
+
         dotReduction(activeWireConnect);
 //        dotReduction(this);
 
-        if(getItsConnectedPin()!=null){
-            getItsConnectedPin().setItsConnection(null);
-            getItsConnectedPin().getView().setOpacity(1.0);
-            //setItsConnectedPin(null);
-        }
+//        if(getItsConnectedPin()!=null){
+//            getItsConnectedPin().setItsConnection(null);
+//            getItsConnectedPin().getView().setOpacity(1.0);
+//            //setItsConnectedPin(null);
+//        }
         getWire().getWireContacts().remove(this);
         if(getWire().getWireContacts().size()<2){
             if(getWire().getWireContacts().isEmpty()){
@@ -143,11 +151,13 @@ public abstract class LineMarker{
     }
 
     public void unPlug(){
+        if(!getIsPlugged().get())
+            return;
+
         setIsPlugged(false);
         unbindEndPoint();
         getItsConnectedPin().setItsConnection(null);
         getItsConnectedPin().getView().setOpacity(1.0);
-        //getItsConnectedPin().toFront();
         setItsConnectedPin(null);
         switch(getWire().getRank()){
             case 1:
@@ -171,9 +181,12 @@ public abstract class LineMarker{
                 activeWireConnect=this;
                 Pin temp=loser.getItsConnectedPin();
                 loser.delete();
-                temp.setWirePointer(this);
-                setItsConnectedPin(temp);
-                bindStartTo(temp.getBindX(),temp.getBindY());
+                if(temp!=null) {
+                    temp.setWirePointer(this);
+                    setItsConnectedPin(temp);
+                    bindStartTo(temp.getBindX(), temp.getBindY());
+                }
+
                 pushToBack();
 //                this.show();
                 //temp.toFront();

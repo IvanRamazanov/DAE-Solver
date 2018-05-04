@@ -1,5 +1,6 @@
 package MathPackODE.Solvers;
 
+import MathPack.MatrixEqu;
 import MathPack.StringGraph;
 import MathPack.WorkSpace;
 import MathPackODE.Solver;
@@ -11,7 +12,7 @@ import static java.lang.Math.*;
 import static java.lang.Math.abs;
 
 public class Roshenbrok extends Solver {
-    private double[] dfdt,x0,F0,F1,F2,k1,k2,k3;
+    private double[] dfdt,x0,F0,F1,F2,k1,k2,k3,xnew;
     private double[][] W,dfdx;
     private double[] fac;
     private final double d=1.0/(2.0+sqrt(2.0)),
@@ -28,7 +29,7 @@ public class Roshenbrok extends Solver {
 
     @Override
     public void evalNextStep() {
-        double t0=time;
+        double t0=time.getValue();
 
         // F0 exist
         estimJ(dfdx,algSystem,F0,Xvector,fac); //TODO not correct estimJ!
@@ -49,7 +50,7 @@ public class Roshenbrok extends Solver {
             MathPack.MatrixEqu.solveLU(W, k1);
 
             //eval F1=F(t+0.5*dt, x+0.5*dt*k1)
-            time =t0 + 0.5 * dt;
+            time.set(t0 + 0.5 * dt);
             for (int i = 0; i < diffRank; i++)
                 Xvector.get(i).set(x0[i] + 0.5 * dt * k1[i]);
             evalSysState();
@@ -71,8 +72,9 @@ public class Roshenbrok extends Solver {
             for (int i = 0; i < diffRank; i++) {
                 double val = x0[i] + dt * k2[i];
                 Xvector.get(i).set(val);
+                xnew[i]=val;
             }
-            time = t0 + dt;
+            time.set(t0 + dt);
             evalSysState();
             for (int i = 0; i < diffRank; i++)
                 F2[i] = dXvector.get(i).getValue();
@@ -85,11 +87,12 @@ public class Roshenbrok extends Solver {
             error = error();
 
             if (error > relTol) {
-                if (dt <= hmin)
+//                if (dt <= hmin)
+                if(t0==t0+dt)
                     throw new Error("Step size smaller, than dt_min: "+dt+" at t="+time);
 
                 dt = max(hmin, dt * max(0.1, 0.8 * pow(relTol / error, pow)));
-                time=t0;
+                time.set(t0);
 
                 noFailed=false;
 
@@ -129,6 +132,7 @@ public class Roshenbrok extends Solver {
         dfdx=new double[diffRank][diffRank];
         W=new double[diffRank][diffRank];
         x0=new double[diffRank];
+        xnew=new double[diffRank];
         F0=new double[diffRank];
         F1=new double[diffRank];
         F2=new double[diffRank];
@@ -156,26 +160,33 @@ public class Roshenbrok extends Solver {
     private void estimT(){
         //dfdt=(f1-f0)/tdel
         //    tdel = (t + min(sqrt(eps)*(t+dt),dt)) - t;
-        double t0=time,
+        double t0=time.getValue(),
                 tdel=(t0+min(sqrtEps*(t0+dt),dt))-t0;
 
-        time+=tdel; // frankly, must be +=tdel
+        time.set(t0+tdel); // frankly, must be +=tdel
         evalSysState();
 
         for(int i=0;i<diffRank;i++) {
             F1[i] = dXvector.get(i).getValue();
             dfdt[i]=(F1[i]-F0[i])/tdel;
         }
-        time=t0;
+        time.set(t0);
     }
 
     private double error(){
+        double normy=MatrixEqu.norm(x0),
+        newNorm=MatrixEqu.norm(xnew);
+
+        // eval norm of k1 - 2.0 * k2 + k3
         double sum=0.0;
         for(int i=0;i<diffRank;i++) {
-            sum = max( abs((k1[i] - 2.0 * k2[i] + k3[i])  / max(max(x0[i], Xvector.get(i).getValue()), 1e-6)),sum);
+            sum+=(k1[i] - 2.0 * k2[i] + k3[i])*(k1[i] - 2.0 * k2[i] + k3[i]);
         }
-//        sum=sqrt(sum);
-        sum=dt / 6.0 * sum;
+        sum=sqrt(sum);
+
+
+        sum = (dt / 6.0) * (sum  / max(max(normy, newNorm), 1e-6));
+
         return sum;
     }
 

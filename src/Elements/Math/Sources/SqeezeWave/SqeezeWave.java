@@ -29,7 +29,7 @@ public class SqeezeWave extends MathElement{
             phi=phaseShift.getValue(),
             a=A.getValue(),
             tSlp=slopeTime.getValue(),
-            y,t=Solver.time;
+            y,t=Solver.time.getValue();
 
         double smoothA=(a-15)/tSlp*t+15;
         if(t<tSlp)

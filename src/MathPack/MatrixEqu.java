@@ -583,6 +583,11 @@ public class MatrixEqu {
                 b.get(j).sub(StringGraph.mul(b.get(i),U[j][i]));
             }
         }
+
+        for(i=0;i<b.size();i++){
+            if(b.get(i).getRoot() instanceof FuncUzel)
+                b.get(i).expand();
+        }
     }
 
     /**
@@ -1446,7 +1451,8 @@ public class MatrixEqu {
             for(int j=i+1;j<nRow;j++){ //cycle by rows under current
                 if(A[j][i+offset]!=0){
                     double k=A[j][i+offset]/A[i][i+offset];
-                    if(A[i][i+offset]*A[i][i+offset]>A[j][i+offset]*A[j][i+offset]) System.err.println("AAAAAAaa k="+(double)A[j][i+offset]/(double)A[i][i+offset]+"!!");
+//                    if(A[i][i+offset]*A[i][i+offset]>A[j][i+offset]*A[j][i+offset])
+//                        System.err.println("AAAAAAaa k="+(double)A[j][i+offset]/(double)A[i][i+offset]+"!!");
                     for(int q=i;q<nCol;q++){ //cycle by length of row
                         A[j][q]=A[j][q]-A[i][q]*k;
                     }

@@ -47,7 +47,7 @@ public class Step extends MathElement{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        double t=Solver.time,
+        double t=Solver.time.getValue(),
                 t0=moment.getValue();
         List<Double> out=new ArrayList();
         if(t>t0) out.add(amplitudeOn.getValue());

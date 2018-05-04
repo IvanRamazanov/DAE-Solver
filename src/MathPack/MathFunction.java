@@ -74,6 +74,10 @@ public class MathFunction {
                 rank=1;
                 function=new Cos();
                 break;
+            case "^":
+                rank=2;
+                function=new Pow();
+                break;
             case "pow":
                 rank=2;
                 function=new Pow();
@@ -103,6 +107,10 @@ public class MathFunction {
 
     Uzel simplify(FuncUzel inp){
         return function.simplify(inp);
+    }
+
+    Uzel expand(FuncUzel inp){
+        return function.expand(inp);
     }
 
     public double Elavuate(List<Integer> gains,double... input){
@@ -142,29 +150,33 @@ public class MathFunction {
 
 }
 
-interface SimpleFunc{
+abstract class SimpleFunc{
 
-    double Evaluate(List<Integer> gains,double[] input);
+    abstract double Evaluate(List<Integer> gains,double[] input);
 
     /**
      * Return inverse function rely on operand index
      * @param index
      * @return
      */
-    SimpleFunc inverse(int index);
+    abstract SimpleFunc inverse(int index);
 
-    SimpleFunc copy();
+    abstract SimpleFunc copy();
 
-    String getName(int i);
+    abstract String getName(int i);
 
-    Uzel simplify(FuncUzel uz);
+    abstract Uzel simplify(FuncUzel uz);
 
-    int[] getRequiredIndexes();
+    Uzel expand(FuncUzel uz){
+        return uz;
+    }
 
-    Uzel differ(FuncUzel root,String varName);
+    abstract int[] getRequiredIndexes();
+
+    abstract Uzel differ(FuncUzel root,String varName);
 }
 
-class Summa implements SimpleFunc{
+class Summa extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains,double... input) {
@@ -597,6 +609,24 @@ class Summa implements SimpleFunc{
     }
 
     @Override
+    public Uzel expand(FuncUzel input) {
+        Uzel output=input;
+        List<Uzel> inps = input.getInputs();
+        List<Integer> gains = input.getGain();
+        int len = inps.size();
+
+        //expand inputs
+        for (int i = 0; i < inps.size(); i++) {
+            Uzel uz = inps.get(i);
+            if (uz instanceof FuncUzel) {
+                inps.set(i, ((FuncUzel) uz).expand());
+            }
+        }
+
+        return output;
+    }
+
+    @Override
     public SimpleFunc copy(){
         return new Summa();
     }
@@ -631,7 +661,7 @@ class Summa implements SimpleFunc{
     }
 }
 
-class Raznost implements SimpleFunc{
+class Raznost extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains,double... input) {
@@ -760,7 +790,7 @@ class Raznost implements SimpleFunc{
     }
 }
 
-class Multiplex implements SimpleFunc{
+class Multiplex extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains,double... input) {
@@ -932,6 +962,62 @@ class Multiplex implements SimpleFunc{
     }
 
     @Override
+    public Uzel expand(FuncUzel input) {
+        Uzel output=input;
+        List<Uzel> inps=input.getInputs();
+        List<Integer> gains=input.getGain();
+        int len=inps.size();
+
+        //expand inputs
+        for (int i = 0; i < inps.size(); i++) {
+            Uzel uz = inps.get(i);
+            if (uz instanceof FuncUzel) {
+                inps.set(i, ((FuncUzel) uz).expand());
+            }
+        }
+
+        //expand k*(... + ... +)
+        expand:
+        if(output instanceof FuncUzel){
+            FuncUzel test=(FuncUzel)output;
+            if(test.getFuncName().equals("*")){
+                List<Uzel> testInps=test.getInputs();
+                for(int i=0;i<testInps.size();i++){
+                    Uzel uz=testInps.get(i);
+                    if(uz instanceof FuncUzel){
+                        if(((FuncUzel)uz).getFuncName().equals("+")&&test.getGain().get(i)==1){
+                            // create
+                            List<Uzel> newInps=((FuncUzel)uz).getInputs();
+                            List<Uzel> outInps=new ArrayList();
+                            List<Integer> outGai=new ArrayList();
+                            for(int j=0;j<newInps.size();j++){
+                                List<Uzel> inp=new ArrayList();
+                                List<Integer> gai=new ArrayList();
+                                for(int k=0;k<testInps.size();k++){
+                                    if(k!=i){
+                                        inp.add(testInps.get(k).copy());
+                                        gai.add(test.getGain().get(k));
+                                    }else{
+                                        inp.add(newInps.get(j).copy());
+                                        gai.add(1);
+                                    }
+                                }
+                                outInps.add(new FuncUzel("*", inp, gai));
+                                outGai.add(((FuncUzel) uz).getGain().get(j));
+//                                newInps.set(j, new FuncUzel("*", inp, gai));
+                            }
+//                            output=((FuncUzel) uz).simplify();
+                            output=new FuncUzel("+",outInps,outGai);
+                            break expand;
+                        }
+                    }
+                }
+            }
+        }
+        return output;
+    }
+
+    @Override
     public int[] getRequiredIndexes(){
         int[] out={-1};
         return out;
@@ -980,7 +1066,7 @@ class Multiplex implements SimpleFunc{
     }
 }
 
-class Divide implements SimpleFunc{
+class Divide extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains,double... input) {
@@ -1119,7 +1205,7 @@ class Divide implements SimpleFunc{
     }
 }
 
-class Sin implements SimpleFunc{
+class Sin extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains,double... input) {
@@ -1194,7 +1280,7 @@ class Sin implements SimpleFunc{
     }
 }
 
-class ArcSin implements SimpleFunc{
+class ArcSin extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains,double... input) {
@@ -1267,7 +1353,7 @@ class ArcSin implements SimpleFunc{
     }
 }
 
-class Exp implements SimpleFunc{
+class Exp extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains, double... input) {
@@ -1341,7 +1427,7 @@ class Exp implements SimpleFunc{
     }
 }
 
-class Logn implements SimpleFunc{
+class Logn extends SimpleFunc{
     @Override
     public double Evaluate(List<Integer> gains, double... input) {
         if(gains.get(0)==1){
@@ -1422,7 +1508,7 @@ class Logn implements SimpleFunc{
     }
 }
 
-class GreatThan implements SimpleFunc{
+class GreatThan extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains, double... input) {
@@ -1488,7 +1574,7 @@ class GreatThan implements SimpleFunc{
     }
 }
 
-class If implements SimpleFunc{
+class If extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains, double... input) {
@@ -1559,7 +1645,7 @@ class If implements SimpleFunc{
     }
 }
 
-class Inverse implements SimpleFunc{
+class Inverse extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains, double... input) {
@@ -1632,7 +1718,7 @@ class Inverse implements SimpleFunc{
 
 }
 
-class Pow implements SimpleFunc{
+class Pow extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains, double... input) {
@@ -1698,7 +1784,7 @@ class Pow implements SimpleFunc{
     @Override
     public Uzel differ(FuncUzel root, String varName) {
         double oldval=((Const)root.getInputs().get(1)).getValue();
-        Uzel out=new FuncUzel("pow",root.getInputs(),root.getGain());
+        Uzel out=new FuncUzel("^",root.getInputs(),root.getGain());
         ((FuncUzel)out).getInputs().set(1,new Const(oldval-1.0));
         out=new FuncUzel("*",out,new Const(oldval),root.getInputs().get(0).differ(varName));
         return out;
@@ -1706,7 +1792,7 @@ class Pow implements SimpleFunc{
 
 }
 
-class Cos implements SimpleFunc{
+class Cos extends SimpleFunc{
 
     @Override
     public double Evaluate(List<Integer> gains, double... input) {

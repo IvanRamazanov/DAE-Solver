@@ -1,9 +1,6 @@
 package MathPackODE.Solvers;
 
-import MathPack.WorkSpace;
 import MathPackODE.Solver;
-
-import java.util.List;
 
 public class RK4 extends Solver {
     private double bTime;
@@ -22,7 +19,7 @@ public class RK4 extends Solver {
 
     @Override
     public void evalNextStep() {
-        bTime=time;
+        bTime=time.getValue();
         copyArray(Xvector,bXVector);  //save X(t0)
 
         // first step
@@ -42,13 +39,13 @@ public class RK4 extends Solver {
             Xvector.get(i).set(bXVector[i]+dt*sum);
         }
 
-        time=bTime+dt;
+        time.set(bTime+dt);
 
         evalSysState(); // for correct outputs
     }
 
     private void add(int step){
-        time=bTime+C[step]*dt;
+        time.set(bTime+C[step]*dt);
 
         for(int i=0;i<diffRank;i++){
             double sum=0;

@@ -28,7 +28,7 @@ public class RungeKuttaFehlberg extends Solver {
 
     @Override
     public void evalNextStep() {
-        bTime=time;
+        bTime=time.getValue();
         copyArray(Xvector,bXVector);  //save X(t0)
         copyArray(commonVarsVector,bCommVect);
 
@@ -68,7 +68,7 @@ public class RungeKuttaFehlberg extends Solver {
         double alpha =1.0 / ( 1.25 * Math.pow(err/relTol,1.0/(5.0)) );
         if(err>relTol){
             //Bad try. Recalculate
-            time=bTime;
+            time.set(bTime);
             for(int i=0;i<diffRank;i++){
                 Xvector.get(i).set(bXVector[i]);
             }
@@ -78,7 +78,7 @@ public class RungeKuttaFehlberg extends Solver {
             alpha*=0.8;
             dt=alpha*dt;
         }else{
-            time=bTime+dt;
+            time.set(bTime+dt);
             dt=alpha*dt;
 
             evalSysState(); // for correct outputs
@@ -87,7 +87,7 @@ public class RungeKuttaFehlberg extends Solver {
     }
 
     private void add(int step){
-        time=bTime+C[step]*dt;
+        time.set(bTime+C[step]*dt);
 
         for(int i=0;i<diffRank;i++){
             double sum=0;

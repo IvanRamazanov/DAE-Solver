@@ -5,6 +5,7 @@
  */
 package raschetkz;
 
+import MathPack.StringGraph;
 import MathPackODE.Rechatel;
 import ElementBase.ListOfElements;
 import javafx.application.Application;
@@ -369,6 +370,7 @@ public class RaschetKz extends Application{
         solver.getItems().add("BDF1");
         solver.getItems().add("BDF2");
         solver.getItems().add("TRBDF");
+        solver.getItems().add("TR");
         solver.setValue(solverType.get());
         ComboBox jacobEstType=new ComboBox();
         jacobEstType.getItems().add("Full symbolic");

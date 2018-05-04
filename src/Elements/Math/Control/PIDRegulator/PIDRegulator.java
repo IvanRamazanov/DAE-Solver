@@ -13,10 +13,14 @@ public class PIDRegulator extends DynamMathElem implements Updatable{
     private Double x_diff,time_old;
     private double input;
 
+    List<Double> out=new ArrayList<>();
+
     public PIDRegulator(Subsystem sys){
         super(sys);
         addMathContact('i');
         addMathContact('o');
+
+        out.add(null);
     }
 
     public PIDRegulator(boolean val){
@@ -26,11 +30,10 @@ public class PIDRegulator extends DynamMathElem implements Updatable{
     @Override
     protected List<Double> getValue(int outIndex) {
         input=getInputs().get(0).getValue().get(0);
-        List<Double> out=new ArrayList<>();
         double kp=Kp.getValue()*input,
-                kd=Kd.getValue()*(input-x_diff)/(Solver.time-time_old),
+                kd=Kd.getValue()*(input-x_diff)/(Solver.time.getValue()-time_old),
                 ki=Ki.getValue()*wsX.get(0).getValue();
-        out.add(kp+ki+kd);
+        out.set(0,kp+ki+kd);
         return out;
     }
 
@@ -45,7 +48,7 @@ public class PIDRegulator extends DynamMathElem implements Updatable{
 //        x_diff=null;
 //        time_old=null;
         x_diff=Double.valueOf(input);
-        time_old=Double.valueOf(Solver.time+1);
+        time_old=Double.valueOf(Solver.time.getValue()+1);
     }
 
     @Override

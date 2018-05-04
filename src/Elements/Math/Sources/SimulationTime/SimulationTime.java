@@ -34,10 +34,13 @@ import java.util.List;
  * @author ramazanov_im
  */
 public class SimulationTime extends MathElement{
+    private List<Double> out=new ArrayList();
 
     public SimulationTime(Subsystem sys){
         super(sys);
         addMathContact('o');
+
+        out.add(null);
     }
 
     public SimulationTime(boolean flag){
@@ -46,8 +49,7 @@ public class SimulationTime extends MathElement{
 
     @Override
     protected List<Double> getValue(int outIndex) {
-        List<Double> out=new ArrayList();
-        out.add(Solver.time);
+        out.set(0,Solver.time.getValue());
         return out;
     }
 
