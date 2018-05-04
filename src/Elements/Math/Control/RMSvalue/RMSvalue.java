@@ -25,8 +25,8 @@ public class RMSvalue extends DynamMathElem{
     protected List<Double> getValue(int outIndex) {
         List<Double> out=new ArrayList<>();
         for(WorkSpace.Variable v:wsX) {
-            if(Solver.time!=0)
-                out.add(Math.sqrt(v.getValue() / Solver.time));
+            if(Solver.time.getValue()!=0)
+                out.add(Math.sqrt(v.getValue() / Solver.time.getValue()));
             else
                 out.add(Math.sqrt(v.getValue()));
         }

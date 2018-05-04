@@ -28,8 +28,8 @@ public class TRBDF extends Solver{
 
     @Override
     public void evalNextStep() {
-        double t0=time;
-        time+=gamma*dt;
+        double t0=time.getValue();
+        time.set(t0+gamma*dt);
         //  TR step
         estimJ(dF, null, fn, Xvector, null); // estimate d(d.X)/dX
         makeTRJ(dF);
@@ -40,7 +40,7 @@ public class TRBDF extends Solver{
             while (err > tolerance) {
                 MatrixEqu.solveLU(dF, newtonF); //  dF*deltaX=f0
                 for (int i = 0; i < diffRank; i++) {
-                    double val = Xvector.get(i).getValue() + newtonF[i];
+                    double val = Xvector.get(i).getValue() - newtonF[i];
                     Xvector.get(i).set(val);
                     xng[i] = val;
                 }
@@ -65,7 +65,7 @@ public class TRBDF extends Solver{
                 }
             }
 
-            time=t0+dt;
+            time.set(t0+dt);
             // BDF2 step
             estimJ(dF, null, fng, Xvector, null); // estimate d(d.X)/dX
             makeBDFJ(dF);
@@ -74,7 +74,7 @@ public class TRBDF extends Solver{
             while (err > tolerance) {
                 MatrixEqu.solveLU(dF, newtonF); //  dF*deltaX=f0
                 for (int i = 0; i < diffRank; i++) {
-                    Xvector.get(i).set(Xvector.get(i).getValue() + newtonF[i]);
+                    Xvector.get(i).set(Xvector.get(i).getValue() - newtonF[i]);
                 }
 
                 evalSysState();
@@ -111,7 +111,7 @@ public class TRBDF extends Solver{
             double r = err / (relTol * norm + 1e-6);
             if (r > 2) {
                 dt /= 10.0;
-                time=t0;
+                time.set(t0);
 
                 if(dt<hmin){
                     throw new Error("Stepsize too small: "+dt+", at t="+t0);
@@ -168,7 +168,7 @@ public class TRBDF extends Solver{
     void trF(){
         for (int i = 0; i < diffRank; i++) {
             fng[i]=dXvector.get(i).getValue();
-            newtonF[i] = gamma*dt/2.0*(fng[i]+fn[i])-(Xvector.get(i).getValue()-xn[i]);
+            newtonF[i] = (Xvector.get(i).getValue()-xn[i])-gamma*dt/2.0*(fng[i]+fn[i]);
         }
     }
 
@@ -178,8 +178,8 @@ public class TRBDF extends Solver{
     void bdfF(){
         for (int i = 0; i < diffRank; i++) {
             fnn[i]=dXvector.get(i).getValue();
-            newtonF[i] = -(Xvector.get(i).getValue()-xng[i]/(gamma*(2.0-gamma))+xn[i]*(1.0-gamma)*(1.0-gamma)/gamma/(2.0-gamma))
-                    +(1.0-gamma)/(2.0-gamma)*dt*fnn[i];
+            newtonF[i] = (Xvector.get(i).getValue()-xng[i]/(gamma*(2.0-gamma))+xn[i]*(1.0-gamma)*(1.0-gamma)/gamma/(2.0-gamma))
+                    -(1.0-gamma)/(2.0-gamma)*dt*fnn[i];
         }
     }
 
@@ -222,8 +222,7 @@ public class TRBDF extends Solver{
         for(int i=0;i<diffRank;i++){
             for(int j=0;j<diffRank;j++){
                 double add=i==j?1.0:0.0;
-//                J[i][j]=add-(1.0-gamma)/(2.0-gamma)*dt*J[i][j];
-                J[i][j]=add-(1.0-gamma)/(2.0-gamma)*dt*-4.0;
+                J[i][j]=add-(1.0-gamma)/(2.0-gamma)*dt*J[i][j];
             }
         }
     }

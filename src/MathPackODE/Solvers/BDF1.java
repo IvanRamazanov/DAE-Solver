@@ -16,6 +16,8 @@ public class BDF1 extends Solver {
 
     @Override
     public void evalNextStep() {
+        time.set(time.getValue()+dt);
+
         copyArray(Xvector,temp); //save X_(n-1)
         newtonF(); // eval F(X)
 
@@ -37,7 +39,6 @@ public class BDF1 extends Solver {
         }
         if(!isErrnous)
             evalSysState();
-        time+=dt;
     }
 
     @Override

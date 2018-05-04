@@ -41,7 +41,8 @@ abstract public class Solver {
             vals;
     private double[][] J;
     protected int[] ind;
-    public static double dt, time, tEnd, absTol, relTol;
+    public static double dt, tEnd, absTol, relTol;
+    public static WorkSpace.Variable time;
     public static SimpleDoubleProperty progress=new SimpleDoubleProperty();
     protected Task cancelFlag;
 
@@ -51,11 +52,12 @@ abstract public class Solver {
     abstract public void evalNextStep();
 
     public void init(DAE daeSys,ModelState state, Task tsk){
-        time=0;
+        vars=daeSys.getVars();
+        time=vars.get("time");
         tEnd=state.getTend().doubleValue();
         progress.setValue(0.0);
         dae=daeSys;
-        vars=daeSys.getVars();
+
         symbJacobian=daeSys.getJacob();
         invJacob=daeSys.getInvJacob();
         newtonFunc=daeSys.getNewtonFunc();
@@ -65,11 +67,6 @@ abstract public class Solver {
         cancelFlag=tsk;
 
         wires=state.getMathConnList();
-        for(StringGraph sg:algSystem)
-            sg.init();
-        for(List<StringGraph> l:symbJacobian)
-            for(StringGraph sg:l)
-                sg.init();
 
         dt=state.getDt().doubleValue();
         absTol=state.getAbsTol().doubleValue();
@@ -89,15 +86,16 @@ abstract public class Solver {
         }
 
         for(WorkSpace.Variable var:vars.getVarList()){
-            if(!var.getName().startsWith("X.")){
+            String name=var.getName();
+            if(!name.startsWith("X.")&&WorkSpace.isRealVariable(name)){
                 commonVarsVector.add(var);
-                if(var.getName().startsWith("d.X.")) {
+                if(name.startsWith("d.X.")) {
                     int i=var.getIndex();
                     dXvector.set(i,var);
                     if(var instanceof WorkSpace.StringFuncVar)
                         commonVarsVector.remove(var);
                 }
-            }else{
+            }else if(name.startsWith("X.")){
                 int i=var.getIndex();
                 Xvector.set(i,var);
             }
@@ -146,20 +144,20 @@ abstract public class Solver {
 
     public void solve(){
         //for(time=dt;time<=tEnd;time=time+dt){
-        while(time<=tEnd){
+        while(time.getValue()<=tEnd){
             if(cancelFlag.isCancelled())
                 break;
             preEvaluate();
             evalNextStep();
             postEvaluate();
             updateOutputs();
-            progress.set(time);
+            progress.set(time.getValue());
         }
     }
 
     public void evalSysState(){
         int cnt=0;
-        double tol=1e-6;
+        double tol=1e-6,m=1.0;
         for(MathWire w:wires)
             w.resetValue();
 
@@ -174,8 +172,7 @@ abstract public class Solver {
                     //eval F(x)=0
                     MathPack.MatrixEqu.putValuesFromSymbRow(vals, algSystem, vars);
                     double norm = MathPack.MatrixEqu.norm(vals);
-                    if (norm < tol)
-                        break;
+
 
                     switch (jacobEstType) {
                         case 0: //full symbolic
@@ -212,17 +209,20 @@ abstract public class Solver {
                     }
                     for (int i = 0; i < ind.length; i++) {
                         if (Double.isNaN(vals[i])) {
-                            throw new Error(vars.getName(i) + " is not a number! At time "+time);
+                            throw new Error(vars.getName(i) + " is not a number! At time "+time.getValue());
                         } else if (Double.isInfinite(vals[i])) {
-                            throw new Error(vars.getName(i) + " is not finite! At time "+time);
+                            throw new Error(vars.getName(i) + " is not finite! At time "+time.getValue());
                         }
 //                        double y=vector.get(ind[i])-vals[i];
 //                        vector.set(ind[i], y);
-                        double newval = commonVarsVector.get(i).getValue() - vals[i];
+                        double newval = commonVarsVector.get(i).getValue() - m*vals[i];
                         commonVarsVector.get(i).set(newval);
                     }
 
-
+                    MathPack.MatrixEqu.putValuesFromSymbRow(vals, algSystem, vars);
+                    norm = MathPack.MatrixEqu.norm(vals);
+                    if (norm < tol)
+                        break;
 
                     cnt++;
                     if (cnt > 250) {
@@ -238,8 +238,9 @@ abstract public class Solver {
                         }
                         //tol*=10;
                         cnt = 0;
+                        m=0.5;
                         if (faultflag) {
-                            throw new Error("Dead loop! At time "+time);
+                            throw new Error("Dead loop! At time "+time.getValue());
                         } else {
 
                             faultflag = true;
@@ -262,7 +263,7 @@ abstract public class Solver {
 
         //for logout
         if(Rechatel.IS_LOGGING) {
-            if (time == 0) {
+            if (time.getValue() == 0) {
                 try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt"))) {
                     bw.write("t ");
                     for (WorkSpace.Variable entry : vars.getVarList()) {
@@ -277,7 +278,7 @@ abstract public class Solver {
                 }
             }
             try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\XesLog.txt", true))) {
-                bw.write(Double.toString(time) + " ");
+                bw.write(Double.toString(time.getValue()) + " ");
                 for (WorkSpace.Variable entry : vars.getVarList()) {
                     bw.write(entry.getValue() + " ");
                 }
@@ -298,17 +299,17 @@ abstract public class Solver {
 
     private void preEvaluate(){
         for(Updatable el:dae.getUpdatableElements())
-            el.preEvaluate(time);
+            el.preEvaluate(time.getValue());
     }
 
     private void postEvaluate(){
         for(Updatable el:dae.getUpdatableElements())
-            el.postEvaluate(time);
+            el.postEvaluate(time.getValue());
     }
 
     private void updateOutputs() {
         for (OutputElement el : mathOuts)
-            el.updateData(time);
+            el.updateData(time.getValue());
     }
 
     protected void selfInit(){}

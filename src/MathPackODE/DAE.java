@@ -192,19 +192,19 @@ public class DAE {
 //        }
 //    }
 
-    /**
-     * @return the inps
-     */
-    public List<MathInPin> getInps() {
-        return vars.getInputs();
-    }
+//    /**
+//     * @return the inps
+//     */
+//    public List<MathInPin> getInps() {
+//        return vars.getInputs();
+//    }
 
     public void initJacobian(int jacobType){
         String varsLayout="[ ";
         for(WorkSpace.Variable var:getVars().getVarList()) {
             if(var.getClass().getSimpleName().equals("Variable")) {
                 String str=var.getName();
-                if (!str.startsWith("X.")) {
+                if (!str.startsWith("X.")&&!str.startsWith("time")) {
                     varsLayout += str + " ";
                 }
             }
@@ -218,12 +218,15 @@ public class DAE {
             for(WorkSpace.Variable var:getVars().getVarList()){
                 //if(var.startsWith("Cur.")||var.startsWith("Pot.")||var.startsWith("d.X.")){
                 if(var.getClass().getSimpleName().equals("Variable"))
-                    if(!var.getName().startsWith("X.")){
+                    if(!var.getName().startsWith("X.")&&!var.getName().startsWith("time")){
                         getJacob().get(i).add(func.getDiffer(var.getName()));
                     }
             }
             i++;
         }
+        for(List<StringGraph> l:getJacob())
+            for(StringGraph sg:l)
+                sg.init();
         try (BufferedWriter bw = new BufferedWriter(new FileWriter("C:\\NetBeansLogs\\MyLog.txt",true))) {
             bw.newLine();
             bw.write("Jacobian: "+varsLayout+" out of "+getVars().getVarNameList().toString());
@@ -269,10 +272,18 @@ public class DAE {
     /**
      * @param inps the inps to set
      */
-    public void setInps(List<MathInPin> inps) {
-        ArrayList<MathInPin> inputs = new ArrayList<>();
-        for(MathInPin ic:inps) inputs.add(ic);
-        vars.setInputs(inputs);
+    public WorkSpace.Variable setInp(String name, List<MathInPin> inps) {
+        int i=name.indexOf('[');
+        if(i==-1){
+            i=Integer.parseInt( name.substring( name.indexOf('.')+1 ) )-1;
+        }else{
+            i=Integer.parseInt( name.substring( name.indexOf('.')+1,i ) )-1;
+        }
+        return vars.addMathIn(name,inps.get(i));
+
+//        ArrayList<MathInPin> inputs = new ArrayList<>();
+//        for(MathInPin ic:inps) inputs.add(ic);
+//        vars.setInputs(inputs);
     }
 
     public void layout(){

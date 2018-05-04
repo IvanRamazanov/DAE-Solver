@@ -35,9 +35,10 @@ public class Sinus extends MathElement{
     protected List<Double> getValue(int outIndex) {
         double ampl=apmlitude.getValue(),
                 f=freq.getValue(),
-                ph=phase.getValue();
+                ph=phase.getValue(),
+                t=Solver.time.getValue();
         List<Double> out=new ArrayList();
-        out.add(ampl*sin(2*pi*f*Solver.time+ph/180*pi));
+        out.add(ampl*sin(2*pi*f*t+ph/180*pi));
         return out;
     }
 

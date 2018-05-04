@@ -202,7 +202,7 @@ public class StringFunctionSystem {
         //gather funcs
         StringFunctionSystem system=new StringFunctionSystem(list);
         output.initOutputs(system);
-        output.setInps(system.getInputs());
+//        output.setInps(system.getInputs());
 
         for(i=0;i<system.leftSides.size();i++){
             LeftPart lp=system.leftSides.get(i);
@@ -672,7 +672,6 @@ public class StringFunctionSystem {
                         }
 
                         map.put(var, rp);
-                        rp.init();
 
                         //remove
                         system.rightSides.remove(i);
@@ -688,6 +687,8 @@ public class StringFunctionSystem {
                         for (Map.Entry<String, StringGraph> en : map.entrySet()) {
                             en.getValue().replaceVariable(var, rp);
                         }
+
+                        break;
                     }
                 }
             }
@@ -718,8 +719,36 @@ public class StringFunctionSystem {
             Set rightSideVars=right.getVariableSet();
             for(Object obj:rightSideVars){
                 String name=(String)obj;
+                WorkSpace.Variable wsLink=null;
                 if(WorkSpace.isRealVariable(name)){
-                    WorkSpace.Variable wsLink=output.addVariable(name, 1e-15);  //TODO maybe not 0.0
+                    wsLink=output.addVariable(name, 1e-15);  //TODO maybe not 0.0
+                }else if(name.startsWith("I.")){
+                    wsLink=output.setInp(name,system.getInputs());
+                }
+                if(wsLink!=null) {
+                    for (StringGraph sg : potAlgSys)
+                        sg.linkVariableToWorkSpace(name, wsLink);
+                    for(List<StringGraph> sgl:system.outputFuncs)
+                        for(StringGraph sg:sgl)
+                            sg.linkVariableToWorkSpace(name, wsLink);
+                    for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+                        entry.getValue().linkVariableToWorkSpace(name, wsLink);
+                    }
+                }
+            }
+        }
+        for(i=0;i<system.outputFuncs.size();i++){   //loop for Outs
+            for(int m=0;m<system.outputFuncs.get(i).size();m++) {
+                StringGraph right = system.outputFuncs.get(i).get(m);
+                Set rightSideVars = right.getVariableSet();
+                for (Object obj : rightSideVars) {
+                    String name = (String) obj;
+                    WorkSpace.Variable wsLink=null;
+                    if (WorkSpace.isRealVariable(name)) {
+                        wsLink=output.addVariable(name, 0.0);
+                    }else if(name.startsWith("I.")){
+                        wsLink=output.setInp(name,system.getInputs());
+                    }
                     if(wsLink!=null) {
                         for (StringGraph sg : potAlgSys)
                             sg.linkVariableToWorkSpace(name, wsLink);
@@ -733,39 +762,56 @@ public class StringFunctionSystem {
                 }
             }
         }
-        for(i=0;i<system.outputFuncs.size();i++){   //loop for Outs
-            for(int m=0;m<system.outputFuncs.get(i).size();m++) {
-                StringGraph right = system.outputFuncs.get(i).get(m);
-                Set rightSideVars = right.getVariableSet();
-                for (Object obj : rightSideVars) {
-                    String name = (String) obj;
-                    if (WorkSpace.isRealVariable(name)) {
-                        WorkSpace.Variable wsLink=output.addVariable(name, 0.0);
-                        if(wsLink!=null) {
-                            for (StringGraph sg : potAlgSys)
-                                sg.linkVariableToWorkSpace(name, wsLink);
-                            for(List<StringGraph> sgl:system.outputFuncs)
-                                for(StringGraph sg:sgl)
-                                    sg.linkVariableToWorkSpace(name, wsLink);
-                            for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
-                                entry.getValue().linkVariableToWorkSpace(name, wsLink);
-                            }
-                        }
+        for (Map.Entry<String, StringGraph> en : map.entrySet()) {
+            String name=en.getKey();
+            WorkSpace.Variable wsLink=output.setVariable(name, en.getValue());
+//            for (StringGraph sg : potAlgSys)
+//                sg.linkVariableToWorkSpace(name, wsLink);
+            for(List<StringGraph> sgl:system.outputFuncs)
+                for(StringGraph sg:sgl)
+                    sg.linkVariableToWorkSpace(name, wsLink);
+
+            // link its vars
+            StringGraph right=en.getValue();
+            Set rightSideVars=right.getVariableSet();
+            for(Object obj:rightSideVars){
+                name=(String)obj;
+                wsLink=null;
+                if(WorkSpace.isRealVariable(name)){
+                    wsLink=output.addVariable(name, 1e-15);  //TODO maybe not 0.0
+                }else if(name.startsWith("I.")){
+                    wsLink=output.setInp(name,system.getInputs());
+                }
+                if(wsLink!=null) {
+                    for (StringGraph sg : potAlgSys)
+                        sg.linkVariableToWorkSpace(name, wsLink);
+                    for(List<StringGraph> sgl:system.outputFuncs)
+                        for(StringGraph sg:sgl)
+                            sg.linkVariableToWorkSpace(name, wsLink);
+                    for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+                        entry.getValue().linkVariableToWorkSpace(name, wsLink);
                     }
                 }
             }
         }
-        for (Map.Entry<String, StringGraph> en : map.entrySet()) {
-            String name=en.getKey();
-            WorkSpace.Variable wsLink=output.setVariable(name, en.getValue());
-            for (StringGraph sg : potAlgSys)
-                sg.linkVariableToWorkSpace(name, wsLink);
-            for(List<StringGraph> sgl:system.outputFuncs)
-                for(StringGraph sg:sgl)
-                    sg.linkVariableToWorkSpace(name, wsLink);
-//            for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
-//                entry.getValue().linkVariableToWorkSpace(name, wsLink);
-//            }
+
+        // add "time" variable into WS
+        WorkSpace.Variable wsLink=output.addVariable("time",0.0);
+        for (StringGraph sg : potAlgSys) {
+            sg.linkVariableToWorkSpace("time", wsLink);
+
+            sg.init();
+        }
+        for(List<StringGraph> sgl:system.outputFuncs)
+            for(StringGraph sg:sgl) {
+                sg.linkVariableToWorkSpace("time", wsLink);
+
+                sg.init();
+            }
+        for (Map.Entry<String, StringGraph> entry : map.entrySet()) {
+            entry.getValue().linkVariableToWorkSpace("time", wsLink);
+
+            entry.getValue().init();
         }
 
         output.setSymbDiffRank(system.initials.size());
@@ -884,7 +930,7 @@ public class StringFunctionSystem {
                                     if(pots.size()==nCols)
                                         potExistence=false;
                                 }else{ //depended var
-                                    System.err.println("X."+(i+1)+" depends on something(pot)!");
+//                                    System.err.println("X."+(i+1)+" depends on something(pot)!");
                                     pots.remove(xLines);
                                 }
 
@@ -900,7 +946,7 @@ public class StringFunctionSystem {
                                     if(currs.size()==nCols)
                                         curExistence=false;
                                 }else{ //depended var
-                                    System.err.println("X."+(i+1)+" depends on something(cur)!");
+//                                    System.err.println("X."+(i+1)+" depends on something(cur)!");
                                     currs.remove(xLines);
                                 }
                             }else if(lp.containInstance("w.")&&speExistence){
@@ -915,7 +961,7 @@ public class StringFunctionSystem {
                                     if(speeds.size()==nColsMech)
                                         speExistence=false;
                                 }else{ //depended var
-                                    System.err.println("X."+(i+1)+" depends on something(speed)!");
+//                                    System.err.println("X."+(i+1)+" depends on something(speed)!");
                                     speeds.remove(xMechLines);
                                 }
                             }else if(lp.containInstance("T.")&&torExistence){
@@ -930,7 +976,7 @@ public class StringFunctionSystem {
                                     if(torqs.size()==nColsMech)
                                         torExistence=false;
                                 }else{ //depended var
-                                    System.err.println("X."+(i+1)+" depends on something(torq)!");
+//                                    System.err.println("X."+(i+1)+" depends on something(torq)!");
                                     torqs.remove(xMechLines);
                                 }
                             }

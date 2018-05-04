@@ -14,6 +14,8 @@ public class InductionMotor extends SchemeElement{
         addThreePhaseCont(new ThreePhasePin(this,25,5));
         addMechCont(new MechPin(this,45,35));
         addMechCont(new MechPin(this,4,35));
+
+        addMathContact('o');
     }
 
     public InductionMotor(boolean val){
@@ -36,7 +38,7 @@ public class InductionMotor extends SchemeElement{
                 KiB=Double.toString(6.0*Math.sqrt(3.0)*M12*M12*zp/M3)+"*X.5",
                 Kia=Double.toString(2.0*Math.sqrt(3.0)*M12/M3)+"*("+Double.toString(lr*zp)+"*X.5*(sin(X.6)*"+Double.toString(Math.sqrt(3.0))+"+cos(X.6))+"+Double.toString(rr)+"*(cos(X.6)*"+Double.toString(Math.sqrt(3.0))+"-sin(X.6)))",
                 Kib=Double.toString(4.0*Math.sqrt(3.0)*M12/M3)+"*(X.5*"+Double.toString(lr*zp)+"*cos(X.6)-"+Double.toString(rr)+"*sin(X.6))";
-        String[] str=new String[11];
+        String[] str=new String[12];
         str[0]="d.X.1="+Kuac+"*(p.1-p.3)-"+Kubc+"*(p.2-p.3)+("+KiA+")*X.1+("+KiB+")*X.2+("+Kia+")*X.3+("+Kib+")*X.4";
         Kuac=Double.toString(4.0*lr/3.0/M3);
         Kubc=Double.toString(8.0*lr/3.0/M3);
@@ -69,7 +71,7 @@ public class InductionMotor extends SchemeElement{
         str[8]="X.1=i.1";
         str[9]="X.2=i.2";
         str[10]="X.5=w.1-w.2";
-
+        str[11]="O.1=X.5*("+M+")";
         return str;
     }
 

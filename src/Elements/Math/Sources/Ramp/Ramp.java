@@ -51,10 +51,10 @@ public class Ramp extends MathElement{
                 t=ton.getValue();
 
         List<Double> out=new ArrayList();
-        if(Solver.time<t){
+        if(Solver.time.getValue()<t){
             out.add(0.0);
         }else{
-            out.add((Solver.time-t)*ampl);
+            out.add((Solver.time.getValue()-t)*ampl);
         }
 
         return out;

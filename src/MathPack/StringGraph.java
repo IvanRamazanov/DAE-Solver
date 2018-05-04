@@ -152,6 +152,35 @@ public class StringGraph {
         }
     }
 
+    final public void expand(){
+//        if(this.root instanceof FuncUzel){
+//            if(((FuncUzel)root).getFuncName().equals("*")){
+//                List<Uzel> inps = ((FuncUzel)root).getInputs();
+//                for(int i=0;i<inps.size();i++){
+//                    Uzel uz=inps.get(i);
+//                    if(uz instanceof Const){
+//                        if(((Const)uz).getValue()==0.0){
+//                            this.root=new Const(0.0);
+//                            return;
+//                        }
+//                    }
+//                }
+//            }
+//            ((FuncUzel)this.root).simplify();
+//            if(root instanceof FuncUzel){
+//                FuncUzel fu=(FuncUzel)root;
+//                if(fu.getInputs().size()==1){
+//                    if((fu.getFuncName().equals("*")||fu.getFuncName().equals("+"))&&fu.getGain().get(0)==1){
+//                        root=fu.getInputs().get(0);
+//                    }
+//                }
+//            }
+//        }
+        if(root instanceof FuncUzel){
+            root=((FuncUzel)root).expand();
+        }
+    }
+
     /**
      * Check if this graph contains only X.i, d.X.i, time.
      * @return
@@ -852,18 +881,9 @@ class Variable implements Uzel{
 
     @Override
     public double getValue(WorkSpace vars){
-        if(shortName.equals("time")){
-            return Solver.time;
-        }else
-        if(shortName.equals("I.")){
-            List<MathInPin> extInput=vars.getInputs();
-            return extInput.get(index-1).getValue().get(secondIndex);
-        }else{
-//            return vars.get(name);
-            if(workSpaceLink==null)
-                throw new Error(name+" is null");
-            return workSpaceLink.getValue();
-        }
+//        if(workSpaceLink==null)
+//            throw new Error(name+" is null");
+        return workSpaceLink.getValue();
     }
 
     @Override
@@ -1106,8 +1126,12 @@ class FuncUzel implements Uzel{
                 }
                 if(function.substring(index,index+1).equals("+")||function.substring(index,index+1).equals("-")){
                     this.func=new MathFunction("+");   //create uzel
-                }else{
+                }else if(function.substring(index,index+1).equals("*")||function.substring(index,index+1).equals("/")){
                     this.func=new MathFunction("*");
+                }else if(function.substring(index,index+1).equals("^")){
+                    this.func=new MathFunction("^");
+                }else{
+                    throw new Error("Unexpected function or operand "+function.substring(index,index+1)+" between "+gains.toString()+" in "+function);
                 }
                 for(int k=0;k<gains.size();k++){
                     String part=gains.get(k);
@@ -1259,6 +1283,14 @@ class FuncUzel implements Uzel{
 
     }
 
+    Uzel expand(){
+        Uzel output=func.expand(this);
+        if(output instanceof FuncUzel){
+            ((FuncUzel) output).simplify();
+        }
+        return output;
+    }
+
     void addOperand(Uzel oper,int gain){
         this.getInputs().add(oper);
         this.getGain().add(gain);
@@ -1269,9 +1301,13 @@ class FuncUzel implements Uzel{
     public double getValue(WorkSpace vars){
         double result;
         for(int i=0;i<getInputs().size();i++){
-            input[i]=getInputs().get(i).getValue(vars);
+//            try {
+                input[i] = getInputs().get(i).getValue(vars);
+//            }catch(NullPointerException ex){
+//                throw new Error(" null in sentance: "+getInputs().get(i).toString());
+//            }
         }
-        result=this.func.Elavuate(this.getGain(),input);
+        result=this.func.Elavuate(gain,input);
         return result;
     }
 

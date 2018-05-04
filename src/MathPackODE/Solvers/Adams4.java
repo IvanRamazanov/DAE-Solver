@@ -60,7 +60,7 @@ public class Adams4 extends Solver {
 
             if(++matrStep==rank-1) fullfill=true;
         }
-        time+=dt;
+        time.set(time.getValue()+dt);
         evalSysState(); //Newton update
     }
 

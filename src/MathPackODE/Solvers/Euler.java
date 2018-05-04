@@ -41,7 +41,7 @@ public class Euler extends Solver {
             Xvector.get(i).set(Xvector.get(i).getValue()+dt*dXvector.get(i).getValue());
         }
 
-        time+=dt;
+        time.set(time.getValue()+dt);
 
         evalSysState(); // Eval further dX
     }

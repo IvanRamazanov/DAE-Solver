@@ -772,6 +772,7 @@ public abstract class Element {
     public void toFront(){
         getView().toFront();
     }
+
     /**
      * @param name the name to set
      */

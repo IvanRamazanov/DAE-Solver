@@ -16,7 +16,7 @@ public class BDF2 extends Solver {
 
     @Override
     public void evalNextStep() {
-        time+=dt;
+        time.set(time.getValue()+dt);
 
         newtonF(); // eval F(X)
         double[] del = Arrays.copyOf(F, diffRank);

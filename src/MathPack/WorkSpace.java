@@ -33,7 +33,7 @@ import java.util.ArrayList;
  */
 public class WorkSpace {
     private ArrayList<Variable> variableList;
-    private ArrayList<MathInPin> inputs;
+//    private ArrayList<MathInPin> inputs;
 
     public WorkSpace(){
         variableList=new ArrayList<>();
@@ -81,6 +81,15 @@ public class WorkSpace {
         return newVar;
     }
 
+    public Variable addMathIn(String name,MathInPin value){
+        Variable newVar=get(name);
+        if(newVar==null){
+            newVar=new MathInpVar(name,value);
+            getVarList().add(newVar);
+        }
+        return newVar;
+    }
+
     /**
      * @return the varList
      */
@@ -96,7 +105,7 @@ public class WorkSpace {
         return false;
     }
 
-    private Variable get(String name){
+    public Variable get(String name){
         for(Variable var:variableList){
             if(var.name.equals(name))
                 return var;
@@ -104,13 +113,13 @@ public class WorkSpace {
         return null;
     }
 
-    public ArrayList<MathInPin> getInputs() {
-        return inputs;
-    }
-
-    public void setInputs(ArrayList<MathInPin> inputs) {
-        this.inputs = inputs;
-    }
+//    public ArrayList<MathInPin> getInputs() {
+//        return inputs;
+//    }
+//
+//    public void setInputs(ArrayList<MathInPin> inputs) {
+//        this.inputs = inputs;
+//    }
 
     public class Variable{
         String name;
@@ -123,7 +132,9 @@ public class WorkSpace {
             this.name=name;
             this.value=value;
 
-            index=Integer.valueOf(name.substring(name.lastIndexOf(".")+1))-1;
+            index=name.lastIndexOf(".");
+            if(index!=-1)
+                index=Integer.valueOf(name.substring(index+1))-1;
         }
 
         public void set(double val){
@@ -158,6 +169,32 @@ public class WorkSpace {
         @Override
         public double getValue(){
             return value.evaluate(ws);
+        }
+    }
+
+    public class MathInpVar extends Variable{
+        private MathInPin source;
+        private int index;
+
+        public MathInpVar(String name,MathInPin val){
+            source=val;
+
+            int tmp=name.indexOf('[');
+            if(tmp==-1){
+                index=0;
+            }else{
+                String str=name.substring(tmp+1,name.lastIndexOf(']'));
+                index=Integer.parseInt(str)-1;
+            }
+
+            this.name=name;
+//            index=name.indexOf('.');
+//            index=Integer.parseInt(name.substring(index+1))-1;
+        }
+
+        @Override
+        public double getValue(){
+            return source.getValue().get(index); // I.n[index]
         }
     }
 }
