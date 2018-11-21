@@ -33,6 +33,9 @@ public class StringFunctionSystem {
     List<MathOutPin> outputs;
     List<Integer> xPryor;
     List<Double> initials=new ArrayList();
+
+    private static String logFile;
+    private static boolean logFlag;
     private static int
             electricPotentialCount =0,
             electricCurrentCount=0,
@@ -48,8 +51,8 @@ public class StringFunctionSystem {
             outCntTmp,
             localVarCntTmp;
 
-    private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
-    private static boolean LOG_FLAG=true;
+    //private static String logFile="C:\\NetBeansLogs\\MyLog.txt";
+    //private static boolean LOG_FLAG=true;
 
     public StringFunctionSystem(SchemeElement element){
         initials=new ArrayList();
@@ -147,7 +150,11 @@ public class StringFunctionSystem {
         }
     }
 
-    public static DAE getNumODE(List<StringFunctionSystem> list, int[][] potM, int[][] currM, int[][] speedM, int[][] torqM){
+    public static DAE getNumODE(CompilerDataODE dataODE){
+        logFile=dataODE.getLogFile();
+        logFlag=dataODE.getLogNeeded();
+        List<StringFunctionSystem> list=dataODE.getFuncList();
+
         List<List<Integer>> pots=new ArrayList();
         List<List<Integer>> currs=new ArrayList();
         List<List<Integer>> speeds=new ArrayList();
@@ -161,6 +168,29 @@ public class StringFunctionSystem {
         DAE output=new DAE();
 
         //init matrx
+        int numOfDomains=dataODE.getNumOfDomains();
+        int i=0;
+        for(int k=0;k<numOfDomains;k++){
+            for(int[] row:dataODE.getPotM(k)){
+                pots.add(new ArrayList());
+                for(int j:row){
+                    pots.get(i).add(j);
+                }
+                potRight.add(new StringGraph(0));
+                i++;
+            }
+            i=0;
+            for(int[] row:dataODE.getCurrM(k)){
+                currs.add(new ArrayList());
+                for(int j:row){
+                    currs.get(i).add(j);
+                }
+                curRight.add(new StringGraph(0));
+                i++;
+            }
+        }
+
+        /*  Depricated. For a long wihle i wanted to generalize this procedure.
         int i=0;
         for(int[] row:potM){
             pots.add(new ArrayList());
@@ -197,6 +227,7 @@ public class StringFunctionSystem {
             torRight.add(new StringGraph(0));
             i++;
         }
+        */
         //---end of init---
 
         //gather funcs
@@ -290,7 +321,7 @@ public class StringFunctionSystem {
         }
 
 
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logFile)))) {
+        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File(logFile)))) {
             bw.write("Initial data");
             bw.newLine();
             int cols;
@@ -359,7 +390,7 @@ public class StringFunctionSystem {
 
         setVarsByKirhgof(pots,potRight,currs,curRight,speeds,speRight,torqs,torRight,system);
 
-        if(LOG_FLAG){
+        if(logFlag){
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.write("New data");
                 bw.newLine();
@@ -454,7 +485,7 @@ public class StringFunctionSystem {
             Pms = speRight;
         }
 
-        if(LOG_FLAG){
+        if(logFlag){
             try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                 bw.newLine();
                 bw.write("Pmp:");
@@ -517,7 +548,7 @@ public class StringFunctionSystem {
                 bigMassage+=message;
             }
         }
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.write(bigMassage);
         } catch (IOException e) {
             System.err.println(e.getMessage());
@@ -573,7 +604,7 @@ public class StringFunctionSystem {
         }
 
         // layout
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
             bw.write("Замена переменных.");
             bw.newLine();
@@ -615,7 +646,7 @@ public class StringFunctionSystem {
                 if(WorkSpace.isRealVariable(var)&&!var.startsWith("d.X.")&&!var.startsWith("X.")){
                     if(rp.canGet(var)){
                         //log this
-                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                             bw.newLine();
                             bw.write("Get var: "+var+"  from "+rp.toString());
                         }catch (IOException e) {
@@ -625,7 +656,7 @@ public class StringFunctionSystem {
                         //evaluate var=rp(...)
                         rp.getVariable(var);
 
-                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                             bw.newLine();
                             bw.write("result: "+var+" = "+rp.toString());
                             bw.newLine();
@@ -653,7 +684,7 @@ public class StringFunctionSystem {
                 }else if(var.startsWith("d.X.")){
                     if(rp.canGet(var)) {
                         //log this
-                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                             bw.newLine();
                             bw.write("Get var: "+var+"  from "+rp.toString());
                         }catch (IOException e) {
@@ -663,7 +694,7 @@ public class StringFunctionSystem {
                         //evaluate var=rp(...)
                         rp.getVariable(var);
 
-                        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+                        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
                             bw.newLine();
                             bw.write("result: "+var+" = "+rp.toString());
                             bw.newLine();
@@ -694,7 +725,7 @@ public class StringFunctionSystem {
             }
         }
 
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.newLine();
             bw.write("After reduction.");
             bw.newLine();
@@ -990,7 +1021,7 @@ public class StringFunctionSystem {
         }
 
         // test layout
-        if(LOG_FLAG) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
+        if(logFlag) try (BufferedWriter bw = new BufferedWriter(new FileWriter(logFile,true))) {
             bw.write("After Xes data");
             bw.newLine();
             int cols;

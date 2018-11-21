@@ -1512,5 +1512,17 @@ public class MatrixEqu {
         }
         return A;
     }
+
+    public static <T> List<List<T>> ArrayTolist(T[][] inp){
+        int nRow=inp.length,nCol=inp[0].length;
+        List<List<T>> A=new ArrayList(nRow);
+        for(int i=0;i<nRow;i++){
+            A.add(new ArrayList(nCol));
+            for(int j=0;j<nCol;j++){
+                A.get(i).add(inp[i][j]);
+            }
+        }
+        return A;
+    }
 }
 

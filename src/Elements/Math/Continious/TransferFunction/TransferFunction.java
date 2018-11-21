@@ -41,9 +41,8 @@ public class TransferFunction extends DynamMathElem{
 
     @Override
     protected void setParams() {
-        Arow=new VectorParameter("Denominator","[1 1]");
-        Brow=new VectorParameter("Nominator","[1]");
-        getParameters().addAll(List.of(Brow,Arow));
+        getParameters().add(Arow=new VectorParameter("Denominator","[1 1]"));
+        getParameters().add(Brow=new VectorParameter("Nominator","[1]"));
 
         setName("Transfer function");
     }

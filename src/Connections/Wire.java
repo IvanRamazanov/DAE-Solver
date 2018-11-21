@@ -51,6 +51,7 @@ public abstract class Wire{
     private static String[] wireConsumptionBackup=new String[4];
     private Cross eventCross;
     private Subsystem itsSystem;
+    private String domainType;
     private final EventHandler<MouseDragEvent> mouseExit=new EventHandler<MouseDragEvent>() {
         @Override
         public void handle(MouseDragEvent event) {
@@ -758,6 +759,14 @@ public abstract class Wire{
     public void setStaticEventFilters(Node source) {
         source.setOnMouseDragged(WC_MOUSE_DRAG);
         source.setOnMouseDragReleased( WC_MOUSE_RELEAS);
+    }
+
+    public String getDomainType() {
+        return domainType;
+    }
+
+    public void setDomainType(String domainType) {
+        this.domainType = domainType;
     }
 }
 
