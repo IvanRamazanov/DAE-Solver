@@ -1,11 +1,9 @@
 package Elements.Electric.Machines.SynchronousMachine;
 
-import ElementBase.MechPin;
 import ElementBase.ElectricPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
-
-import java.util.List;
 
 public class SynchronousMachine extends SchemeElement{
     /*
@@ -74,17 +72,15 @@ public class SynchronousMachine extends SchemeElement{
 
     @Override
     protected void setParams() {
-        Rs=new ScalarParameter("Stator resistance",0.00076);
-        Lmd=new ScalarParameter("d-axis mutual inductance",0.0005246);
-        Lmq=new ScalarParameter("q-axis mutual inductance",0.0003845);
-        Lls=new ScalarParameter("Stator leakage inductanse",1.273e-5);
-        Rf=new ScalarParameter("excitation winding resistance",0.0001576);
-        Llf=new ScalarParameter("rotor leakage inductance",8.703e-5);
-        Pp=new ScalarParameter("pole pairs",2);
-        J=new ScalarParameter("Inertia",49.81);
-        F=new ScalarParameter("Friction",0.8);
-
-        getParameters().addAll(List.of(Rs,Lmd,Lmq,Lls,Rf,Llf,Pp,J,F));
+        getParameters().add(Rs=new ScalarParameter("Stator resistance",0.00076));
+        getParameters().add(Lmd=new ScalarParameter("d-axis mutual inductance",0.0005246));
+        getParameters().add(Lmq=new ScalarParameter("q-axis mutual inductance",0.0003845));
+        getParameters().add(Lls=new ScalarParameter("Stator leakage inductanse",1.273e-5));
+        getParameters().add(Rf=new ScalarParameter("excitation winding resistance",0.0001576));
+        getParameters().add(Llf=new ScalarParameter("rotor leakage inductance",8.703e-5));
+        getParameters().add(Pp=new ScalarParameter("pole pairs",2));
+        getParameters().add(J=new ScalarParameter("Inertia",49.81));
+        getParameters().add(F=new ScalarParameter("Friction",0.8));
 
         getInitials().add(new InitParam("Stator phase A current",0));
         getInitials().add(new InitParam("Stator phase B current",0));

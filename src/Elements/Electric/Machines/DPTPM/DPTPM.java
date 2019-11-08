@@ -19,7 +19,6 @@ public class DPTPM extends SchemeElement {
 
     public DPTPM(Subsystem sys){
         super(sys);
-//        Dymamic=true;
         addElectricCont(new ElectricPin(this, 31, 4));
         addElectricCont(new ElectricPin(this, 31, 66));
         addMechCont(new MechPin(this,40,40));

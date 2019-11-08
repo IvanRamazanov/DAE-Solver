@@ -5,10 +5,11 @@
  */
 package Elements.Electric.Sources.VariableVoltage;
 
-import static java.lang.StrictMath.PI;
 import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
+
+import static java.lang.StrictMath.PI;
 
 /**
  *

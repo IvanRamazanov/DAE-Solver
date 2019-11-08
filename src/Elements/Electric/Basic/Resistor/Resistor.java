@@ -14,6 +14,7 @@ import Elements.Environment.Subsystem.Subsystem;
  * @author Ivan
  */
 public class Resistor extends SchemeElement {
+    ScalarParameter R;
 
     public Resistor(Subsystem sys){
         super(sys);
@@ -27,16 +28,15 @@ public class Resistor extends SchemeElement {
 
     @Override
     public String[] getStringFunction() {
-        String R=this.parameters.get(0).toString();
-        String[] str={
+        return new String[]{
                 "i.2=(p.2-p.1)/"+R,
-                "i.1+i.2=0"};
-        return str;
+                "i.1+i.2=0"
+        };
     }
 
     @Override
     protected void setParams(){
-        this.parameters.add(new ScalarParameter("Resistance", 10.0));
+        this.parameters.add(R=new ScalarParameter("Resistance", 10.0));
         setName("Resistance");
     }
 

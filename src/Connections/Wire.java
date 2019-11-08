@@ -23,10 +23,6 @@
  */
 package Connections;
 
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-
 import ElementBase.Element;
 import ElementBase.Pin;
 import Elements.Environment.Subsystem.Subsystem;
@@ -37,6 +33,10 @@ import javafx.scene.Node;
 import javafx.scene.input.MouseDragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.PickResult;
+
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -51,6 +51,7 @@ public abstract class Wire{
     private static String[] wireConsumptionBackup=new String[4];
     private Cross eventCross;
     private Subsystem itsSystem;
+    private String domainType;
     private final EventHandler<MouseDragEvent> mouseExit=new EventHandler<MouseDragEvent>() {
         @Override
         public void handle(MouseDragEvent event) {
@@ -415,7 +416,7 @@ public abstract class Wire{
         bw.append("</ClassName>");bw.append(eol);
 
 //        bw.append("<Subsystem>");
-//        bw.append(getItsSystem().getName());
+//        bw.append(getItsSystem().getTypeName());
 //        bw.append("</Subsystem>");bw.append(eol);
 
         int i=0;
@@ -758,6 +759,14 @@ public abstract class Wire{
     public void setStaticEventFilters(Node source) {
         source.setOnMouseDragged(WC_MOUSE_DRAG);
         source.setOnMouseDragReleased( WC_MOUSE_RELEAS);
+    }
+
+    public String getDomainType() {
+        return domainType;
+    }
+
+    public void setDomainType(String domainType) {
+        this.domainType = domainType;
     }
 }
 

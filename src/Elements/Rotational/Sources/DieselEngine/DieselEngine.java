@@ -4,8 +4,6 @@ import ElementBase.MechPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
 
-import java.util.List;
-
 public class DieselEngine extends SchemeElement{
     ScalarParameter Pn,wn,Tde;
 
@@ -37,10 +35,9 @@ public class DieselEngine extends SchemeElement{
 
     @Override
     protected void setParams() {
-        Pn=new ScalarParameter("Nominal power, kW",50);
-        wn=new ScalarParameter("Rated speed, rpm",1500);
-        Tde=new ScalarParameter("Engine time constant, 1/sec",20);
-        getParameters().addAll(List.of(Pn,wn,Tde));
+        getParameters().add(Pn=new ScalarParameter("Nominal power, kW",50));
+        getParameters().add(wn=new ScalarParameter("Rated speed, rpm",1500));
+        getParameters().add(Tde=new ScalarParameter("Engine time constant, 1/sec",20));
 
         getInitials().add(new InitParam("Initial torque",0));
 

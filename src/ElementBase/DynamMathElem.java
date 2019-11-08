@@ -7,6 +7,7 @@ package ElementBase;
 
 import Elements.Environment.Subsystem.Subsystem;
 import MathPack.WorkSpace;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +51,7 @@ abstract public class DynamMathElem extends MathElement{
 
 //        List<Double> in=getInputs().get(0).getValue();
 //        if(getInputs().get(0).getValue().size()!=wsX.size())
-//            throw new Error("Dimensions mismatch in "+this.getName()+". Expected: "+wsX.size()+" present: "+getInputs().get(0).getValue().size());
+//            throw new Error("Dimensions mismatch in "+this.getTypeName()+". Expected: "+wsX.size()+" present: "+getInputs().get(0).getValue().size());
         // MUST BE A VECTOR!!!!
     }
 

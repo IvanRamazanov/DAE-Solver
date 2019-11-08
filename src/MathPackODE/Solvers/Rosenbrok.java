@@ -9,9 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.*;
-import static java.lang.Math.abs;
 
-public class Roshenbrok extends Solver {
+public class Rosenbrok extends Solver {
     private double[] dfdt,x0,F0,F1,F2,k1,k2,k3,xnew;
     private double[][] W,dfdx;
     private double[] fac;
@@ -25,7 +24,7 @@ public class Roshenbrok extends Solver {
             pow=1.0/3.0;
 
     private int nSteps,nFailed;
-    public Roshenbrok(){}
+    public Rosenbrok(){}
 
     @Override
     public void evalNextStep() {

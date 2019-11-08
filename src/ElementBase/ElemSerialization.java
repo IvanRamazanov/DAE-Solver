@@ -23,17 +23,10 @@
  */
 package ElementBase;
 
-import Connections.Wire;
-import ElementBase.Element.Parameter;
-import ElementBase.Element.InitParam;
 import Elements.Environment.Subsystem.Subsystem;
 import MathPack.Parser;
 
 import java.io.Serializable;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  *
@@ -50,7 +43,7 @@ public class ElemSerialization implements Serializable{
     private String data;
 
     ElemSerialization(Element she){
-//        this.elemName=she.getClass().getName();
+//        this.elemName=she.getClass().getTypeName();
 //        initValue=new double[she.getInitials().size()];
 ////        paramValue=new double[she.getParameters().size()];
 //        paramValue=new ArrayList<>();
@@ -143,7 +136,7 @@ public class ElemSerialization implements Serializable{
 //
 //        } catch (Exception ex) {
 //            ex.printStackTrace(System.err);
-//            //Logger.getLogger(ElemSerialization.class.getName()).log(Level.SEVERE, null, ex);
+//            //Logger.getLogger(ElemSerialization.class.getTypeName()).log(Level.SEVERE, null, ex);
 //        }
 //        return out;
     }

@@ -122,9 +122,10 @@ public class WorkSpace {
 //    }
 
     public class Variable{
-        String name;
-        double value;
-        int index;
+        private String name;
+        private double value;
+        private String type;
+        private int index;
 
         protected Variable(){}
 
@@ -152,6 +153,22 @@ public class WorkSpace {
         public int getIndex(){
             return index;
         }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
     }
 
     public class StringFuncVar extends Variable{
@@ -159,11 +176,11 @@ public class WorkSpace {
         WorkSpace ws;
 
         private StringFuncVar(String name,StringGraph value, WorkSpace ws){
-            this.name=name;
+            this.setName(name);
             this.value=value;
             this.ws=ws;
 
-            index=Integer.valueOf(name.substring(name.lastIndexOf(".")+1))-1;
+            setIndex(Integer.valueOf(name.substring(name.lastIndexOf(".")+1))-1);
         }
 
         @Override
@@ -174,27 +191,27 @@ public class WorkSpace {
 
     public class MathInpVar extends Variable{
         private MathInPin source;
-        private int index;
+        //private int index;
 
         public MathInpVar(String name,MathInPin val){
             source=val;
 
             int tmp=name.indexOf('[');
             if(tmp==-1){
-                index=0;
+                setIndex(0);
             }else{
                 String str=name.substring(tmp+1,name.lastIndexOf(']'));
-                index=Integer.parseInt(str)-1;
+                setIndex(Integer.parseInt(str) - 1);
             }
 
-            this.name=name;
+            this.setName(name);
 //            index=name.indexOf('.');
 //            index=Integer.parseInt(name.substring(index+1))-1;
         }
 
         @Override
         public double getValue(){
-            return source.getValue().get(index); // I.n[index]
+            return source.getValue().get(getIndex()); // I.n[index]
         }
     }
 }

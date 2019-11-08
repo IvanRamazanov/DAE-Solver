@@ -24,8 +24,6 @@
 package Elements.Math.Control.KZsensor;
 
 import ElementBase.OutputElement;
-import java.util.List;
-
 import Elements.Environment.Subsystem.Subsystem;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -34,6 +32,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import raschetkz.Protection;
+
+import java.util.List;
 
 /**
  *

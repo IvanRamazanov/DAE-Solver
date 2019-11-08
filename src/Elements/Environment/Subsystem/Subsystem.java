@@ -9,14 +9,12 @@ import Elements.Environment.MechPass.MechPass;
 import Elements.Environment.ThreePhasePass.ThreePhasePass;
 import MathPack.Parser;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Bounds;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,9 +26,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import raschetkz.RaschetKz;
 
+import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -379,6 +378,11 @@ public class Subsystem extends Element {
         initGui();
 
         linkBottomBar(parent.bottom);
+
+        // additional menus
+        MenuItem compileMenu=new MenuItem("Compile to...");
+        compileMenu.setOnAction((ActionEvent ae)-> this.compileTo());
+        cm.getItems().add(compileMenu);
     }
 
     public void linkBottomBar(GridPane parentBar){
@@ -451,6 +455,70 @@ public class Subsystem extends Element {
         getStage().widthProperty().addListener((t, o, n)->{
             setWindowWidth(n.doubleValue());
         });
+    }
+
+    public List<MathElement> getMathElements(){
+        List<MathElement> out=new ArrayList<>();
+        for(Element elem:getAllElements()){
+            if(elem instanceof MathElement)
+                out.add((MathElement) elem);
+        }
+        return out;
+    }
+
+    public List<MechWire> getMechWires(){
+        List<MechWire> out=new ArrayList<>();
+        for(Wire w:getAllWires()){
+            if(w instanceof MechWire)
+                out.add((MechWire) w);
+        }
+        return out;
+    }
+
+    public List<SchemeElement> getSchemeElements(){
+        List<SchemeElement> out=new ArrayList<>();
+        for(Element elem:getAllElements()){
+            if(elem instanceof SchemeElement)
+                out.add((SchemeElement) elem);
+        }
+        return out;
+    }
+
+    /**
+     * @return the mathConnList
+     */
+    public List<MathWire> getMathConnList() {
+        List<MathWire> out=new ArrayList<>();
+        for(Wire w:getAllWires()){
+            if(w instanceof MathWire)
+                out.add((MathWire) w);
+        }
+        return out;
+    }
+
+    public List<Wire> getElectroWires() {
+        List<Wire> out=new ArrayList<>();
+        for(Wire w:getAllWires()){
+            if(w instanceof ElectricWire || w instanceof ThreePhaseWire)
+                out.add(w);
+        }
+        return out;
+    }
+
+    public void compileTo(){
+        //perform some actions
+        try {
+            FileChooser filechoose=new FileChooser();
+            filechoose.getExtensionFilters().add(new FileChooser.ExtensionFilter("txt", "*.txt"));
+            filechoose.setTitle("Choose a file");
+            File file=filechoose.showSaveDialog(null);
+            if(file!=null){
+                MathPackODE.DAE dae = new MathPackODE.Compiler().evalNumState(this,file.toString(),true);
+            }
+        }catch(Exception|Error ex){
+            ex.printStackTrace(System.err);
+            throw new Error();
+        }
     }
 
     public void setWindowHeight(double windowHeight) {

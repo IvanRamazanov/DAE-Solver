@@ -7,7 +7,12 @@ package MathPackODE;
 
 import Connections.MathWire;
 import ElementBase.*;
-import MathPack.*;
+import MathPack.MatrixEqu;
+import MathPack.StringGraph;
+import MathPack.WorkSpace;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.concurrent.Task;
+import raschetkz.ModelState;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -15,10 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.concurrent.Task;
-import raschetkz.ModelState;
 
 import static java.lang.Math.*;
 

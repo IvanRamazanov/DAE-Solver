@@ -47,12 +47,11 @@ public class SqeezeWave extends MathElement{
 
     @Override
     protected void setParams() {
-        fStart=new ScalarParameter("Starting frequency, Hz",0.0);
-        fEnd=new ScalarParameter("Final frequency, Hz",50.0);
-        slopeTime= new ScalarParameter("Raise time, sec",1.0);
-        A=new ScalarParameter("Amplitude",1.0);
-        phaseShift=new ScalarParameter("Phase shift, deg",0.0);
-        getParameters().addAll(List.of(A,fStart,fEnd,slopeTime,phaseShift));
+        getParameters().add(fStart=new ScalarParameter("Starting frequency, Hz",0.0));
+        getParameters().add(fEnd=new ScalarParameter("Final frequency, Hz",50.0));
+        getParameters().add(slopeTime= new ScalarParameter("Raise time, sec",1.0));
+        getParameters().add(A=new ScalarParameter("Amplitude",1.0));
+        getParameters().add(phaseShift=new ScalarParameter("Phase shift, deg",0.0));
 
         setName("Squeeze sine wave");
     }

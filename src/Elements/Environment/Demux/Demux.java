@@ -1,10 +1,10 @@
 package Elements.Environment.Demux;
 
 import ElementBase.MathElement;
+import Elements.Environment.Subsystem.Subsystem;
 
 import java.util.ArrayList;
 import java.util.List;
-import Elements.Environment.Subsystem.Subsystem;
 
 public class Demux extends MathElement{
 

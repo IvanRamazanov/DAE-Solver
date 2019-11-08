@@ -5,23 +5,24 @@
  */
 package raschetkz;
 
-import Connections.*;
-
-import ElementBase.*;
-
-import java.io.*;
-import java.lang.reflect.Constructor;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicReference;
-
+import Connections.MathWire;
+import Connections.MechWire;
+import Connections.Wire;
+import ElementBase.MathElement;
+import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
 import MathPack.Parser;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  *
@@ -133,12 +134,13 @@ public class ModelState{
     }
 
     public List<Wire> getElectroWires() {
-        List<Wire> out=new ArrayList<>();
-        for(Wire w:getMainSystem().getAllWires()){
-            if(w instanceof ElectricWire || w instanceof ThreePhaseWire)
-                out.add(w);
-        }
-        return out;
+//        List<Wire> out=new ArrayList<>();
+//        for(Wire w:getMainSystem().getAllWires()){
+//            if(w instanceof ElectricWire || w instanceof ThreePhaseWire)
+//                out.add(w);
+//        }
+//        return out;
+        return getMainSystem().getElectroWires();
     }
 
     private void parseConfig(String config){
@@ -178,33 +180,36 @@ public class ModelState{
 
 
     public List<MathElement> getMathElements(){
-        List<MathElement> out=new ArrayList<>();
-        for(Element elem:getMainSystem().getAllElements()){
-            if(elem instanceof MathElement)
-                out.add((MathElement) elem);
-        }
-        return out;
+//        List<MathElement> out=new ArrayList<>();
+//        for(Element elem:getMainSystem().getAllElements()){
+//            if(elem instanceof MathElement)
+//                out.add((MathElement) elem);
+//        }
+//        return out;
+        return getMainSystem().getMathElements();
     }
 
     public List<MechWire> getMechWires(){
-        List<MechWire> out=new ArrayList<>();
-        for(Wire w:getMainSystem().getAllWires()){
-            if(w instanceof MechWire)
-                out.add((MechWire) w);
-        }
-        return out;
+//        List<MechWire> out=new ArrayList<>();
+//        for(Wire w:getMainSystem().getAllWires()){
+//            if(w instanceof MechWire)
+//                out.add((MechWire) w);
+//        }
+//        return out;
+        return getMainSystem().getMechWires();
     }
 
     public List<SchemeElement> getSchemeElements(){
-        List<SchemeElement> out=new ArrayList<>();
-        for(Element elem:getMainSystem().getAllElements()){
-            if(elem instanceof SchemeElement)
-                out.add((SchemeElement) elem);
-        }
-        return out;
+//        List<SchemeElement> out=new ArrayList<>();
+//        for(Element elem:getMainSystem().getAllElements()){
+//            if(elem instanceof SchemeElement)
+//                out.add((SchemeElement) elem);
+//        }
+//        return out;
+        return getMainSystem().getSchemeElements();
     }
 
-    Subsystem getMainSystem(){
+    public Subsystem getMainSystem(){
         return mainSystem;
     }
 
@@ -212,12 +217,13 @@ public class ModelState{
      * @return the mathConnList
      */
     public List<MathWire> getMathConnList() {
-        List<MathWire> out=new ArrayList<>();
-        for(Wire w:getMainSystem().getAllWires()){
-            if(w instanceof MathWire)
-                out.add((MathWire) w);
-        }
-        return out;
+//        List<MathWire> out=new ArrayList<>();
+//        for(Wire w:getMainSystem().getAllWires()){
+//            if(w instanceof MathWire)
+//                out.add((MathWire) w);
+//        }
+//        return out;
+        return getMainSystem().getMathConnList();
     }
 
     /**
