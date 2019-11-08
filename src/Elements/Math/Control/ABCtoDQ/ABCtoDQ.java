@@ -6,9 +6,7 @@ import Elements.Environment.Subsystem.Subsystem;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.StrictMath.PI;
-import static java.lang.StrictMath.cos;
-import static java.lang.StrictMath.sin;
+import static java.lang.StrictMath.*;
 
 public class ABCtoDQ extends MathElement{
     public ABCtoDQ(Subsystem sys){

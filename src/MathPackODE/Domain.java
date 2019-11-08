@@ -1,24 +1,38 @@
 package MathPackODE;
 
+import MathPack.Parser;
+import javafx.scene.shape.Shape;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Domain {
-    private String potential[];
-    private String flow[];
+    public static List<Domain> DOMAINS=new ArrayList<>();
+
+    private Connector connector;
     private String wireColour;
-    private String name;
+    private String typeName;
+    private Shape pinShape;
 
-    public Domain(String name, String wColour, String[] pot, String[] curr){
-        potential=pot;
-        flow=curr;
+    public Domain(String typeName, String wColour, Shape shp, Connector conn){
         setWireColour(wColour);
-        setName(name);
+        setTypeName(typeName);
+        setPinShape(shp);
+        setConnector(conn);
     }
 
-    public String[] getPotential() {
-        return potential;
-    }
+    /**
+     * Compound domain
+     * @param rawData Data from config file
+     */
+    public Domain(String rawData){
+        setWireColour(Parser.getKeyValue(rawData,"WireColor"));
+        setTypeName(Parser.getKeyValue(rawData,"Name"));
+        setPinShape(Parser.getShape(Parser.getKeyValue(rawData,"PinShape")));
 
-    public String[] getFlow() {
-        return flow;
+        List<String> conns=Parser.getBlockList(Parser.getBlock(rawData,"<Connectors>"));
+        setConnector(new CompoundConnector(conns));
+
     }
 
     public String getWireColour() {
@@ -29,11 +43,39 @@ public class Domain {
         this.wireColour = wireColour;
     }
 
-    public String getName() {
-        return name;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
+    }
+
+    public Shape getPinShape() {
+        return pinShape;
+    }
+
+    public void setPinShape(Shape pinShape) {
+        if(pinShape==null)
+            throw new Error("Wrong shape formatting!");
+        this.pinShape = pinShape;
+    }
+
+    public static Domain getDomain(String name){
+        for (Domain d:DOMAINS) {
+            if (d.getTypeName().equals(name)){
+                return d;
+            }
+        }
+        return null;
+    }
+
+
+    public Connector getConnector() {
+        return connector;
+    }
+
+    public void setConnector(Connector connector) {
+        this.connector = connector;
     }
 }

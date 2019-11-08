@@ -5,17 +5,17 @@
  */
 package MathPackODE;
 
-import java.util.List;
-
 import Connections.MechWire;
 import Connections.Wire;
 import ElementBase.*;
-import Connections.ElectricWire;
-import javafx.beans.property.SimpleBooleanProperty;
+import Elements.Environment.Subsystem.Subsystem;
 import MathPack.MatrixEqu;
 import MathPack.StringFunctionSystem;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import java.util.ArrayList;
-import raschetkz.ModelState;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -33,9 +33,10 @@ public class Compiler {
     public Compiler(){
         recompile=new SimpleBooleanProperty(true);
 
+
     }
 
-    public DAE evalNumState(ModelState state) throws Exception{
+    public DAE evalNumState(Subsystem state, String logFile, boolean isLogNedded) throws Exception{
         if(recompile.get()){
             elemList.clear();
             elemList.addAll(state.getSchemeElements());
@@ -80,8 +81,11 @@ public class Compiler {
                 for(SchemeElement elem:this.elemList){
                     elemFuncs.add(new StringFunctionSystem(elem));
                 }
-                DAEsys=StringFunctionSystem.getNumODE(elemFuncs, potM, currM,speedM,torqM);
-                DAEsys.initJacobian(state.getJacobianEstimationType());
+                DAEsys=StringFunctionSystem.getNumODE(
+                        new MathPack.CompilerDataODE(logFile,isLogNedded,
+                                elemFuncs, potM, currM,speedM,torqM));
+                //DAEsys.initJacobian(state.getJacobianEstimationType());
+                DAEsys.initJacobian(2); // symbolic Jac only, other cases for losers
 
                 //simulink
                 for(MathElement elem:state.getMathElements()){

@@ -2,7 +2,6 @@ package Connections;
 
 import ElementBase.Pin;
 import Elements.Environment.Subsystem.Subsystem;
-import raschetkz.RaschetKz;
 
 public class ThreePhaseWire extends Wire{
 

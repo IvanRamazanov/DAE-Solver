@@ -6,15 +6,17 @@
 package MathPack;
 
 import Connections.*;
-import ElementBase.*;
+import ElementBase.MechPin;
+import ElementBase.Pin;
+import ElementBase.SchemeElement;
+import ElementBase.ThreePhasePin;
+import Elements.Electric.Basic.ElectricalReference.ElectricalReference;
+import Elements.Rotational.Basics.RotationReference.RotationReference;
+import javafx.geometry.Point2D;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import Elements.Electric.Basic.ElectricalReference.ElectricalReference;
-import Elements.Rotational.Basics.RotationReference.RotationReference;
-import javafx.geometry.Point2D;
 
 /**
  *

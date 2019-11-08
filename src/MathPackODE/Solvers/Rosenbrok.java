@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.*;
-import static java.lang.Math.abs;
 
 public class Rosenbrok extends Solver {
     private double[] dfdt,x0,F0,F1,F2,k1,k2,k3,xnew;

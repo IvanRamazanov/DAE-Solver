@@ -5,6 +5,11 @@
  */
 package MathPack;
 
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,13 +202,20 @@ public class Parser {
     }
 
     public static String getKeyValue(String lines,String key){
-        String out=null;
+        String out=null,keyFormatted="";
+
+        // format
+        if(key.startsWith("<")&&key.endsWith(">"))
+            keyFormatted=key;
+        else
+            keyFormatted="<"+key+">";
+
         Scanner sc=new Scanner(lines);
         sc.useDelimiter("\r\n");
         while(sc.hasNext()){
             String line=sc.next();
-            if(line.startsWith(key)){
-                out=line.substring(key.length(),line.lastIndexOf("</"));
+            if(line.startsWith(keyFormatted)){
+                out=line.substring(keyFormatted.length(),line.lastIndexOf("</"));
                 break;
             }
         }
@@ -224,6 +236,71 @@ public class Parser {
         }
     }
 
+    public static String rgbToHash(String rgb){
+        String R,G,B;
+        int r,g,b;
+        char divider='.';
+        int i=rgb.indexOf(divider);
+        if(i==-1) {
+            divider = ',';
+            if ((i = rgb.indexOf(divider)) == -1)
+                throw new Error("Wrong RGB formatting in: " + rgb);
+        }
+        R=rgb.substring(0,i);
+        G=rgb.substring(i+1);
+        i=G.indexOf(divider);
+        if(i==-1)
+            throw new Error("Wrong RGB formatting in:" +rgb);
+        B=G.substring(i+1);
+        G=G.substring(0,i);
+        try{
+            r=Integer.parseInt(R);
+            g=Integer.parseInt(G);
+            b=Integer.parseInt(B);
+            StringBuilder out=new StringBuilder("#");
+            //R
+            if(r<16)
+                out.append("0"+Integer.toHexString(r));
+            else if(r<256)
+                out.append(Integer.toHexString(r));
+            else
+                throw new Error("R in rgb greater than 255!: "+rgb);
+
+            //G
+            if(g<16)
+                out.append("0"+Integer.toHexString(g));
+            else if(g<256)
+                out.append(Integer.toHexString(g));
+            else
+                throw new Error("G in rgb greater than 255!: "+rgb);
+
+            //B
+            if(b<16)
+                out.append("0"+Integer.toHexString(b));
+            else if(b<256)
+                out.append(Integer.toHexString(b));
+            else
+                throw new Error("B in rgb greater than 255!: "+rgb);
+
+            //output
+            return out.toString();
+        }catch(Exception ex){
+            System.err.print(ex.getMessage());
+        }
+        return null;
+    }
+
+    public static Shape getShape(String shape){
+        if(shape.equals("Circle")){
+            return new Circle(4);
+        }else if(shape.equals("Rectangle")){
+            return new Rectangle(4,4);
+        }
+        else{
+            return new Polygon(parseRow(shape));
+        }
+    }
+
     public static String getBlock(String data,String key){
         Scanner sc=new Scanner(data);
         sc.useDelimiter("\r\n");
@@ -237,17 +314,17 @@ public class Parser {
                     line=sc.next();
                     if(line.equals(key)) {
                         cnt++;
-                        out.append(line.substring(1)+"\r\n"); //remove one \t char
+                        out.append(removeTab(line)+"\r\n"); //remove one \t char
                     }else
                     if(line.equals(endKey)){
                         if(cnt==0)
                             return out.toString();
                         else{
-                            out.append(line.substring(1)+"\r\n");
+                            out.append(removeTab(line)+"\r\n");
                             cnt--;
                         }
                     }else{
-                        out.append(line.substring(1)+"\r\n");
+                        out.append(removeTab(line)+"\r\n");
                     }
                 }
             }
@@ -268,17 +345,85 @@ public class Parser {
                     line=sc.next();
                     if(line.equals(key)) {
                         cnt++;
-                        out.append(line.substring(1)+"\r\n"); //remove one \t char
+                        out.append(removeTab(line)+"\r\n"); //remove one \t char
                     }else
                     if(line.equals(endKey)){
                         if(cnt==0)
                             return out.toString();
                         else {
-                            out.append(line.substring(1)+"\r\n");
+                            out.append(removeTab(line)+"\r\n");
                             cnt--;
                         }
                     }else{
-                        out.append(line.substring(1)+"\r\n");
+                        out.append(removeTab(line)+"\r\n");
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static List<String> getBlockList(String stream){
+        Scanner sc=new Scanner(stream);
+        StringBuilder out=new StringBuilder();
+        List<String> output=new ArrayList<>(2);
+        sc.useDelimiter("\r\n");
+        while(sc.hasNext()){
+            String blockName=sc.next();
+            if(blockName.startsWith("\t")){
+                throw new Error("Wrong block formatting!");
+            }
+            String endKey=blockName.substring(0,1)+"/"+blockName.substring(1);
+
+            //for each block
+            while(sc.hasNext()){
+                String line=sc.next();
+                if(line.equals(endKey)){
+                    output.add(out.toString());
+                    out.setLength(0);
+                    break;
+                }else{
+                    out.append(removeTab(line)+"\r\n"); //remove one \t char
+                }
+            }
+        }
+        return output;
+    }
+
+    public static String removeTab(String in){
+        if(in.startsWith("\t")){
+            return in.substring(1);
+        }else if(in.startsWith("    ")){
+            return in.substring(4);
+        }else{
+            throw new Error("No tabulation in: "+in);
+        }
+    }
+
+    public static String getBlock(java.io.InputStream stream,String key) throws IOException{
+        Scanner sc=new Scanner(stream);
+        StringBuilder out=new StringBuilder();
+        String endKey="</"+key.substring(1);
+        sc.useDelimiter("\r\n");
+        while(sc.hasNext()){
+            String line=sc.next();
+            if(line.equals(key)){
+                int cnt=0;
+                while(sc.hasNext()){
+                    line=sc.next();
+                    if(line.equals(key)) {
+                        cnt++;
+                        out.append(removeTab(line)+"\r\n"); //remove one \t char
+                    }else
+                    if(line.equals(endKey)){
+                        if(cnt==0)
+                            return out.toString();
+                        else {
+                            out.append(removeTab(line)+"\r\n");
+                            cnt--;
+                        }
+                    }else{
+                        out.append(removeTab(line)+"\r\n");
                     }
                 }
             }

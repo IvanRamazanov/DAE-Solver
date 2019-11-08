@@ -1,6 +1,9 @@
 package ElementBase;
 
-import Connections.*;
+import Connections.LineMarker;
+import Connections.MechMarker;
+import Connections.MechWire;
+import Connections.Wire;
 import Elements.Environment.Subsystem.Subsystem;
 import javafx.scene.shape.Rectangle;
 

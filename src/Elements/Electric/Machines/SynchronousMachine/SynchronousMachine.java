@@ -1,11 +1,9 @@
 package Elements.Electric.Machines.SynchronousMachine;
 
-import ElementBase.MechPin;
 import ElementBase.ElectricPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
-
-import java.util.List;
 
 public class SynchronousMachine extends SchemeElement{
     /*

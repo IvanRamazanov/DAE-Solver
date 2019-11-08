@@ -9,7 +9,8 @@ import javafx.scene.shape.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 
-import static Connections.MathWire.*;
+import static Connections.MathWire.MC_MOUSE_DRAG;
+import static Connections.MathWire.MC_MOUSE_RELEAS;
 
 public class MathMarker extends LineMarker{
 

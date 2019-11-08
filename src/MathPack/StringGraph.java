@@ -1,7 +1,5 @@
 package MathPack;
 
-import ElementBase.MathInPin;
-import MathPackODE.Solver;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

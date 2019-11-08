@@ -6,7 +6,6 @@ import ElementBase.Pass;
 import ElementBase.Pin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
-import raschetkz.RaschetKz;
 
 public class ElectricPass extends SchemeElement implements Pass {
     private Pin outside;

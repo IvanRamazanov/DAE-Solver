@@ -7,11 +7,6 @@ package Connections;
 
 import ElementBase.Pin;
 import Elements.Environment.Subsystem.Subsystem;
-import javafx.event.EventHandler;
-import javafx.scene.Node;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
-import raschetkz.RaschetKz;
 
 /**
  *

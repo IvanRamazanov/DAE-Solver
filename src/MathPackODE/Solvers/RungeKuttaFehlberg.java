@@ -1,6 +1,5 @@
 package MathPackODE.Solvers;
 
-import MathPack.MatrixEqu;
 import MathPackODE.Solver;
 
 import static java.lang.Math.abs;

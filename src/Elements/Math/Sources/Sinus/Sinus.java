@@ -8,9 +8,11 @@ package Elements.Math.Sources.Sinus;
 import ElementBase.MathElement;
 import Elements.Environment.Subsystem.Subsystem;
 import MathPackODE.Solver;
-import static java.lang.StrictMath.sin;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.StrictMath.sin;
 
 
 /**

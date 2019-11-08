@@ -4,8 +4,6 @@ import ElementBase.ElectricPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
 
-import java.util.List;
-
 public class ThreePhLoad extends SchemeElement{
     ScalarParameter Ra,Rb,Rc;
 

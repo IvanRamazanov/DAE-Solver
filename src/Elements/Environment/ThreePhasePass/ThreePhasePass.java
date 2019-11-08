@@ -6,7 +6,6 @@ import ElementBase.Pin;
 import ElementBase.SchemeElement;
 import ElementBase.ThreePhasePin;
 import Elements.Environment.Subsystem.Subsystem;
-import raschetkz.RaschetKz;
 
 public class ThreePhasePass extends SchemeElement implements Pass {
     private ThreePhasePin outside;

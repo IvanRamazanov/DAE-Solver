@@ -5,18 +5,11 @@
  */
 package ElementBase;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import Elements.Environment.Subsystem.Subsystem;
 import MathPack.MatrixEqu;
 import MathPack.Parser;
 import MathPack.StringGraph;
+import MathPackODE.Domain;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -29,18 +22,15 @@ import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import javafx.stage.Stage;
-import raschetkz.RaschetKz;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -179,7 +169,7 @@ public abstract class Element {
 ////            if(elem instanceof SchemeElement)    raschetkz.RaschetKz.ElementList.add((SchemeElement)elem);
 ////            if(elem instanceof MathElement) raschetkz.RaschetKz.MathElemList.add((MathElement)elem);
 //        }catch(NoSuchMethodException|InstantiationException|IllegalAccessException|IllegalArgumentException|InvocationTargetException ex){
-//            Logger.getLogger(Element.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
+//            Logger.getLogger(Element.class.getTypeName()).log(Level.SEVERE, ex.getMessage(), ex);
 //        }
 //    }
 
@@ -311,7 +301,6 @@ public abstract class Element {
             index=threePhaseContacts.indexOf(pin);
         return index;
     }
-
 
     /**
      * Pin name format: ClassSimpleName.index
@@ -481,7 +470,7 @@ public abstract class Element {
         bw.append("<Name>");
         bw.append(getName());
         bw.append("</Name>");bw.append(nl);
-//        bw.append("<"+getName()+">");bw.append(nl);
+//        bw.append("<"+getTypeName()+">");bw.append(nl);
 
         bw.append("<ClassName>");
         bw.append(getClass().getName());
@@ -541,7 +530,7 @@ public abstract class Element {
         }
         bw.append("</InitParameters>");bw.append(nl);
 
-//        bw.append("</"+getName()+">");bw.append(nl);
+//        bw.append("</"+getTypeName()+">");bw.append(nl);
 
         return bw;
     }

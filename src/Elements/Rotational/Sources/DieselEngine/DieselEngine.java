@@ -4,8 +4,6 @@ import ElementBase.MechPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
 
-import java.util.List;
-
 public class DieselEngine extends SchemeElement{
     ScalarParameter Pn,wn,Tde;
 

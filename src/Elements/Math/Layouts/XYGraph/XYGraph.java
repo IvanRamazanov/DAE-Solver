@@ -24,9 +24,6 @@
 package Elements.Math.Layouts.XYGraph;
 
 import ElementBase.OutputElement;
-import java.util.ArrayList;
-import java.util.List;
-
 import Elements.Environment.Subsystem.Subsystem;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
@@ -34,6 +31,9 @@ import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *

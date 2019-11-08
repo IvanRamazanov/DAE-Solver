@@ -27,7 +27,6 @@ import ElementBase.ElectricPin;
 import ElementBase.MathElement;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
-import raschetkz.RaschetKz;
 
 import java.util.ArrayList;
 import java.util.List;

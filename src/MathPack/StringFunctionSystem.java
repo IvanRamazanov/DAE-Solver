@@ -5,21 +5,20 @@
  */
 package MathPack;
 
+import ElementBase.Element.InitParam;
 import ElementBase.MathInPin;
 import ElementBase.MathOutPin;
 import ElementBase.SchemeElement;
-import ElementBase.Element.InitParam;
 import MathPackODE.DAE;
-import raschetkz.ModelState;
-
-import static MathPack.MatrixEqu.rank;
-import static MathPack.StringFunctionSystem.parseInt;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+
+import static MathPack.MatrixEqu.rank;
+import static MathPack.StringFunctionSystem.parseInt;
 
 /**
  *
@@ -168,6 +167,7 @@ public class StringFunctionSystem {
         DAE output=new DAE();
 
         //init matrx
+        /*
         int numOfDomains=dataODE.getNumOfDomains();
         int i=0;
         for(int k=0;k<numOfDomains;k++){
@@ -189,10 +189,11 @@ public class StringFunctionSystem {
                 i++;
             }
         }
+        */
 
-        /*  Depricated. For a long wihle i wanted to generalize this procedure.
+        //*  Depricated. For a long wihle i wanted to generalize this procedure.
         int i=0;
-        for(int[] row:potM){
+        for(int[] row:dataODE.getPotM(0)){
             pots.add(new ArrayList());
             for(int j:row){
                 pots.get(i).add(j);
@@ -201,7 +202,7 @@ public class StringFunctionSystem {
             i++;
         }
         i=0;
-        for(int[] row:currM){
+        for(int[] row:dataODE.getCurrM(0)){
             currs.add(new ArrayList());
             for(int j:row){
                 currs.get(i).add(j);
@@ -210,7 +211,7 @@ public class StringFunctionSystem {
             i++;
         }
         i=0;
-        for(int[] row:speedM){
+        for(int[] row:dataODE.getPotM(1)){
             speeds.add(new ArrayList());
             for(int j:row){
                 speeds.get(i).add(j);
@@ -219,7 +220,7 @@ public class StringFunctionSystem {
             i++;
         }
         i=0;
-        for(int[] row:torqM){
+        for(int[] row:dataODE.getCurrM(1)){
             torqs.add(new ArrayList());
             for(int j:row){
                 torqs.get(i).add(j);
@@ -227,7 +228,7 @@ public class StringFunctionSystem {
             torRight.add(new StringGraph(0));
             i++;
         }
-        */
+        //*/
         //---end of init---
 
         //gather funcs

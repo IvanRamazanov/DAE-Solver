@@ -6,7 +6,6 @@ import ElementBase.Pass;
 import ElementBase.Pin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
-import raschetkz.RaschetKz;
 
 public class MechPass extends SchemeElement implements Pass {
     private MechPin outside;

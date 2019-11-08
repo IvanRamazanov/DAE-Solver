@@ -23,8 +23,8 @@
  */
 package Elements.Electric.Machines.InductionMotor;
 
-import ElementBase.MechPin;
 import ElementBase.ElectricPin;
+import ElementBase.MechPin;
 import ElementBase.SchemeElement;
 import Elements.Environment.Subsystem.Subsystem;
 

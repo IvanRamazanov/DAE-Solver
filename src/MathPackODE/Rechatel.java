@@ -5,10 +5,11 @@
  */
 package MathPackODE;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import javafx.concurrent.Task;
 import raschetkz.ModelState;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  *
@@ -42,7 +43,7 @@ public class Rechatel extends Task<Integer>{
         try{
             double tEnd=state.getTend().doubleValue();
             updateMessage("Compiling...");
-            DAE sys=compiler.evalNumState(state);
+            DAE sys=compiler.evalNumState(state.getMainSystem(),"logOut.txt",true); //"C:\\NetBeansLogs\\MyLog.txt"
             this.updateProgress(0, tEnd);
             solver.init(sys,state,this);
             long start=System.currentTimeMillis();

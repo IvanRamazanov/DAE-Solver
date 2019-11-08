@@ -5,42 +5,49 @@
  */
 package raschetkz;
 
-import MathPack.StringGraph;
-import MathPackODE.Rechatel;
 import ElementBase.ListOfElements;
+import MathPack.Parser;
+import MathPackODE.CompoundConnector;
+import MathPackODE.Connector;
+import MathPackODE.Rechatel;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.scene.Group;
+import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
 import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
-import javafx.scene.input.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import javafx.util.converter.DoubleStringConverter;
 
-import java.awt.*;
+import java.io.File;
+import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import java.io.File;
-import javafx.application.Platform;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
-import javafx.scene.paint.Color;
-import javafx.stage.WindowEvent;
-import javafx.util.converter.DoubleStringConverter;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
+import java.util.Enumeration;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.List;
+import java.awt.Toolkit;
 
 /**
  *
@@ -95,7 +102,7 @@ public class RaschetKz extends Application{
         BorderPane root = new BorderPane();
         Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add("raschetkz/mod.css");
-        initGui(root);
+        initGUI(root);
         primaryStage.setTitle("OmniSystem Simulator");
         primaryStage.setScene(scene);
         primaryStage.setOnCloseRequest((WindowEvent we) -> {
@@ -134,12 +141,13 @@ public class RaschetKz extends Application{
     public static void main(String[] args) {
         arguments=args;
 
+        //initCustomDomains();
 //        arguments=new String[]{"-o","C:\\Users\\Ivan\\Desktop\\test.rim"};
 //        arguments=new String[]{"-o"};
 
         launch(args);
     }
-    void initGui(BorderPane rootBp)
+    void initGUI(BorderPane rootBp)
     {
         Status=new Label();
         rootBp.setTop(createMenu());
@@ -366,7 +374,7 @@ public class RaschetKz extends Application{
         solver.getItems().add("Adams4");
         solver.getItems().add("RungeKuttaFehlberg");
         solver.getItems().add("RK4");
-        solver.getItems().add("Roshenbrok");
+        solver.getItems().add("Rosenbrok");
         solver.getItems().add("BDF1");
         solver.getItems().add("BDF2");
         solver.getItems().add("TRBDF");
@@ -471,6 +479,52 @@ public class RaschetKz extends Application{
         stag.show();
     }
 
+    public static void initCustomDomains(){
+        try{
+//            URL s=getClass().getResource("/Elements");
 
+            File f=new File("");
+            //ZipInputStream zis=new ZipInputStream(new FileInputStream(f.getAbsolutePath()+"\\RaschetKz.jar"));
+            String path="C:/Users/Ivan/Documents/Java Projects/RaschetKz/out/artifacts/RaschetKz_jar/"+"RaschetKz.jar";
+            JarFile zis=new JarFile(path);
+            Enumeration entries=zis.entries();
+
+            for(; entries.hasMoreElements();) {
+                JarEntry je=(JarEntry) entries.nextElement();
+                String entryName=je.getName();
+                if (entryName.startsWith("ElementBase")&&!je.isDirectory() && entryName.endsWith(".cfg")
+                        && !entryName.contains("$")) {
+                    URL url = new URL("jar:file:"+path+"!/"+entryName);
+                    InputStream is=url.openStream();
+                    //default
+                    String stg=Parser.getBlock(is,"<Default>");
+                    List<String> userDomains=Parser.getBlockList(stg);
+                    for(String domData:userDomains){
+                        //Connector s=new Connector(domData); //TODO
+                        //compoundConnectors.add(s);
+                    }
+
+                    //compound
+                    stg=Parser.getBlock(is,"<Domains>");
+                    userDomains=Parser.getBlockList(stg);
+                    for(String domData:userDomains){
+                        //CompoundConnector s=new CompoundConnector(domData);
+                        //compoundConnectors.add(s);
+                    }
+                    break;
+                }
+            }
+
+            //parse result file
+        }catch(Exception ex){
+            ex.printStackTrace(System.err);
+
+            Path p=new File("src/ElementBase/Domains.cfg").toPath();
+
+            //parse
+
+
+        }
+    }
 }
 
