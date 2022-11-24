@@ -40,7 +40,7 @@ import java.time.LocalDateTime;
  * @author Иван
  */
 public class Logger extends OutputStream {
-    private String filePath="C:\\NetBeansLogs\\errLog.txt";
+    private String filePath="errLog.txt";
     private final Stage messageWindow;
     private char[] buffer;
     private Text text;
